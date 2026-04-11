@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Навигатор — маршруты на карте</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .search-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: white;
+      padding: 12px 20px;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-width: 500px;
+    }
+
+    .search-panel input {
+      flex: 1;
+      border: none;
+      padding: 12px 0;
+      font-size: 16px;
+      outline: none;
+      background: transparent;
+    }
+
+    .search-panel button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .info-panel {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10;
+      max-width: 400px;
+      display: none;
+    }
+
+    .info-panel.show {
+      display: block;
+    }
+
+    .route-info {
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .route-info .distance {
+      font-weight: 700;
+      color: #3b82f6;
+      font-size: 18px;
+    }
+
+    .route-info .time {
+      color: #22c55e;
+      font-weight: 600;
+    }
+
+    .clear-btn {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .search-panel { margin: 0 10px; right: 10px; left: 10px; width: auto; }
+      .info-panel { margin: 0 10px; left: 10px; right: 10px; width: auto; }
+    }
+  </style>
+  
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=a0ee6ba6-eadf-4701-a079-e9e47a8cbc48&lang=ru_RU&suggest_apikey=9e0575ab-d520-4bcf-bb0e-4ee68968f45d" type="text/javascript"></script>
+</head>
+<body>
+
+<div class="container">
+  <div id="map"></div>
+  
+  <div class="search-panel">
+    <input type="text" id="addressInput" placeholder="Например: Москва, Тверская улица, 1" autocomplete="off">
+    <button id="searchBtn">Найти и построить маршрут</button>
+  </div>
+  
+  <div class="info-panel" id="infoPanel">
+    <div class="route-info" id="routeInfo"></div>
+    <button class="clear-btn" id="clearRouteBtn">🗺️ Сбросить маршрут</button>
+    <div class="error-message" id="errorMsg"></div>
+  </div>
+</div>
+
+<script>
+let map;
+let startPlacemark = null;
+let currentRoute = null;
+let currentStartCoords = null;
+let endPlacemark = null;
+
+const DEFAULT_CENTER = [55.751574, 37.573856];
+
+ymaps.ready(init);
+
+function init() {
+  map = new ymaps.Map('map', {
+    center: DEFAULT_CENTER,
+    zoom: 12,
+    controls: ['zoomControl', 'fullscreenControl']
+  });
+
+  const addressInput = document.getElementById('addressInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const clearRouteBtn = document.getElementById('clearRouteBtn');
+  const infoPanel = document.getElementById('infoPanel');
+  const errorMsg = document.getElementById('errorMsg');
+
+  // Подсказки при вводе
+  let suggestTimer = null;
+  addressInput.addEventListener('input', function() {
+    const query = this.value.trim();
+    if (query.length < 2) return;
+    
+    if (suggestTimer) clearTimeout(suggestTimer);
+    suggestTimer = setTimeout(() => {
+      ymaps.suggest(query).then(results => {
+        let datalist = document.getElementById('addressSuggest');
+        if (!datalist) {
+          datalist = document.createElement('datalist');
+          datalist.id = 'addressSuggest';
+          addressInput.setAttribute('list', 'addressSuggest');
+          document.body.appendChild(datalist);
+        }
+        datalist.innerHTML = '';
+        results.forEach(result => {
+          const option = document.createElement('option');
+          option.value = result;
+          datalist.appendChild(option);
+        });
+      });
+    }, 300);
+  });
+
+  // Поиск адреса
+  searchBtn.addEventListener('click', () => {
+    let query = addressInput.value.trim();
+    if (!query) return;
+    
+    errorMsg.textContent = '';
+    infoPanel.classList.remove('show');
+    
+    // Нормализуем запрос: заменяем "д" на "дом"
+    query = query.replace(/\b[дД]\s*(\d+)/g, 'дом $1');
+    query = query.replace(/\b[дД]\.\s*(\d+)/g, 'дом $1');
+    
+    ymaps.geocode(query, { results: 5 }).then(res => {
+      const first = res.geoObjects.get(0);
+      if (first) {
+        const coords = first.geometry.getCoordinates();
+        const address = first.getAddressLine();
+        map.setCenter(coords, 16);
+        setStartPoint(coords, address);
+        errorMsg.textContent = '';
+      } else {
+        errorMsg.textContent = '❌ Адрес не найден. Попробуйте ввести подробнее (город, улица, дом)';
+      }
+    }).catch(err => {
+      errorMsg.textContent = '❌ Ошибка поиска. Проверьте интернет или введите адрес точнее';
+    });
+  });
+
+  // Клик на карте
+  map.events.add('click', (e) => {
+    const endCoords = e.get('coords');
+    
+    if (!currentStartCoords) {
+      errorMsg.textContent = '❌ Сначала укажите начальную точку через поиск адреса';
+      infoPanel.classList.add('show');
+      setTimeout(() => {
+        if (errorMsg.textContent.includes('Сначала')) errorMsg.textContent = '';
+      }, 3000);
+      return;
+    }
+    
+    errorMsg.textContent = '';
+    buildRoute(currentStartCoords, endCoords);
+  });
+
+  // Сброс маршрута
+  clearRouteBtn.addEventListener('click', () => {
+    if (currentRoute) {
+      map.geoObjects.remove(currentRoute);
+      currentRoute = null;
+    }
+    if (endPlacemark) {
+      map.geoObjects.remove(endPlacemark);
+      endPlacemark = null;
+    }
+    infoPanel.classList.remove('show');
+    errorMsg.textContent = '';
+  });
+}
+
+function setStartPoint(coords, address) {
+  if (startPlacemark) map.geoObjects.remove(startPlacemark);
+  
+  currentStartCoords = coords;
+  
+  startPlacemark = new ymaps.Placemark(coords, {
+    balloonContent: `📍 Отсюда: ${address}`,
+    iconCaption: 'Старт'
+  }, {
+    preset: 'islands#redIcon',
+    draggable: true
+  });
+  
+  startPlacemark.events.add('dragend', () => {
+    const newCoords = startPlacemark.geometry.getCoordinates();
+    currentStartCoords = newCoords;
+    if (currentRoute && currentRoute.getWayPoints && currentRoute.getWayPoints().length >= 2) {
+      const endPoint = currentRoute.getWayPoints().get(1).geometry.getCoordinates();
+      buildRoute(newCoords, endPoint);
+    }
+  });
+  
+  map.geoObjects.add(startPlacemark);
+}
+
+function buildRoute(fromCoords, toCoords) {
+  if (currentRoute) {
+    map.geoObjects.remove(currentRoute);
+  }
+  
+  const infoPanel = document.getElementById('infoPanel');
+  const routeInfo = document.getElementById('routeInfo');
+  const errorMsg = document.getElementById('errorMsg');
+  
+  routeInfo.innerHTML = '⏳ Построение маршрута...';
+  infoPanel.classList.add('show');
+  errorMsg.textContent = '';
+  
+  ymaps.route([fromCoords, toCoords], {
+    routingMode: 'auto'
+  }).then(route => {
+    currentRoute = route;
+    map.geoObjects.add(route);
+    
+    const distance = route.getLength();
+    const duration = route.getDuration();
+    const distanceKm = (distance / 1000).toFixed(1);
+    const timeMin = Math.round(duration / 60);
+    const timeHours = Math.floor(timeMin / 60);
+    const timeRemainMin = timeMin % 60;
+    
+    let timeText = timeHours > 0 ? `${timeHours} ч ${timeRemainMin} мин` : `${timeMin} мин`;
+    
+    routeInfo.innerHTML = `
+      📍 <strong>Маршрут построен</strong><br>
+      📏 Расстояние: <span class="distance">${distanceKm} км</span><br>
+      ⏱️ Время в пути: <span class="time">${timeText}</span>
+    `;
+    
+    const bounds = route.getBounds();
+    map.setBounds(bounds, { checkZoomRange: true, zoomMargin: 50 });
+    
+    if (endPlacemark) map.geoObjects.remove(endPlacemark);
+    endPlacemark = new ymaps.Placemark(toCoords, {
+      balloonContent: 'Точка назначения',
+      iconCaption: 'Финиш'
+    }, {
+      preset: 'islands#greenIcon'
+    });
+    map.geoObjects.add(endPlacemark);
+    
+  }).catch(err => {
+    routeInfo.innerHTML = '❌ Не удалось построить маршрут';
+    errorMsg.textContent = 'Попробуйте выбрать другую точку на карте';
+  });
+}
+</script>
+
+</body>
+</html>
