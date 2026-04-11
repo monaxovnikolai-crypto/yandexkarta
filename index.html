@@ -1,12 +1,154 @@
-<div id="map" style="height:100vh"></div>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Школы и сады</title>
 
-<script src="https://api-maps.yandex.ru/2.1/?apikey=87be84cf-0dc0-454f-974a-dc91198feaca&lang=ru_RU"></script>
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=87be84cf-0dc0-454f-974a-dc91198feaca"></script>
+
+<style>
+body { margin:0; display:flex; height:100vh; font-family:Arial; }
+
+#map { width:70%; height:100%; }
+#panel { width:30%; padding:10px; overflow:auto; border-left:2px solid #ccc; }
+
+.item {
+    padding:8px;
+    border-bottom:1px solid #ddd;
+    cursor:pointer;
+}
+.item:hover { background:#f0f0f0; }
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+<div id="panel">
+    <h3>Школы и детские сады</h3>
+    <div id="list"></div>
+</div>
 
 <script>
-ymaps.ready(() => {
-  new ymaps.Map("map", {
-    center: [55.75, 37.61],
-    zoom: 10
-  });
-});
+
+ymaps.ready(init);
+
+let map, centerPlacemark, route;
+
+function init() {
+
+    map = new ymaps.Map("map", {
+        center: [55.8400, 37.1800],
+        zoom: 15
+    });
+
+    map.events.add('click', function (e) {
+        let coords = e.get('coords');
+        setCenter(coords);
+        search(coords);
+    });
+}
+
+function setCenter(coords) {
+
+    if (centerPlacemark) map.geoObjects.remove(centerPlacemark);
+
+    centerPlacemark = new ymaps.Placemark(coords, {
+        balloonContent: "Центр"
+    });
+
+    map.geoObjects.add(centerPlacemark);
+}
+
+function search(coords) {
+
+    document.getElementById("list").innerHTML = "Загрузка...";
+
+    // ❗ ВАЖНО: правильные запросы
+    let queries = [
+        "школа",
+        "детский сад"
+    ];
+
+    let results = [];
+
+    Promise.all(
+        queries.map(q =>
+            ymaps.geocode(q, {
+                boundedBy: map.getBounds(),
+                strictBounds: true
+            })
+        )
+    ).then(responses => {
+
+        responses.forEach(res => {
+            res.geoObjects.each(obj => {
+
+                let objCoords = obj.geometry.getCoordinates();
+
+                let distance = ymaps.coordSystem.geo.getDistance(coords, objCoords);
+
+                // радиус 800м
+                if (distance <= 800) {
+
+                    results.push({
+                        name: obj.getAddressLine(),
+                        coords: objCoords,
+                        distance: Math.round(distance)
+                    });
+                }
+            });
+        });
+
+        showResults(results, coords);
+    });
+}
+
+function showResults(results, center) {
+
+    let list = document.getElementById("list");
+    list.innerHTML = "";
+
+    if (results.length === 0) {
+        list.innerHTML = "❌ Нет школ и садов";
+        return;
+    }
+
+    results.forEach(item => {
+
+        let div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = item.name + "<br>📏 " + item.distance + " м";
+
+        div.onclick = () => buildRoute(center, item.coords);
+
+        list.appendChild(div);
+    });
+}
+
+function buildRoute(from, to) {
+
+    if (route) map.geoObjects.remove(route);
+
+    ymaps.route([from, to]).then(r => {
+
+        route = r;
+
+        let dist = r.getLength();
+
+        r.getPaths().options.set({
+            strokeColor: 'blue',
+            opacity: 0.7,
+            strokeWidth: 5
+        });
+
+        map.geoObjects.add(route);
+
+        alert("Расстояние: " + Math.round(dist) + " м");
+    });
+}
+
 </script>
+
+</body>
+</html>
