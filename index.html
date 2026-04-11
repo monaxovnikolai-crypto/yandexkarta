@@ -15,9 +15,42 @@
       position: absolute; top: 20px; left: 20px; right: 20px; z-index: 10;
       display: flex; flex-wrap: wrap; gap: 10px; background: white;
       padding: 12px 18px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      max-width: 500px;
+      max-width: 550px;
     }
-    .map-controls input { flex: 1; border: none; padding: 10px 0; font-size: 14px; outline: none; }
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    .map-controls input { 
+      width: 100%;
+      border: none; 
+      padding: 10px 0; 
+      font-size: 14px; 
+      outline: none; 
+      background: transparent;
+    }
+    .suggest-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+    .suggest-item {
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .suggest-item:hover {
+      background: #eef2ff;
+    }
     .map-controls button { background: #3b82f6; color: white; border: none; padding: 8px 20px; border-radius: 40px; cursor: pointer; font-weight: 600; }
     .radius-control { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 5px 15px; border-radius: 40px; }
     .radius-control label { font-size: 13px; font-weight: 500; }
@@ -40,8 +73,8 @@
     @media (max-width: 768px) { .app { flex-direction: column; } .map-container { min-height: 50vh; } .sidebar { width: 100%; max-height: 50vh; } }
   </style>
   
-  <!-- Яндекс Карты (основной ключ) + Геосаджест для подсказок -->
-  <script src="https://api-maps.yandex.ru/2.1/?apikey=a0ee6ba6-eadf-4701-a079-e9e47a8cbc48&lang=ru_RU&suggest_apikey=2767d067-9642-4643-a266-33991858afda" type="text/javascript"></script>
+  <!-- Яндекс Карты (основной ключ) -->
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=a0ee6ba6-eadf-4701-a079-e9e47a8cbc48&lang=ru_RU" type="text/javascript"></script>
 </head>
 <body>
 
@@ -49,7 +82,10 @@
   <div class="map-container">
     <div id="map"></div>
     <div class="map-controls">
-      <input type="text" id="searchInput" placeholder="Поиск адреса..." autocomplete="off">
+      <div class="search-wrapper">
+        <input type="text" id="searchInput" placeholder="Поиск адреса (например: Москва, Тверская)" autocomplete="off">
+        <div id="suggestDropdown" class="suggest-dropdown"></div>
+      </div>
       <button id="searchBtn">🔍 Найти</button>
       <div class="radius-control">
         <label>📏 Радиус:</label>
@@ -81,6 +117,9 @@ let currentRoute = null;
 let objectPlacemarks = [];
 let allObjects = [];
 
+// Геосаджест — подсказки через HTTP API Яндекса
+const SUGGEST_API_KEY = '2767d067-9642-4643-a266-33991858afda';
+
 ymaps.ready(() => {
   map = new ymaps.Map('map', {
     center: [55.751574, 37.573856],
@@ -88,45 +127,76 @@ ymaps.ready(() => {
     controls: ['zoomControl', 'fullscreenControl']
   });
 
-  // Подсказки при вводе адреса (Геосаджест)
+  // Настройка подсказок
   const searchInput = document.getElementById('searchInput');
-  let suggestTimer = null;
-  
+  const suggestDropdown = document.getElementById('suggestDropdown');
+  let currentRequestId = 0;
+
   searchInput.addEventListener('input', function() {
     const query = this.value.trim();
-    if (query.length < 2) return;
-    if (suggestTimer) clearTimeout(suggestTimer);
-    suggestTimer = setTimeout(() => {
-      ymaps.suggest(query).then(results => {
-        let datalist = document.getElementById('addressSuggest');
-        if (!datalist) {
-          datalist = document.createElement('datalist');
-          datalist.id = 'addressSuggest';
-          searchInput.setAttribute('list', 'addressSuggest');
-          document.body.appendChild(datalist);
+    if (query.length < 2) {
+      suggestDropdown.style.display = 'none';
+      return;
+    }
+    
+    const requestId = ++currentRequestId;
+    
+    // Запрос к API Геосаджеста
+    fetch(`https://suggest-maps.yandex.ru/v1/suggest?apikey=${SUGGEST_API_KEY}&text=${encodeURIComponent(query)}&lang=ru_RU&types=street,house,metro,station,locality`)
+      .then(response => response.json())
+      .then(data => {
+        if (requestId !== currentRequestId) return;
+        
+        if (data.results && data.results.length > 0) {
+          suggestDropdown.innerHTML = '';
+          data.results.forEach(result => {
+            const div = document.createElement('div');
+            div.className = 'suggest-item';
+            div.textContent = result.title.text;
+            div.addEventListener('click', () => {
+              searchInput.value = result.title.text;
+              suggestDropdown.style.display = 'none';
+              // Автоматически ищем адрес
+              findAddress(result.title.text);
+            });
+            suggestDropdown.appendChild(div);
+          });
+          suggestDropdown.style.display = 'block';
+        } else {
+          suggestDropdown.style.display = 'none';
         }
-        datalist.innerHTML = '';
-        results.forEach(result => {
-          const option = document.createElement('option');
-          option.value = result;
-          datalist.appendChild(option);
-        });
+      })
+      .catch(err => {
+        console.log('Ошибка геосаджеста', err);
+        suggestDropdown.style.display = 'none';
       });
-    }, 300);
+  });
+
+  // Скрываем подсказки при клике вне
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !suggestDropdown.contains(e.target)) {
+      suggestDropdown.style.display = 'none';
+    }
   });
 
   // Поиск адреса
-  document.getElementById('searchBtn').addEventListener('click', () => {
-    const query = searchInput.value.trim();
-    if (!query) return;
+  function findAddress(query) {
     ymaps.geocode(query).then(res => {
       const first = res.geoObjects.get(0);
       if (first) {
         const coords = first.geometry.getCoordinates();
         map.setCenter(coords, 15);
         setCenter(coords);
-      } else alert('Адрес не найден');
+      } else {
+        alert('Адрес не найден');
+      }
     }).catch(() => alert('Ошибка поиска'));
+  }
+
+  document.getElementById('searchBtn').addEventListener('click', () => {
+    const query = searchInput.value.trim();
+    if (!query) return;
+    findAddress(query);
   });
 
   // Изменение радиуса
@@ -160,8 +230,6 @@ ymaps.ready(() => {
 
 function setCenter(coords) {
   currentCenter = coords;
-  
-  // Обновляем информацию
   document.getElementById('centerInfo').innerHTML = `📍 Центр: ${coords[0].toFixed(5)}, ${coords[1].toFixed(5)}`;
   
   if (centerPoint) map.geoObjects.remove(centerPoint);
