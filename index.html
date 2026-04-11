@@ -2,28 +2,41 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Школы и сады</title>
+<title>Школы и детские сады</title>
 
-<script src="https://api-maps.yandex.ru/2.1/?apikey=ТВОЙ_API_KEY&lang=ru_RU"></script>
+<script src="https://api-maps.yandex.ru/2.1/?apikey=87be84cf-0dc0-454f-974a-dc91198feaca&lang=ru_RU&suggest_apikey=2767d067-9642-4643-a266-33991858afda"></script>
 
 <style>
 body { margin:0; font-family:sans-serif; }
 .app { display:flex; height:100vh; }
 #map { flex:2; }
+
 .sidebar {
-  width:350px;
+  width:360px;
   background:#fff;
   overflow:auto;
   border-left:1px solid #ccc;
   padding:10px;
 }
+
 .item {
   border:1px solid #ddd;
   padding:10px;
   margin-bottom:10px;
   cursor:pointer;
 }
-.item:hover { background:#f0f7ff; }
+.item:hover { background:#eef5ff; }
+
+.controls {
+  position:absolute;
+  top:10px;
+  left:10px;
+  z-index:10;
+  background:white;
+  padding:12px;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 
@@ -31,43 +44,70 @@ body { margin:0; font-family:sans-serif; }
 
 <div class="app">
   <div id="map"></div>
+
   <div class="sidebar">
-    <h3>Школы и сады</h3>
+    <h3>🏫 Школы и детские сады</h3>
     <div id="list"></div>
   </div>
 </div>
 
+<div class="controls">
+  <input id="search" placeholder="Введите адрес..." size="30">
+  <button onclick="findAddress()">Найти</button><br><br>
+
+  Радиус: <input id="radius" type="number" value="800"> м
+  <button onclick="updateRadius()">ОК</button>
+</div>
+
 <script>
-let map;
-let center;
-let circle;
-let route;
-let placemarks = [];
+let map, center, circle, route;
+let radius = 800;
 
-const radius = 1000; // радиус в метрах
+ymaps.ready(init);
 
-ymaps.ready(() => {
+function init() {
 
   map = new ymaps.Map("map", {
     center: [55.75, 37.61],
     zoom: 13
   });
 
-  // клик = центр
+  // 🔥 подсказки адреса
+  new ymaps.SuggestView('search');
+
   map.events.add('click', e => {
-    const coords = e.get('coords');
-    setCenter(coords);
+    setCenter(e.get('coords'));
   });
 
-});
+}
 
+// поиск адреса
+function findAddress() {
+  const val = document.getElementById('search').value;
+
+  ymaps.geocode(val).then(res => {
+    const obj = res.geoObjects.get(0);
+    if (!obj) return alert('Не найдено');
+
+    const coords = obj.geometry.getCoordinates();
+    map.setCenter(coords, 15);
+    setCenter(coords);
+  });
+}
+
+function updateRadius() {
+  radius = parseInt(document.getElementById('radius').value);
+  if (center) setCenter(center);
+}
+
+// установка центра
 function setCenter(coords) {
 
   center = coords;
 
   map.geoObjects.removeAll();
 
-  // точка центра
+  // центр
   const centerMark = new ymaps.Placemark(coords, {
     iconCaption: "Центр"
   }, { preset: 'islands#redIcon' });
@@ -85,24 +125,29 @@ function setCenter(coords) {
   search();
 }
 
+// 🔥 ПОИСК ТОЛЬКО РЕАЛЬНЫХ ШКОЛ И САДОВ
 function search() {
 
-  document.getElementById('list').innerHTML = "Загрузка...";
+  document.getElementById('list').innerHTML = "Поиск...";
 
   const bounds = circle.geometry.getBounds();
 
-  const terms = ['школа', 'детский сад'];
-
-  let all = [];
-
-  Promise.all(terms.map(term => {
-    return ymaps.search({
-      text: term,
-      boundedBy: bounds,
+  Promise.all([
+    ymaps.search({
+      text: 'школа',
       type: 'biz',
+      boundedBy: bounds,
       results: 50
-    });
-  })).then(results => {
+    }),
+    ymaps.search({
+      text: 'детский сад',
+      type: 'biz',
+      boundedBy: bounds,
+      results: 50
+    })
+  ]).then(results => {
+
+    let all = [];
 
     results.forEach(res => {
       res.geoObjects.each(obj => {
@@ -110,21 +155,34 @@ function search() {
         const name = obj.properties.get('name') || '';
         const coords = obj.geometry.getCoordinates();
 
-        // 🔥 жесткий фильтр
+        // ❗ защита от мусора
+        if (!name) return;
+
         const low = name.toLowerCase();
-        if (!low.includes('школ') && !low.includes('сад')) return;
+
+        if (
+          !low.includes('школ') &&
+          !low.includes('лицей') &&
+          !low.includes('гимназ') &&
+          !low.includes('сад')
+        ) return;
 
         const dist = ymaps.coordSystem.geo.getDistance(center, coords);
         if (dist > radius) return;
 
         all.push({
-          name: name,
-          coords: coords,
-          dist: dist
+          name,
+          coords,
+          dist
         });
 
       });
     });
+
+    // удаляем дубликаты
+    all = all.filter((v,i,a)=>
+      a.findIndex(t=>t.name===v.name)===i
+    );
 
     all.sort((a,b)=>a.dist-b.dist);
 
@@ -134,14 +192,19 @@ function search() {
 
 }
 
-function render(objects) {
+// отображение
+function render(list) {
 
-  const list = document.getElementById('list');
-  list.innerHTML = '';
+  const container = document.getElementById('list');
+  container.innerHTML = '';
 
-  objects.forEach(obj => {
+  if (list.length === 0) {
+    container.innerHTML = "❌ Нет школ и садов в радиусе";
+    return;
+  }
 
-    // метка
+  list.forEach(obj => {
+
     const pm = new ymaps.Placemark(obj.coords, {
       balloonContent: obj.name
     });
@@ -149,11 +212,10 @@ function render(objects) {
     pm.events.add('click', () => buildRoute(obj));
 
     map.geoObjects.add(pm);
-    placemarks.push(pm);
 
-    // список справа
     const div = document.createElement('div');
     div.className = 'item';
+
     div.innerHTML = `
       <b>${obj.name}</b><br>
       ${(obj.dist/1000).toFixed(2)} км
@@ -161,12 +223,13 @@ function render(objects) {
 
     div.onclick = () => buildRoute(obj);
 
-    list.appendChild(div);
+    container.appendChild(div);
 
   });
 
 }
 
+// маршрут
 function buildRoute(obj) {
 
   if (route) map.geoObjects.remove(route);
@@ -177,6 +240,10 @@ function buildRoute(obj) {
 
     route = r;
     map.geoObjects.add(route);
+
+    const dist = r.getLength();
+
+    alert("Расстояние: " + (dist/1000).toFixed(2) + " км");
 
     map.setBounds(route.getBounds(), {
       checkZoomRange:true
