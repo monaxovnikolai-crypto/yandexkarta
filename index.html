@@ -3,830 +3,658 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>РНГП 713/30 — Школы и сады + диалог с ИИ</title>
+    <title>Карта школ и детских садов Московской области</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #eef2f5;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 28px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
             overflow: hidden;
         }
-
-        .header {
-            background: linear-gradient(135deg, #1e3c2c 0%, #2c3e50 100%);
-            color: white;
-            padding: 18px 24px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 1.6rem;
-            font-weight: 600;
-        }
-
-        .header p {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            margin-top: 6px;
-        }
-
-        .two-columns {
+        
+        .app {
             display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-            padding: 24px;
+            height: 100vh;
         }
-
-        .left-panel {
-            flex: 2;
-            min-width: 320px;
-        }
-
-        .right-panel {
-            flex: 1.2;
-            min-width: 280px;
+        
+        /* Левая панель */
+        .sidebar {
+            width: 360px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            overflow-y: auto;
+            z-index: 10;
         }
-
-        .card {
-            background: #ffffff;
-            border-radius: 20px;
+        
+        .sidebar-header {
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-            border: 1px solid #e4e7ec;
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
         }
-
-        .card-title {
+        
+        .sidebar-header h1 {
+            font-size: 1.2rem;
             font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 16px;
-            color: #1f2f3a;
-            border-left: 4px solid #2c7a4d;
-            padding-left: 12px;
+            margin-bottom: 4px;
         }
-
-        .split-row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .split-col {
-            flex: 1;
-            min-width: 200px;
-            background: #fefefe;
-            border-radius: 20px;
-            padding: 16px;
-            border: 1px solid #ecf3fa;
-        }
-
-        .input-group {
-            margin-bottom: 16px;
-        }
-
-        .input-group label {
+        
+        .sidebar-header p {
             font-size: 0.75rem;
-            font-weight: 500;
+            color: #64748b;
+        }
+        
+        .filters {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
+        }
+        
+        .filters label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #64748b;
             display: block;
             margin-bottom: 6px;
-            color: #2c3e50;
         }
-
-        .input-group input {
+        
+        .district-select {
             width: 100%;
-            padding: 10px 12px;
-            font-size: 0.85rem;
-            border: 1px solid #cfdde6;
-            border-radius: 14px;
-            background: white;
-        }
-
-        .toggle-block {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 46px;
-            height: 24px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.2s;
-            border-radius: 30px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.2s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: #2c7a4d;
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(22px);
-        }
-
-        .toggle-label {
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .number-field {
-            width: 100px;
-            padding: 6px 8px;
-            font-size: 0.8rem;
-            border: 1px solid #cfdde6;
+            padding: 12px 14px;
+            border: 2px solid #e2e8f0;
             border-radius: 12px;
-        }
-
-        .status-badge {
-            background: #f4f9fe;
-            padding: 10px 12px;
-            border-radius: 14px;
-            font-size: 0.75rem;
-            margin-top: 14px;
-            color: #1e4663;
-            text-align: center;
-        }
-
-        .normative-card {
-            background: #f5f9ff;
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid #dce5f0;
-        }
-
-        .normative-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1f4f2d;
-            margin: 8px 0;
-        }
-
-        .solution-card {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 18px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .ai-chat {
+            font-size: 14px;
             background: white;
-            border-radius: 24px;
-            border: 3px solid #3b82f6;
-            animation: borderGlow 2s infinite ease-in-out;
-            display: flex;
-            flex-direction: column;
-            height: 500px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-
-        @keyframes borderGlow {
-            0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
-            50% { border-color: #a855f7; box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.1); }
-            100% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
+        
+        .district-select:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: #fafcff;
-            border-radius: 20px 20px 0 0;
-        }
-
-        .message {
-            max-width: 85%;
-            padding: 10px 14px;
-            border-radius: 18px;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .user-message {
-            background: #3b82f6;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .ai-message {
+        
+        .stats {
+            padding: 12px 20px;
             background: #eef2ff;
-            color: #1e293b;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
+            font-size: 13px;
+            color: #1e40af;
+            border-bottom: 1px solid #e2e8f0;
         }
-
-        .chat-input-area {
-            display: flex;
-            gap: 10px;
-            padding: 16px;
-            border-top: 1px solid #e2e8f0;
-            background: white;
-            border-radius: 0 0 20px 20px;
-        }
-
-        .chat-input-area input {
+        
+        .objects-list {
             flex: 1;
             padding: 12px;
-            border: 1px solid #cfdde6;
-            border-radius: 40px;
-            font-size: 0.85rem;
+            overflow-y: auto;
         }
-
-        .chat-input-area button {
-            background: linear-gradient(125deg, #3b82f6, #8b5cf6);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 40px;
+        
+        .object-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .object-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .object-card.active {
+            border-left: 3px solid #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .object-name {
             font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
+            font-size: 14px;
+            margin-bottom: 4px;
         }
-
-        .loading-text {
-            animation: pulseOpacity 1.2s ease-in-out infinite;
-            opacity: 0.5;
+        
+        .object-address {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 6px;
         }
-
-        @keyframes pulseOpacity {
-            0% { opacity: 0.4; }
-            50% { opacity: 0.9; }
-            100% { opacity: 0.4; }
+        
+        .object-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
         }
-
-        .full-width-btn {
-            width: 100%;
-            background: linear-gradient(125deg, #3b82f6, #8b5cf6);
-            color: white;
-            border: none;
-            padding: 16px 20px;
-            border-radius: 60px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        
+        .badge-school {
+            background: #dbeafe;
+            color: #1e40af;
         }
-
-        .full-width-btn:hover {
-            transform: scale(1.01);
-            opacity: 0.95;
+        
+        .badge-kindergarten {
+            background: #dcfce7;
+            color: #166534;
         }
-
-        .searchable-select {
+        
+        .loading {
+            padding: 20px;
+            text-align: center;
+            color: #64748b;
+        }
+        
+        /* Карта */
+        .map-container {
+            flex: 1;
             position: relative;
         }
-
-        .search-input {
+        
+        #map {
             width: 100%;
-            padding: 10px 12px;
-            font-size: 0.85rem;
-            border: 1px solid #cfdde6;
-            border-radius: 14px;
+            height: 100%;
         }
-
-        .search-dropdown {
+        
+        /* Информационная панель */
+        .info-panel {
             position: absolute;
-            background: white;
-            border: 1px solid #cfdde6;
-            border-radius: 14px;
-            max-height: 200px;
+            bottom: 20px;
+            right: 20px;
+            width: 340px;
+            max-height: 80vh;
             overflow-y: auto;
-            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 16px;
             z-index: 20;
             display: none;
+            border: 1px solid #e2e8f0;
         }
-
-        .search-dropdown div {
-            padding: 8px 12px;
-            font-size: 0.8rem;
+        
+        .info-panel.show {
+            display: block;
+        }
+        
+        .info-panel h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            padding-right: 24px;
+        }
+        
+        .info-panel .close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        
+        .info-field {
+            margin-bottom: 12px;
+        }
+        
+        .info-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            color: #1e293b;
+        }
+        
+        .route-btn {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
             cursor: pointer;
         }
-
-        .search-dropdown div:hover {
-            background: #eef2f5;
+        
+        .route-btn:hover {
+            background: #2563eb;
         }
-
-        @media (max-width: 800px) {
-            .two-columns { flex-direction: column; }
-            .split-row { flex-direction: column; }
-            .ai-chat { height: 400px; }
+        
+        .load-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .load-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #ef4444;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 280px;
+            }
+            .info-panel {
+                width: 280px;
+                bottom: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="header">
-        <h1>🏗️ Калькулятор РНГП 713/30</h1>
-        <p>Расчёт потребности в школах и детских садах + диалог с ИИ</p>
-    </div>
-
-    <div class="two-columns">
-        <div class="left-panel">
-            <div class="card">
-                <div class="card-title">📐 Способ расчёта</div>
-                <div class="input-group">
-                    <label>Тип ввода</label>
-                    <select id="calcType">
-                        <option value="area">По площади жилья (м²)</option>
-                        <option value="population">По численности населения (чел)</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label id="inputLabel">Площадь жилья (м²)</label>
-                    <input type="number" id="mainValue" placeholder="Введите значение" step="1" value="">
-                    <div id="hintText" style="font-size:0.7rem; color:#5b6e8c; margin-top:5px;"></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">🏙️ Городской округ</div>
-                <div class="searchable-select">
-                    <input type="text" id="citySearch" class="search-input" placeholder="Начните вводить...">
-                    <div id="cityDropdown" class="search-dropdown"></div>
-                </div>
-                <div style="font-size:0.7rem; margin-top:8px; color:#2c7a4d;" id="coeffHint">Коэффициент округа: 1.00 (не выбран)</div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">🏫 Школы и детские сады</div>
-                <div class="split-row">
-                    <div class="split-col">
-                        <div style="font-weight: 600; margin-bottom: 14px;">🏫 Школы</div>
-                        <div class="input-group">
-                            <label>Мощность (чел)</label>
-                            <input type="number" id="schoolPlan" placeholder="План" step="1">
-                        </div>
-                        <div class="input-group">
-                            <label>Факт (чел)</label>
-                            <input type="number" id="schoolActual" placeholder="Факт" step="1">
-                        </div>
-                        <div class="toggle-block">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="secondShiftToggle">
-                                <span class="slider"></span>
-                            </label>
-                            <span class="toggle-label">🕐 Вторая смена</span>
-                            <input type="number" id="secondShiftNumber" class="number-field" placeholder="Кол-во чел" step="1" value="0" style="display: none;">
-                        </div>
-                        <div id="schoolStatus" class="status-badge">⚪ Нет данных</div>
-                    </div>
-
-                    <div class="split-col">
-                        <div style="font-weight: 600; margin-bottom: 14px;">🏫 Детские сады</div>
-                        <div class="input-group">
-                            <label>Мощность (чел)</label>
-                            <input type="number" id="kindergartenPlan" placeholder="План" step="1">
-                        </div>
-                        <div class="input-group">
-                            <label>Факт (чел)</label>
-                            <input type="number" id="kindergartenActual" placeholder="Факт" step="1">
-                        </div>
-                        <div class="toggle-block">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="queueToggle">
-                                <span class="slider"></span>
-                            </label>
-                            <span class="toggle-label">👶 Очередность 3–7 лет</span>
-                            <input type="number" id="queueNumber" class="number-field" placeholder="Детей в очереди" step="1" value="0" style="display: none;">
-                        </div>
-                        <div id="kindergartenStatus" class="status-badge">⚪ Нет данных</div>
-                    </div>
-                </div>
-            </div>
+<div class="app">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>🏫 Образовательная инфраструктура</h1>
+            <p>Школы Московской области</p>
         </div>
-
-        <div class="right-panel">
-            <div class="normative-card">
-                <div style="font-weight: 600;">📋 Норматив РНГП 713/30</div>
-                <div>🏫 Школы <span id="schoolRequired" class="normative-value">0</span> мест</div>
-                <div>🏫 Сады <span id="kindergartenRequired" class="normative-value">0</span> мест</div>
-                <div style="font-size:0.7rem;">135 мест/1000 жит · 65 мест/1000 жит<br>× округ (0,85)</div>
-            </div>
-
-            <div class="solution-card">
-                <div style="font-weight: 600; margin-bottom: 12px;">💡 Возможные решения</div>
-                <div id="solutionText" style="font-size: 0.9rem; line-height: 1.4;">
-                    Здесь появится рекомендованное решение.
-                </div>
-            </div>
-
-            <div class="ai-chat">
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message ai-message">👋 Здравствуйте! Я ИИ-аналитик по школам и детским садам. Заполните данные слева, затем нажмите кнопку ниже для получения рекомендации.</div>
-                </div>
-                <div class="chat-input-area" id="chatInputArea">
-                    <button id="initialBtn" class="full-width-btn">🤖 Дай рекомендацию по текущим данным</button>
-                </div>
-            </div>
+        
+        <div class="filters">
+            <label>Выберите городской округ</label>
+            <select id="districtSelect" class="district-select">
+                <option value="">-- Загрузка округов --</option>
+            </select>
+        </div>
+        
+        <div id="stats" class="stats" style="display: none;">
+            📍 Объектов: <span id="objectCount">0</span>
+        </div>
+        
+        <div id="objectsList" class="objects-list">
+            <div class="loading">Выберите округ для загрузки объектов</div>
+        </div>
+    </div>
+    
+    <div class="map-container">
+        <div id="map"></div>
+        <div id="infoPanel" class="info-panel">
+            <button class="close" onclick="closeInfoPanel()">×</button>
+            <div id="infoContent"></div>
         </div>
     </div>
 </div>
 
+<script src="https://api-maps.yandex.ru/2.1/?apikey=87be84cf-0dc0-454f-974a-dc91198feaca&lang=ru_RU"></script>
 <script>
-    // ========== ВАШ WORKER (GigaChat) ==========
-    const PROXY_URL = 'https://yandexkarty.monaxovnikolai-31d.workers.dev';
+    // URL вашего Worker
+    const WORKER_URL = 'https://yandexkarty.monaxovnikolai-31d.workers.dev';
     
-    // ---------- ГОРОДА ----------
-    const cities = [
-        "Ленинский", "Одинцовский", "Красногорск", "Балашиха", "Мытищи", "Наро-Фоминск", "Химки", "Люберцы", "Щелково", "Домодедово",
-        "Котельники", "Пушкинский", "Чехов", "Раменский", "Истра", "Долгопрудный", "Реутов", "Подольск", "Лосино-Петровский", "Зарайск",
-        "Лобня", "Солнечногорск", "Дмитровский", "Ступино", "Богородский", "Клин", "Сергиево-Посадский", "Рузский", "Дубна", "Лыткарино",
-        "Бронницы", "Королев", "Павлово-Посадский", "Воскресенск", "Фрязино", "Жуковский", "Электросталь", "Орехово-Зуево", "Серпухов",
-        "Коломна", "Талдомский", "Можайский", "Луховицы", "Черноголовка", "Волоколамский", "Кашира", "Егорьевск", "Серебряные Пруды",
-        "Шатура", "Шаховская", "Лотошино"
-    ];
-
-    let selectedCity = "";
-    let districtCoeff = 1.0;
-    const SCHOOL_RATE = 0.135;
-    const KINDER_RATE = 0.065;
-
-    // DOM
-    const calcType = document.getElementById('calcType');
-    const mainValue = document.getElementById('mainValue');
-    const hintText = document.getElementById('hintText');
-    const inputLabel = document.getElementById('inputLabel');
-    const schoolPlan = document.getElementById('schoolPlan');
-    const schoolActual = document.getElementById('schoolActual');
-    const secondShiftToggle = document.getElementById('secondShiftToggle');
-    const secondShiftNumber = document.getElementById('secondShiftNumber');
-    const schoolStatus = document.getElementById('schoolStatus');
-    const kinderPlan = document.getElementById('kindergartenPlan');
-    const kinderActual = document.getElementById('kindergartenActual');
-    const queueToggle = document.getElementById('queueToggle');
-    const queueNumber = document.getElementById('queueNumber');
-    const kinderStatus = document.getElementById('kindergartenStatus');
-    const schoolRequiredSpan = document.getElementById('schoolRequired');
-    const kinderRequiredSpan = document.getElementById('kindergartenRequired');
-    const solutionText = document.getElementById('solutionText');
-    const citySearchInput = document.getElementById('citySearch');
-    const cityDropdown = document.getElementById('cityDropdown');
-    const chatMessages = document.getElementById('chatMessages');
-    const chatInputArea = document.getElementById('chatInputArea');
-    const initialBtn = document.getElementById('initialBtn');
-    let conversationHistory = [];
-
-    // ----- Поиск города -----
-    function renderCities(filter = "") {
-        const filtered = cities.filter(c => c.toLowerCase().includes(filter.toLowerCase()));
-        if (!filtered.length) {
-            cityDropdown.innerHTML = "<div style='padding:8px'>Нет совпадений</div>";
-            cityDropdown.style.display = "block";
-            return;
-        }
-        cityDropdown.innerHTML = filtered.map(c => `<div data-city="${c}">${c}</div>`).join('');
-        cityDropdown.style.display = "block";
-        document.querySelectorAll('[data-city]').forEach(el => {
-            el.addEventListener('click', (e) => {
-                const city = el.getAttribute('data-city');
-                citySearchInput.value = city;
-                selectedCity = city;
-                cityDropdown.style.display = "none";
-                districtCoeff = 0.85;
-                document.getElementById('coeffHint').innerHTML = `Коэффициент округа: ${districtCoeff.toFixed(2)} (применяется)`;
-                recalcAll();
-            });
+    let map = null;
+    let placemarks = [];
+    let currentObjects = [];
+    let currentDistrict = '';
+    let currentRoute = null;
+    let currentUserPlacemark = null;
+    
+    // Инициализация карты
+    ymaps.ready(() => {
+        map = new ymaps.Map('map', {
+            center: [55.7, 37.6],
+            zoom: 10,
+            controls: ['zoomControl', 'fullscreenControl']
         });
-    }
-
-    citySearchInput.addEventListener('input', (e) => renderCities(e.target.value));
-    document.addEventListener('click', (e) => {
-        if (!citySearchInput.contains(e.target) && !cityDropdown.contains(e.target)) cityDropdown.style.display = "none";
+        
+        loadDistricts();
     });
-
-    function getPopulation() {
-        let val = parseFloat(mainValue.value) || 0;
-        if (calcType.value === 'area') return Math.floor(val / 28);
-        else return Math.floor(val);
-    }
-
-    function updateHint() {
-        let val = parseFloat(mainValue.value) || 0;
-        if (calcType.value === 'area') {
-            let pop = Math.floor(val / 28);
-            hintText.innerText = `👥 Соответствует населению: ${pop} чел.`;
-            inputLabel.innerText = 'Площадь жилья (м²)';
-        } else {
-            let area = Math.floor(val * 28);
-            hintText.innerText = `🏘️ Соответствует площади жилья: ${area} м²`;
-            inputLabel.innerText = 'Численность населения (чел)';
-        }
-    }
-
-    function updateSchoolStatus() {
-        let plan = parseFloat(schoolPlan.value) || 0;
-        let fact = parseFloat(schoolActual.value) || 0;
-        let hasSecond = secondShiftToggle.checked;
-        if (plan <= 0) {
-            schoolStatus.innerHTML = "⚪ Нет данных";
-            return;
-        }
-        let percent = (fact / plan) * 100;
-        let deficit = fact - plan;
-        if (hasSecond) {
-            schoolStatus.innerHTML = `⚠️ Дефицит +${Math.abs(deficit)} мест • загрузка ${percent.toFixed(1)}%`;
-        } else {
-            schoolStatus.innerHTML = `✅ Сбалансировано • загрузка ${percent.toFixed(1)}%`;
-        }
-    }
-
-    function updateKindergartenStatus() {
-        let plan = parseFloat(kinderPlan.value) || 0;
-        let fact = parseFloat(kinderActual.value) || 0;
-        let hasQueue = queueToggle.checked;
-        if (plan <= 0) {
-            kinderStatus.innerHTML = "⚪ Нет данных";
-            return;
-        }
-        let percent = (fact / plan) * 100;
-        let deficit = fact - plan;
-        if (hasQueue) {
-            kinderStatus.innerHTML = `⚠️ Дефицит +${Math.abs(deficit)} мест • загрузка ${percent.toFixed(1)}% • очередь ${queueNumber.value || 0}`;
-        } else {
-            kinderStatus.innerHTML = `✅ Сбалансировано • загрузка ${percent.toFixed(1)}%`;
-        }
-    }
-
-    function updateSolution() {
-        let hasAnyData = (mainValue.value && parseFloat(mainValue.value) > 0) ||
-                         (schoolPlan.value && parseFloat(schoolPlan.value) > 0) ||
-                         (kinderPlan.value && parseFloat(kinderPlan.value) > 0);
-        if (!hasAnyData && districtCoeff === 1.0 && !secondShiftToggle.checked && !queueToggle.checked) {
-            solutionText.innerHTML = "Здесь появится решение после ввода данных.";
-            return;
-        }
-        let hasSecond = secondShiftToggle.checked;
-        let hasQueue = queueToggle.checked;
-        if (hasSecond || hasQueue) {
-            solutionText.innerHTML = "🏗️ <strong>Строим школу + сад</strong><br>Обеспечиваем полную потребность по нормативу.";
-        } else {
-            solutionText.innerHTML = "📊 <strong>Строим часть + деньги + ЗУ</strong><br>Частичное строительство, остальное финансируем, резервируем землю.";
-        }
-    }
-
-    function recalcAll() {
-        const population = getPopulation();
-        updateHint();
-        let schoolNeed = population * SCHOOL_RATE * districtCoeff;
-        let kinderNeed = population * KINDER_RATE * districtCoeff;
-        schoolRequiredSpan.innerText = Math.round(schoolNeed);
-        kinderRequiredSpan.innerText = Math.round(kinderNeed);
-        updateSchoolStatus();
-        updateKindergartenStatus();
-        updateSolution();
-    }
-
-    // ---------- ДИАЛОГОВЫЙ РЕЖИМ ----------
-    function initChat() {
-        chatInputArea.innerHTML = `
-            <input type="text" id="chatInput" placeholder="Напишите сообщение..." autocomplete="off">
-            <button id="sendBtn">➤ Отправить</button>
-        `;
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
-        
-        sendBtn.addEventListener('click', () => {
-            const msg = chatInput.value.trim();
-            if (!msg) return;
-            sendToAI(msg);
-        });
-        
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendBtn.click();
-            }
-        });
-    }
-
-    async function sendToAI(userMessage, isFirstRecommendation = false) {
-        if (!isFirstRecommendation) {
-            addMessage(userMessage, 'user');
-        }
-        
-        const typingDiv = document.createElement('div');
-        typingDiv.className = 'message ai-message';
-        const loadingSpan = document.createElement('span');
-        loadingSpan.className = 'loading-text';
-        loadingSpan.innerText = 'Анализирую...';
-        typingDiv.appendChild(loadingSpan);
-        chatMessages.appendChild(typingDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        const population = getPopulation();
-        const schoolPlanVal = parseFloat(schoolPlan.value) || 0;
-        const schoolActualVal = parseFloat(schoolActual.value) || 0;
-        const kinderPlanVal = parseFloat(kinderPlan.value) || 0;
-        const kinderActualVal = parseFloat(kinderActual.value) || 0;
-        const hasSecond = secondShiftToggle.checked;
-        const secondShiftCount = parseFloat(secondShiftNumber.value) || 0;
-        const hasQueue = queueToggle.checked;
-        const queueCount = parseFloat(queueNumber.value) || 0;
-        const schoolNeed = Math.round(population * SCHOOL_RATE * districtCoeff);
-        const kinderNeed = Math.round(population * KINDER_RATE * districtCoeff);
-        const selectedDistrict = citySearchInput.value || "не выбран";
-        const schoolLoad = schoolPlanVal > 0 ? (schoolActualVal / schoolPlanVal) * 100 : 0;
-        const kinderLoad = kinderPlanVal > 0 ? (kinderActualVal / kinderPlanVal) * 100 : 0;
-
-        let schoolCanTake = 0;
-        if (schoolPlanVal > 0 && !hasSecond) {
-            let maxGoodLoad = 120;
-            let currentLoadPercent = (schoolActualVal / schoolPlanVal) * 100;
-            if (currentLoadPercent < maxGoodLoad) {
-                schoolCanTake = Math.floor(schoolPlanVal * (maxGoodLoad / 100) - schoolActualVal);
-                if (schoolCanTake < 0) schoolCanTake = 0;
-            }
-        }
-        
-        let kinderCanTake = 0;
-        if (kinderPlanVal > 0 && !hasQueue) {
-            let maxGoodLoad = 140;
-            let currentLoadPercent = (kinderActualVal / kinderPlanVal) * 100;
-            if (currentLoadPercent < maxGoodLoad) {
-                kinderCanTake = Math.floor(kinderPlanVal * (maxGoodLoad / 100) - kinderActualVal);
-                if (kinderCanTake < 0) kinderCanTake = 0;
-            }
-        }
-        
-        let schoolToBuild = Math.max(0, schoolNeed - schoolCanTake);
-        let kinderToBuild = Math.max(0, kinderNeed - kinderCanTake);
-        
-        const MIN_SCHOOL_SIZE = 200;
-        const MIN_KINDER_SIZE = 50;
-        
-        let schoolBuildText = "";
-        if (schoolToBuild <= 0) {
-            schoolBuildText = "строительство школы не требуется";
-        } else if (schoolToBuild < MIN_SCHOOL_SIZE) {
-            schoolBuildText = `нужно построить школу на ${MIN_SCHOOL_SIZE} мест (при нормативе ${schoolNeed}, можно присоединить к соседнему проекту)`;
-        } else {
-            schoolBuildText = `нужно построить школу на ${schoolToBuild} мест`;
-        }
-        
-        let kinderBuildText = "";
-        if (kinderToBuild <= 0) {
-            kinderBuildText = "строительство сада не требуется";
-        } else if (kinderToBuild < MIN_KINDER_SIZE) {
-            kinderBuildText = `нужен встроенно-пристроенный сад на ${MIN_KINDER_SIZE} мест`;
-        } else {
-            kinderBuildText = `нужно построить сад на ${kinderToBuild} мест`;
-        }
-
-        let prompt = `Ты эксперт по градостроительству. Застройщик должен обеспечить ${schoolNeed} школьных мест и ${kinderNeed} мест в садах для нового ЖК.
-
-Твоя задача — проанализировать существующие объекты и сказать, сколько детей можно отправить в них, а сколько нужно строить.
-
-Данные:
-- Существующая школа: мощность ${schoolPlanVal} мест, загружена на ${schoolLoad.toFixed(0)}%. Вторая смена: ${hasSecond ? "есть" : "нет"}.
-- Существующий сад: мощность ${kinderPlanVal} мест, загружена на ${kinderLoad.toFixed(0)}%. Очередь: ${hasQueue ? "есть" : "нет"}.
-
-Правила:
-- В школу можно отправить детей, если нет второй смены и загрузка не превысит 120% (это хорошая загрузка).
-- В сад можно отправить детей, если нет очереди и загрузка не превысит 140% (это хорошая загрузка).
-- Если есть вторая смена или очередь — объект переполнен, новых детей не принимает.
-- Минимальный размер новой школы — 200 мест (меньше не строим).
-- Минимальный размер нового сада — 50 мест (если нужно меньше — делаем встроенно-пристроенный).
-
-Расчёт уже сделан:
-- В существующую школу можно отправить до ${schoolCanTake} детей.
-- В существующий сад можно отправить до ${kinderCanTake} детей.
-- Остаётся построить школу на ${Math.max(0, schoolNeed - schoolCanTake)} мест.
-- Остаётся построить сад на ${Math.max(0, kinderNeed - kinderCanTake)} мест.
-
-С учётом минимальных размеров:
-${schoolBuildText}
-${kinderBuildText}
-
-Дай короткий ответ (3-4 предложения), объясни:
-1. Сколько детей можно отправить в существующие объекты.
-2. Что нужно построить (с указанием вместимости).
-3. Если строительство не требуется — напиши "строительство не требуется".
-Ответь на русском, дружелюбно и по делу.
-
-Уточнение пользователя: ${userMessage === "Дай рекомендацию по текущим данным" ? "нет" : userMessage}`;
-
+    
+    // Загрузка списка округов
+    async function loadDistricts() {
         try {
-            const response = await fetch(PROXY_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: prompt })
-            });
+            const response = await fetch(`${WORKER_URL}/districts`);
             const data = await response.json();
-            typingDiv.remove();
-            if (data.reply) {
-                addMessage(data.reply, 'ai');
-                conversationHistory.push(`Пользователь: ${userMessage.substring(0, 100)}`);
-                conversationHistory.push(`ИИ: ${data.reply.substring(0, 100)}`);
-            } else if (data.error) {
-                addMessage(`❌ Ошибка: ${data.error}`, 'ai');
+            
+            const select = document.getElementById('districtSelect');
+            
+            if (data.districts && data.districts.length > 0) {
+                select.innerHTML = '<option value="">-- Выберите округ --</option>';
+                data.districts.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    select.appendChild(option);
+                });
             } else {
-                addMessage(`❌ Не удалось получить ответ`, 'ai');
+                select.innerHTML = '<option value="">Нет данных</option>';
+                console.error('Нет округов:', data);
             }
+            
+            select.addEventListener('change', (e) => {
+                if (e.target.value) {
+                    loadObjects(e.target.value);
+                } else {
+                    clearMap();
+                }
+            });
+            
         } catch (err) {
-            typingDiv.remove();
-            addMessage(`❌ Ошибка соединения: ${err.message}`, 'ai');
+            console.error('Ошибка загрузки округов:', err);
+            document.getElementById('districtSelect').innerHTML = '<option value="">Ошибка загрузки</option>';
         }
     }
-
-    function addMessage(text, sender) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
-        msgDiv.innerText = text;
-        chatMessages.appendChild(msgDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    // Загрузка объектов по округу
+    async function loadObjects(district) {
+        currentDistrict = district;
+        document.getElementById('objectsList').innerHTML = '<div class="loading">Загрузка объектов...</div>';
+        clearMap();
+        
+        try {
+            const response = await fetch(`${WORKER_URL}/objects?district=${encodeURIComponent(district)}`);
+            const data = await response.json();
+            
+            if (data.objects && data.objects.length > 0) {
+                currentObjects = data.objects;
+                document.getElementById('stats').style.display = 'block';
+                document.getElementById('objectCount').textContent = data.objects.length;
+                renderObjectsList(data.objects);
+                await geocodeAllObjects(data.objects);
+            } else {
+                document.getElementById('objectsList').innerHTML = '<div class="loading">Нет объектов в выбранном округе</div>';
+                document.getElementById('stats').style.display = 'none';
+            }
+            
+        } catch (err) {
+            console.error('Ошибка загрузки объектов:', err);
+            document.getElementById('objectsList').innerHTML = '<div class="loading">Ошибка загрузки объектов</div>';
+        }
     }
-
-    initialBtn.addEventListener('click', async () => {
-        const hasAnyData = (mainValue.value && parseFloat(mainValue.value) > 0) ||
-                           (schoolPlan.value && parseFloat(schoolPlan.value) > 0) ||
-                           (kinderPlan.value && parseFloat(kinderPlan.value) > 0);
-        if (!hasAnyData) {
-            alert("Пожалуйста, введите данные (площадь жилья или население) перед запросом.");
+    
+    // Рендер списка объектов
+    function renderObjectsList(objects) {
+        const container = document.getElementById('objectsList');
+        container.innerHTML = '';
+        
+        objects.forEach((obj, idx) => {
+            const loadPercent = parseInt(obj.loadPercent);
+            const loadColor = loadPercent > 120 ? '#ef4444' : (loadPercent > 100 ? '#e8a000' : '#22c55e');
+            
+            const card = document.createElement('div');
+            card.className = 'object-card';
+            card.setAttribute('data-id', obj.id);
+            card.innerHTML = `
+                <div class="object-name">
+                    <span class="object-badge badge-school">🏫 Школа</span>
+                    <span style="margin-left: 8px;">${obj.name || 'Без названия'}</span>
+                </div>
+                <div class="object-address">📍 ${obj.address || 'Адрес не указан'}</div>
+                ${obj.capacity ? `<div style="font-size: 11px; color: #64748b;">👥 Вместимость: ${obj.capacity} мест</div>` : ''}
+                ${obj.loadPercent ? `
+                    <div style="font-size: 11px; margin-top: 6px;">
+                        📊 Загрузка: ${obj.loadPercent}%
+                        <div class="load-bar">
+                            <div class="load-bar-fill" style="width: ${Math.min(obj.loadPercent, 200)}%; background: ${loadColor}"></div>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            card.onclick = () => {
+                selectObject(obj, idx);
+                if (obj.coordinates) {
+                    map.setCenter([obj.coordinates.lat, obj.coordinates.lng], 16);
+                }
+            };
+            container.appendChild(card);
+        });
+    }
+    
+    // Создание метки
+    function createPlacemark(obj, idx) {
+        const loadPercent = parseInt(obj.loadPercent);
+        let color = '#3b82f6';
+        if (loadPercent > 120) color = '#ef4444';
+        else if (loadPercent > 100) color = '#e8a000';
+        else if (obj.capacity && parseInt(obj.capacity) > 0) color = '#22c55e';
+        
+        const placemark = new ymaps.Placemark(
+            [obj.coordinates.lat, obj.coordinates.lng],
+            {
+                balloonContentHeader: obj.name || 'Школа',
+                balloonContentBody: `
+                    <strong>Адрес:</strong> ${obj.address || '—'}<br>
+                    ${obj.capacity ? `<strong>Вместимость:</strong> ${obj.capacity} мест<br>` : ''}
+                    ${obj.loadPercent ? `<strong>Загрузка:</strong> ${obj.loadPercent}%<br>` : ''}
+                    ${obj.secondShift ? `<strong>2-я смена:</strong> ${obj.secondShift} детей<br>` : ''}
+                    ${obj.status ? `<strong>Статус:</strong> ${obj.status}<br>` : ''}
+                    <a href="#" onclick="selectObjectById('${obj.id}'); return false;">Подробнее →</a>
+                `,
+                hintContent: obj.name
+            },
+            {
+                preset: 'islands#circleIcon',
+                iconColor: color
+            }
+        );
+        
+        placemark.events.add('click', () => {
+            selectObject(obj, idx);
+        });
+        
+        return placemark;
+    }
+    
+    // Геокодирование всех объектов
+    async function geocodeAllObjects(objects) {
+        const geocodePromises = objects.map(async (obj, idx) => {
+            if (!obj.coordinates && obj.address) {
+                try {
+                    const result = await ymaps.geocode(obj.address, { results: 1 });
+                    const firstGeoObject = result.geoObjects.get(0);
+                    if (firstGeoObject) {
+                        const coords = firstGeoObject.geometry.getCoordinates();
+                        obj.coordinates = { lat: coords[0], lng: coords[1] };
+                        
+                        const placemark = createPlacemark(obj, idx);
+                        placemarks.push(placemark);
+                        map.geoObjects.add(placemark);
+                    }
+                } catch (err) {
+                    console.error(`Геокодирование для ${obj.name} не удалось:`, err);
+                }
+            } else if (obj.coordinates) {
+                const placemark = createPlacemark(obj, idx);
+                placemarks.push(placemark);
+                map.geoObjects.add(placemark);
+            }
+        });
+        
+        await Promise.all(geocodePromises);
+        renderObjectsList(objects);
+        
+        const firstWithCoords = objects.find(o => o.coordinates);
+        if (firstWithCoords) {
+            map.setCenter([firstWithCoords.coordinates.lat, firstWithCoords.coordinates.lng], 12);
+        }
+    }
+    
+    // Выбор объекта
+    function selectObject(obj, idx) {
+        document.querySelectorAll('.object-card').forEach((card, i) => {
+            card.classList.toggle('active', i === idx);
+        });
+        showInfoPanel(obj);
+        
+        if (obj.coordinates) {
+            buildRoute(obj.coordinates);
+        }
+    }
+    
+    function selectObjectById(id) {
+        const idx = currentObjects.findIndex(o => o.id === id);
+        if (idx !== -1) {
+            selectObject(currentObjects[idx], idx);
+        }
+    }
+    
+    // Показать информационную панель
+    function showInfoPanel(obj) {
+        const panel = document.getElementById('infoPanel');
+        const content = document.getElementById('infoContent');
+        
+        content.innerHTML = `
+            <h3>${obj.name || 'Без названия'}</h3>
+            <div class="info-field">
+                <div class="info-label">Тип учреждения</div>
+                <div class="info-value">🏫 Школа</div>
+            </div>
+            <div class="info-field">
+                <div class="info-label">📍 Адрес</div>
+                <div class="info-value">${obj.address || 'Не указан'}</div>
+            </div>
+            <div class="info-field">
+                <div class="info-label">🏛️ Городской округ</div>
+                <div class="info-value">${obj.district || 'Не указан'}</div>
+            </div>
+            ${obj.capacity ? `
+            <div class="info-field">
+                <div class="info-label">👥 Вместимость</div>
+                <div class="info-value">${obj.capacity} мест</div>
+            </div>
+            ` : ''}
+            ${obj.loadPercent ? `
+            <div class="info-field">
+                <div class="info-label">📊 Загрузка</div>
+                <div class="info-value">${obj.loadPercent}%</div>
+            </div>
+            ` : ''}
+            ${obj.secondShift ? `
+            <div class="info-field">
+                <div class="info-label">🕐 Вторая смена</div>
+                <div class="info-value">${obj.secondShift} детей</div>
+            </div>
+            ` : ''}
+            ${obj.status ? `
+            <div class="info-field">
+                <div class="info-label">📋 Статус</div>
+                <div class="info-value">${obj.status}</div>
+            </div>
+            ` : ''}
+            ${obj.repairYear ? `
+            <div class="info-field">
+                <div class="info-label">🔧 Год ремонта</div>
+                <div class="info-value">${obj.repairYear}</div>
+            </div>
+            ` : ''}
+            <button class="route-btn" onclick="buildRouteFromCurrent(${obj.coordinates ? `[${obj.coordinates.lat}, ${obj.coordinates.lng}]` : 'null'})">
+                🚶 Построить маршрут
+            </button>
+        `;
+        
+        panel.classList.add('show');
+    }
+    
+    function closeInfoPanel() {
+        document.getElementById('infoPanel').classList.remove('show');
+        if (currentRoute) {
+            map.geoObjects.remove(currentRoute);
+            currentRoute = null;
+        }
+    }
+    
+    // Построить маршрут
+    async function buildRoute(targetCoords) {
+        if (!targetCoords) {
+            alert('Координаты объекта не определены');
             return;
         }
-        addMessage("Дай рекомендацию по текущим данным", 'user');
-        await sendToAI("Дай рекомендацию по текущим данным", true);
-        initChat();
-    });
-
-    function toggleSecondShiftField() {
-        secondShiftNumber.style.display = secondShiftToggle.checked ? "inline-block" : "none";
-        recalcAll();
+        
+        if (!navigator.geolocation) {
+            alert('Ваш браузер не поддерживает геолокацию');
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const userCoords = [position.coords.latitude, position.coords.longitude];
+                const target = [targetCoords.lat, targetCoords.lng];
+                
+                if (currentRoute) {
+                    map.geoObjects.remove(currentRoute);
+                }
+                
+                try {
+                    const multiRoute = new ymaps.multiRouter.MultiRoute({
+                        referencePoints: [userCoords, target],
+                        params: { routingMode: 'pedestrian' }
+                    }, {
+                        boundsAutoApply: true,
+                        wayPointDraggable: false
+                    });
+                    
+                    map.geoObjects.add(multiRoute);
+                    currentRoute = multiRoute;
+                    
+                    if (currentUserPlacemark) {
+                        map.geoObjects.remove(currentUserPlacemark);
+                    }
+                    currentUserPlacemark = new ymaps.Placemark(userCoords, {
+                        hintContent: 'Ваше местоположение',
+                        balloonContent: 'Вы здесь'
+                    }, {
+                        preset: 'islands#circleIcon',
+                        iconColor: '#ef4444'
+                    });
+                    map.geoObjects.add(currentUserPlacemark);
+                    
+                } catch (err) {
+                    console.error('Ошибка построения маршрута:', err);
+                    alert('Не удалось построить маршрут');
+                }
+            },
+            (err) => {
+                alert('Не удалось определить ваше местоположение. Разрешите доступ к геолокации.');
+                console.error(err);
+            }
+        );
     }
-    function toggleQueueField() {
-        queueNumber.style.display = queueToggle.checked ? "inline-block" : "none";
-        recalcAll();
+    
+    async function buildRouteFromCurrent(coordsArray) {
+        if (!coordsArray) {
+            alert('Координаты объекта не определены');
+            return;
+        }
+        await buildRoute({ lat: coordsArray[0], lng: coordsArray[1] });
     }
-
-    secondShiftToggle.addEventListener('change', toggleSecondShiftField);
-    queueToggle.addEventListener('change', toggleQueueField);
-    secondShiftNumber.addEventListener('input', recalcAll);
-    queueNumber.addEventListener('input', recalcAll);
-    schoolPlan.addEventListener('input', recalcAll);
-    schoolActual.addEventListener('input', recalcAll);
-    kinderPlan.addEventListener('input', recalcAll);
-    kinderActual.addEventListener('input', recalcAll);
-    calcType.addEventListener('change', () => { updateHint(); recalcAll(); });
-    mainValue.addEventListener('input', recalcAll);
-
-    function init() {
-        updateHint();
-        recalcAll();
-        toggleSecondShiftField();
-        toggleQueueField();
+    
+    // Очистка карты
+    function clearMap() {
+        if (placemarks.length) {
+            placemarks.forEach(p => {
+                if (p && map.geoObjects.indexOf(p) !== -1) {
+                    map.geoObjects.remove(p);
+                }
+            });
+            placemarks = [];
+        }
+        if (currentRoute) {
+            map.geoObjects.remove(currentRoute);
+            currentRoute = null;
+        }
+        if (currentUserPlacemark) {
+            map.geoObjects.remove(currentUserPlacemark);
+            currentUserPlacemark = null;
+        }
+        closeInfoPanel();
     }
-    init();
 </script>
 </body>
 </html>
