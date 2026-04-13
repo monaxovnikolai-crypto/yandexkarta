@@ -3,334 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Карта школ и садов Московской области</title>
+    <title>Карта школ и детских садов Московской области</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; height: 100vh; overflow: hidden; background: #f0f2f5; }
         
-        body {
-            font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        .app {
-            display: flex;
-            height: 100vh;
-            flex-direction: row;
-        }
+        .app { display: flex; height: 100vh; flex-direction: row; }
         
         /* КАРТА СЛЕВА */
-        .map-container {
-            flex: 2;
-            position: relative;
-            min-width: 60%;
-        }
-        
-        #map {
-            width: 100%;
-            height: 100%;
-        }
+        .map-container { flex: 2; position: relative; min-width: 55%; }
+        #map { width: 100%; height: 100%; }
         
         /* ПАНЕЛЬ СПРАВА */
-        .sidebar {
-            width: 380px;
-            background: #f8fafc;
-            border-left: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            z-index: 10;
-        }
+        .sidebar { width: 420px; background: #f8fafc; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto; z-index: 10; }
         
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid #e2e8f0;
-            background: white;
-        }
+        .sidebar-header { padding: 16px 20px; background: white; border-bottom: 1px solid #e2e8f0; }
+        .sidebar-header h1 { font-size: 1.2rem; font-weight: 600; }
+        .sidebar-header p { font-size: 0.7rem; color: #64748b; margin-top: 4px; }
         
-        .sidebar-header h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
+        /* Поиск */
+        .search-section { padding: 12px 20px; background: white; border-bottom: 1px solid #e2e8f0; }
+        .search-input { width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; }
+        .search-input:focus { outline: none; border-color: #3b82f6; }
+        .search-results { margin-top: 8px; max-height: 150px; overflow-y: auto; }
+        .search-item { padding: 8px 12px; background: #f1f5f9; border-radius: 8px; margin-bottom: 4px; cursor: pointer; font-size: 12px; }
+        .search-item:hover { background: #e2e8f0; }
         
-        .sidebar-header p {
-            font-size: 0.75rem;
-            color: #64748b;
-        }
+        /* Фильтр округа */
+        .filter-section { padding: 12px 20px; background: white; border-bottom: 1px solid #e2e8f0; }
+        .filter-section label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 6px; }
+        .district-select { width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; background: white; cursor: pointer; }
         
-        .filters {
-            padding: 16px 20px;
-            border-bottom: 1px solid #e2e8f0;
-            background: white;
-        }
+        /* Радиус и режим */
+        .radius-section { padding: 12px 20px; background: white; border-bottom: 1px solid #e2e8f0; display: none; }
+        .radius-section label { font-size: 11px; font-weight: 600; color: #64748b; display: block; margin-bottom: 6px; }
+        .radius-slider { width: 100%; }
+        .mode-buttons { display: flex; gap: 8px; margin-top: 8px; }
+        .mode-btn { flex: 1; padding: 6px; border: 1px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; font-size: 12px; }
+        .mode-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
         
-        .filters label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #64748b;
-            display: block;
-            margin-bottom: 6px;
-        }
+        /* Статистика */
+        .stats { padding: 12px 20px; background: #eef2ff; display: flex; justify-content: space-between; font-size: 13px; }
+        .stats-item { text-align: center; flex: 1; }
+        .stats-value { font-size: 20px; font-weight: 700; }
+        .stats-label { font-size: 10px; color: #64748b; }
+        .school-stats .stats-value { color: #3b82f6; }
+        .kindergarten-stats .stats-value { color: #22c55e; }
         
-        .district-select {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-        }
+        /* Таблицы объектов */
+        .tables-section { flex: 1; overflow-y: auto; padding: 12px; }
+        .table-title { font-size: 14px; font-weight: 600; margin: 12px 0 8px; padding-bottom: 4px; border-bottom: 2px solid; }
+        .table-title.school { border-color: #3b82f6; color: #1e40af; }
+        .table-title.kindergarten { border-color: #22c55e; color: #166534; }
+        .object-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-bottom: 16px; background: white; border-radius: 12px; overflow: hidden; }
+        .object-table th { background: #f1f5f9; padding: 8px 6px; text-align: left; font-weight: 600; color: #1e293b; border-bottom: 1px solid #e2e8f0; }
+        .object-table td { padding: 8px 6px; border-bottom: 1px solid #f0f0f0; color: #334155; }
+        .object-table tr:hover { background: #f8fafc; cursor: pointer; }
+        .object-table .school-row:hover { background: #eff6ff; }
+        .object-table .kindergarten-row:hover { background: #f0fdf4; }
+        .load-bar-small { height: 3px; background: #e2e8f0; border-radius: 2px; width: 60px; overflow: hidden; }
+        .load-bar-fill-small { height: 100%; border-radius: 2px; }
         
-        .district-select:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
+        .clear-point-btn { position: absolute; bottom: 20px; left: 20px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 16px; font-size: 13px; cursor: pointer; z-index: 20; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; }
+        .clear-point-btn:hover { background: #f1f5f9; }
         
-        .stats {
-            padding: 12px 20px;
-            background: #eef2ff;
-            font-size: 13px;
-            color: #1e40af;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-        }
+        .loading { padding: 40px; text-align: center; color: #64748b; }
         
-        .radius-control {
-            padding: 12px 20px;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .radius-control label {
-            font-size: 12px;
-            color: #64748b;
-            display: block;
-            margin-bottom: 6px;
-        }
-        
-        .radius-slider {
-            width: 100%;
-        }
-        
-        .radius-value {
-            font-size: 12px;
-            font-weight: 600;
-            color: #3b82f6;
-            margin-top: 4px;
-        }
-        
-        .objects-list {
-            flex: 1;
-            padding: 12px;
-            overflow-y: auto;
-        }
-        
-        .object-card {
-            background: white;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 8px;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .object-card:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        
-        .object-card.active {
-            border-left: 3px solid;
-        }
-        
-        .object-card.school.active {
-            border-left-color: #3b82f6;
-            background: #eff6ff;
-        }
-        
-        .object-card.kindergarten.active {
-            border-left-color: #22c55e;
-            background: #f0fdf4;
-        }
-        
-        .object-name {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-        
-        .object-address {
-            font-size: 11px;
-            color: #64748b;
-            margin-bottom: 6px;
-        }
-        
-        .object-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-        
-        .badge-school {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .badge-kindergarten {
-            background: #dcfce7;
-            color: #166534;
-        }
-        
-        .loading {
-            padding: 20px;
-            text-align: center;
-            color: #64748b;
-        }
-        
-        .load-bar {
-            height: 4px;
-            background: #e2e8f0;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        
-        .load-bar-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 2px;
-            transition: width 0.3s;
-        }
-        
-        /* Информационная панель на карте */
-        .info-panel {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 320px;
-            max-height: 70vh;
-            overflow-y: auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            padding: 16px;
-            z-index: 20;
-            display: none;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .info-panel.show {
-            display: block;
-        }
-        
-        .info-panel h3 {
-            font-size: 16px;
-            margin-bottom: 12px;
-            padding-right: 24px;
-        }
-        
-        .info-panel .close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #94a3b8;
-        }
-        
-        .info-field {
-            margin-bottom: 12px;
-        }
-        
-        .info-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-        
-        .info-value {
-            font-size: 14px;
-            color: #1e293b;
-        }
-        
-        .route-list {
-            margin-top: 12px;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 12px;
-        }
-        
-        .route-item {
-            padding: 8px;
-            background: #f1f5f9;
-            border-radius: 8px;
-            margin-bottom: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        
-        .route-item:hover {
-            background: #e2e8f0;
-        }
-        
-        .route-item .route-dist {
-            float: right;
-            font-weight: 600;
-            color: #3b82f6;
-        }
-        
-        .clear-point-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-size: 13px;
-            cursor: pointer;
-            z-index: 20;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .clear-point-btn:hover {
-            background: #f1f5f9;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 300px;
-            }
-            .info-panel {
-                width: 280px;
-            }
-        }
+        @media (max-width: 900px) { .sidebar { width: 360px; } .object-table { font-size: 9px; } }
     </style>
 </head>
 <body>
 <div class="app">
     <div class="map-container">
         <div id="map"></div>
-        <button class="clear-point-btn" id="clearPointBtn" style="display: none;">🗑️ Очистить точку</button>
-        <div id="infoPanel" class="info-panel">
-            <button class="close" onclick="closeInfoPanel()">×</button>
-            <div id="infoContent"></div>
-        </div>
+        <button class="clear-point-btn" id="clearPointBtn">🗑️ Очистить точку</button>
     </div>
     
     <div class="sidebar">
@@ -339,26 +85,45 @@
             <p>Школы и детские сады</p>
         </div>
         
-        <div class="filters">
-            <label>Выберите городской округ</label>
+        <div class="search-section">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по названию или адресу...">
+            <div id="searchResults" class="search-results"></div>
+        </div>
+        
+        <div class="filter-section">
+            <label>🏙️ Городской округ</label>
             <select id="districtSelect" class="district-select">
-                <option value="">-- Загрузка округов --</option>
+                <option value="">-- Выберите округ --</option>
             </select>
         </div>
         
-        <div class="radius-control" id="radiusControl" style="display: none;">
-            <label>🎯 Радиус подсветки (метров)</label>
+        <div id="radiusSection" class="radius-section">
+            <label>🎯 Радиус доступности (метров)</label>
             <input type="range" id="radiusSlider" class="radius-slider" min="100" max="2000" step="50" value="800">
-            <div class="radius-value" id="radiusValue">800 м</div>
+            <span id="radiusValue" style="font-size:12px; color:#3b82f6;">800 м</span>
+            <div class="mode-buttons">
+                <button id="modePedestrian" class="mode-btn active">🚶 Пешком</button>
+                <button id="modeCar" class="mode-btn">🚗 На машине</button>
+            </div>
         </div>
         
-        <div id="stats" class="stats" style="display: none;">
-            <span>📍 Объектов: <span id="objectCount">0</span></span>
-            <span id="nearCount" style="color: #22c55e;"></span>
+        <div id="statsPanel" class="stats" style="display: none;">
+            <div class="stats-item school-stats">
+                <div class="stats-value" id="schoolCount">0</div>
+                <div class="stats-label">Школ</div>
+                <div style="font-size:10px" id="schoolCapacity">0 мест</div>
+                <div style="font-size:10px" id="schoolLoad">0% ср.</div>
+            </div>
+            <div class="stats-item kindergarten-stats">
+                <div class="stats-value" id="kindergartenCount">0</div>
+                <div class="stats-label">Детских садов</div>
+                <div style="font-size:10px" id="kindergartenCapacity">0 мест</div>
+                <div style="font-size:10px" id="kindergartenLoad">0% ср.</div>
+            </div>
         </div>
         
-        <div id="objectsList" class="objects-list">
-            <div class="loading">Выберите округ для загрузки объектов</div>
+        <div class="tables-section" id="tablesSection">
+            <div class="loading">Выберите округ для загрузки данных</div>
         </div>
     </div>
 </div>
@@ -371,55 +136,117 @@
     let placemarks = [];
     let currentObjects = [];
     let currentDistrict = '';
-    let currentRoutes = []; // массив маршрутов
     let userPoint = null;
     let userPointPlacemark = null;
     let radius = 800;
+    let travelMode = 'pedestrian'; // 'pedestrian' или 'car'
+    let currentRoutes = [];
     let activeRoute = null;
     
     ymaps.ready(() => {
         map = new ymaps.Map('map', {
             center: [55.7, 37.6],
             zoom: 10,
-            controls: ['zoomControl', 'fullscreenControl']
+            controls: ['zoomControl', 'fullscreenControl', 'geolocationControl']
         });
         
-        // Клик по карте — ставим точку
         map.events.add('click', (e) => {
             const coords = e.get('coords');
             setUserPoint(coords);
         });
         
         loadDistricts();
+        setupEventListeners();
     });
+    
+    function setupEventListeners() {
+        document.getElementById('districtSelect').addEventListener('change', (e) => {
+            if (e.target.value) {
+                clearUserPoint();
+                loadObjects(e.target.value);
+            } else {
+                clearMap();
+                document.getElementById('tablesSection').innerHTML = '<div class="loading">Выберите округ для загрузки данных</div>';
+                document.getElementById('statsPanel').style.display = 'none';
+            }
+        });
+        
+        document.getElementById('radiusSlider').addEventListener('input', (e) => {
+            radius = parseInt(e.target.value);
+            document.getElementById('radiusValue').textContent = radius + ' м';
+            if (userPoint) updatePlacemarksOpacity();
+        });
+        
+        document.getElementById('modePedestrian').addEventListener('click', () => {
+            travelMode = 'pedestrian';
+            document.getElementById('modePedestrian').classList.add('active');
+            document.getElementById('modeCar').classList.remove('active');
+            if (userPoint) updatePlacemarksOpacity();
+        });
+        
+        document.getElementById('modeCar').addEventListener('click', () => {
+            travelMode = 'car';
+            document.getElementById('modeCar').classList.add('active');
+            document.getElementById('modePedestrian').classList.remove('active');
+            if (userPoint) updatePlacemarksOpacity();
+        });
+        
+        document.getElementById('clearPointBtn').addEventListener('click', () => clearUserPoint());
+        
+        // Поиск с debounce
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => searchObjects(e.target.value), 500);
+        });
+    }
+    
+    async function searchObjects(query) {
+        if (!query || query.length < 2) {
+            document.getElementById('searchResults').innerHTML = '';
+            return;
+        }
+        try {
+            const response = await fetch(`${WORKER_URL}/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            const resultsDiv = document.getElementById('searchResults');
+            if (data.results && data.results.length > 0) {
+                resultsDiv.innerHTML = data.results.map(r => `
+                    <div class="search-item" data-name="${r.name}" data-district="${r.district}">
+                        <strong>${r.name}</strong><br>
+                        <span style="font-size:10px; color:#64748b">${r.address} • ${r.district}</span>
+                    </div>
+                `).join('');
+                document.querySelectorAll('.search-item').forEach(el => {
+                    el.addEventListener('click', () => {
+                        const district = el.dataset.district;
+                        const select = document.getElementById('districtSelect');
+                        if (select.querySelector(`option[value="${district}"]`)) {
+                            select.value = district;
+                            loadObjects(district);
+                            document.getElementById('searchResults').innerHTML = '';
+                            document.getElementById('searchInput').value = '';
+                        }
+                    });
+                });
+            } else {
+                resultsDiv.innerHTML = '<div style="padding:8px; color:#64748b; font-size:12px;">Ничего не найдено</div>';
+            }
+        } catch(err) { console.error(err); }
+    }
     
     async function loadDistricts() {
         try {
             const response = await fetch(`${WORKER_URL}/districts`);
             const data = await response.json();
             const select = document.getElementById('districtSelect');
-            
             if (data.districts && data.districts.length > 0) {
-                select.innerHTML = '<option value="">-- Выберите округ --</option>';
-                data.districts.forEach(district => {
-                    const option = document.createElement('option');
-                    option.value = district;
-                    option.textContent = district;
-                    select.appendChild(option);
-                });
+                select.innerHTML = '<option value="">-- Выберите округ --</option>' + 
+                    data.districts.map(d => `<option value="${d}">${d}</option>`).join('');
             } else {
                 select.innerHTML = '<option value="">Нет данных</option>';
             }
-            
-            select.addEventListener('change', (e) => {
-                if (e.target.value) {
-                    clearUserPoint();
-                    loadObjects(e.target.value);
-                } else {
-                    clearMap();
-                }
-            });
-        } catch (err) {
+        } catch(err) {
             console.error(err);
             document.getElementById('districtSelect').innerHTML = '<option value="">Ошибка загрузки</option>';
         }
@@ -427,7 +254,7 @@
     
     async function loadObjects(district) {
         currentDistrict = district;
-        document.getElementById('objectsList').innerHTML = '<div class="loading">Загрузка объектов...</div>';
+        document.getElementById('tablesSection').innerHTML = '<div class="loading">Загрузка объектов...</div>';
         clearMap();
         clearUserPoint();
         
@@ -437,169 +264,278 @@
             
             if (data.objects && data.objects.length > 0) {
                 currentObjects = data.objects;
-                document.getElementById('stats').style.display = 'flex';
-                document.getElementById('objectCount').textContent = data.objects.length;
-                renderObjectsList(data.objects);
+                updateStats(data.objects);
+                renderTables(data.objects);
                 await geocodeAllObjects(data.objects);
+                document.getElementById('statsPanel').style.display = 'flex';
             } else {
-                document.getElementById('objectsList').innerHTML = '<div class="loading">Нет объектов в выбранном округе</div>';
-                document.getElementById('stats').style.display = 'none';
+                document.getElementById('tablesSection').innerHTML = '<div class="loading">Нет объектов в выбранном округе</div>';
+                document.getElementById('statsPanel').style.display = 'none';
             }
-        } catch (err) {
+        } catch(err) {
             console.error(err);
-            document.getElementById('objectsList').innerHTML = '<div class="loading">Ошибка загрузки объектов</div>';
+            document.getElementById('tablesSection').innerHTML = '<div class="loading">Ошибка загрузки данных</div>';
         }
     }
     
-    function renderObjectsList(objects) {
-        const container = document.getElementById('objectsList');
-        container.innerHTML = '';
+    function updateStats(objects) {
+        const schools = objects.filter(o => o.type === 'school');
+        const kindergartens = objects.filter(o => o.type === 'kindergarten');
         
-        objects.forEach((obj, idx) => {
-            const loadPercent = parseInt(obj.loadPercent);
-            const loadColor = loadPercent > 120 ? '#ef4444' : (loadPercent > 100 ? '#e8a000' : '#22c55e');
-            
-            const card = document.createElement('div');
-            card.className = `object-card ${obj.type}`;
-            card.setAttribute('data-id', obj.id);
-            card.innerHTML = `
-                <div class="object-name">
-                    <span class="object-badge ${obj.type === 'school' ? 'badge-school' : 'badge-kindergarten'}">
-                        ${obj.type === 'school' ? '🏫 Школа' : '🏫 Детский сад'}
-                    </span>
-                    <span style="margin-left: 8px;">${obj.name || 'Без названия'}</span>
-                </div>
-                <div class="object-address">📍 ${obj.address || 'Адрес не указан'}</div>
-                ${obj.capacity ? `<div style="font-size: 11px; color: #64748b;">👥 Вместимость: ${obj.capacity} мест</div>` : ''}
-                ${obj.loadPercent ? `
-                    <div style="font-size: 11px; margin-top: 6px;">
-                        📊 Загрузка: ${obj.loadPercent}%
-                        <div class="load-bar">
-                            <div class="load-bar-fill" style="width: ${Math.min(obj.loadPercent, 200)}%; background: ${loadColor}"></div>
-                        </div>
-                    </div>
-                ` : ''}
-            `;
-            card.onclick = () => {
-                selectObject(obj, idx);
-                if (obj.coordinates) {
+        const schoolCapacity = schools.reduce((sum, s) => sum + (parseInt(s.capacity) || 0), 0);
+        const schoolLoad = schools.reduce((sum, s) => sum + (parseInt(s.loadPercent) || 0), 0) / (schools.length || 1);
+        const kinderCapacity = kindergartens.reduce((sum, k) => sum + (parseInt(k.capacity) || 0), 0);
+        const kinderLoad = kindergartens.reduce((sum, k) => sum + (parseInt(k.loadPercent) || 0), 0) / (kindergartens.length || 1);
+        
+        document.getElementById('schoolCount').textContent = schools.length;
+        document.getElementById('schoolCapacity').textContent = schoolCapacity.toLocaleString() + ' мест';
+        document.getElementById('schoolLoad').textContent = Math.round(schoolLoad) + '% ср.';
+        document.getElementById('kindergartenCount').textContent = kindergartens.length;
+        document.getElementById('kindergartenCapacity').textContent = kinderCapacity.toLocaleString() + ' мест';
+        document.getElementById('kindergartenLoad').textContent = Math.round(kinderLoad) + '% ср.';
+    }
+    
+    function renderTables(objects) {
+        const schools = objects.filter(o => o.type === 'school');
+        const kindergartens = objects.filter(o => o.type === 'kindergarten');
+        
+        const renderTableRows = (items, type) => {
+            return items.map((item, idx) => {
+                const loadPercent = parseInt(item.loadPercent) || 0;
+                const loadColor = loadPercent > 120 ? '#ef4444' : (loadPercent > 100 ? '#e8a000' : '#22c55e');
+                return `
+                    <tr class="${type}-row" data-id="${item.id}">
+                        <td style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.name}">${item.name}</td>
+                        <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.address}">${item.address}</td>
+                        <td>${item.buildYear || '-'}</td>
+                        <td>${item.area ? Math.round(parseFloat(item.area)) + ' м²' : '-'}</td>
+                        <td>${item.capacity || '-'}</td>
+                        <td>${item.fact || '-'}</td>
+                        <td style="min-width:60px">
+                            ${loadPercent}%
+                            <div class="load-bar-small"><div class="load-bar-fill-small" style="width:${Math.min(loadPercent,200)}%; background:${loadColor}"></div></div>
+                        </td>
+                        <td>${item.secondShift || '-'}</td>
+                        <td>${item.status || '-'}</td>
+                        <td>${item.repairYear || '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+        };
+        
+        const html = `
+            <div class="table-title school">🏫 Школы (${schools.length})</div>
+            <table class="object-table">
+                <thead><tr>
+                    <th>Наименование</th><th>Адрес</th><th>Год пост.</th><th>Площадь</th><th>Мощность</th><th>Факт</th><th>% загрузки</th><th>2-я смена</th><th>Статус</th><th>Ремонт</th>
+                </tr></thead>
+                <tbody>${renderTableRows(schools, 'school')}</tbody>
+            </table>
+            <div class="table-title kindergarten">🏫 Детские сады (${kindergartens.length})</div>
+            <table class="object-table">
+                <thead><tr>
+                    <th>Наименование</th><th>Адрес</th><th>Год пост.</th><th>Площадь</th><th>Мощность</th><th>Факт</th><th>% загрузки</th><th>Очередь</th><th>Статус</th><th>Ремонт</th>
+                </tr></thead>
+                <tbody>${renderTableRows(kindergartens, 'kindergarten')}</tbody>
+            </table>
+        `;
+        
+        document.getElementById('tablesSection').innerHTML = html;
+        
+        // Клик по строке таблицы
+        document.querySelectorAll('.object-table tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                const id = row.dataset.id;
+                const obj = currentObjects.find(o => o.id === id);
+                if (obj && obj.coordinates) {
+                    selectObject(obj);
                     map.setCenter([obj.coordinates.lat, obj.coordinates.lng], 16);
                 }
-            };
-            container.appendChild(card);
+            });
         });
     }
     
     function getObjectColor(obj, isNear = true) {
         const baseColor = obj.type === 'school' ? '#3b82f6' : '#22c55e';
-        if (!isNear) {
-            // Затемнённый цвет
-            return obj.type === 'school' ? '#1e40af' : '#14532d';
-        }
-        return baseColor;
+        return isNear ? baseColor : (obj.type === 'school' ? '#93c5fd' : '#86efac');
+    }
+    
+    function createPlacemark(obj) {
+        const loadPercent = parseInt(obj.loadPercent);
+        let color = obj.type === 'school' ? '#3b82f6' : '#22c55e';
+        
+        const placemark = new ymaps.Placemark(
+            [obj.coordinates.lat, obj.coordinates.lng],
+            {
+                balloonContentHeader: obj.name,
+                balloonContentBody: `
+                    <strong>${obj.type === 'school' ? 'Школа' : 'Детский сад'}</strong><br>
+                    📍 ${obj.address}<br>
+                    ${obj.capacity ? `👥 Вместимость: ${obj.capacity} мест<br>` : ''}
+                    ${obj.loadPercent ? `📊 Загрузка: ${obj.loadPercent}%<br>` : ''}
+                    ${obj.secondShift ? `🕐 ${obj.secondShift}<br>` : ''}
+                    ${obj.status ? `📋 ${obj.status}` : ''}
+                `,
+                hintContent: obj.name
+            },
+            { preset: 'islands#circleIcon', iconColor: color }
+        );
+        
+        placemark.userData = { objectId: obj.id, originalColor: color, type: obj.type };
+        placemark.events.add('click', () => selectObject(obj));
+        
+        return placemark;
+    }
+    
+    function selectObject(obj) {
+        // Показать в таблице
+        document.querySelectorAll('.object-table tbody tr').forEach(row => {
+            row.style.background = row.dataset.id === obj.id ? (obj.type === 'school' ? '#eff6ff' : '#f0fdf4') : '';
+        });
+        
+        // Подсветить маршрут
+        if (userPoint) highlightRouteToObject(obj.id);
+        
+        // Открыть балун
+        const pm = placemarks.find(p => p.userData?.objectId === obj.id);
+        if (pm) pm.balloon.open();
+    }
+    
+    async function geocodeAllObjects(objects) {
+        const geocodePromises = objects.map(async (obj) => {
+            if (!obj.coordinates && obj.address) {
+                try {
+                    const result = await ymaps.geocode(obj.address, { results: 1 });
+                    const firstGeoObject = result.geoObjects.get(0);
+                    if (firstGeoObject) {
+                        const coords = firstGeoObject.geometry.getCoordinates();
+                        obj.coordinates = { lat: coords[0], lng: coords[1] };
+                        const placemark = createPlacemark(obj);
+                        placemarks.push(placemark);
+                        map.geoObjects.add(placemark);
+                    }
+                } catch(err) { console.error(`Гео ${obj.name} ошибка:`, err); }
+            } else if (obj.coordinates) {
+                const placemark = createPlacemark(obj);
+                placemarks.push(placemark);
+                map.geoObjects.add(placemark);
+            }
+        });
+        
+        await Promise.all(geocodePromises);
+        
+        const firstWithCoords = objects.find(o => o.coordinates);
+        if (firstWithCoords) map.setCenter([firstWithCoords.coordinates.lat, firstWithCoords.coordinates.lng], 12);
     }
     
     function updatePlacemarksOpacity() {
         if (!userPoint) {
-            // Нет точки — все яркие
             placemarks.forEach(pm => {
                 pm.options.set('iconColor', pm.userData.originalColor);
                 pm.options.set('opacity', 1);
             });
-            document.getElementById('radiusControl').style.display = 'none';
-            document.getElementById('nearCount').textContent = '';
+            document.getElementById('radiusSection').style.display = 'none';
             return;
         }
         
-        document.getElementById('radiusControl').style.display = 'block';
-        
-        let nearCount = 0;
+        document.getElementById('radiusSection').style.display = 'block';
         const point = [userPoint.lat, userPoint.lng];
+        let nearCount = 0;
         
         placemarks.forEach(pm => {
             const coords = pm.geometry.getCoordinates();
             const distance = ymaps.coordSystem.geo.getDistance(point, coords);
             const isNear = distance <= radius;
-            
             if (isNear) nearCount++;
-            
             const color = getObjectColor(pm.userData, isNear);
             pm.options.set('iconColor', color);
-            pm.options.set('opacity', isNear ? 1 : 0.5);
+            pm.options.set('opacity', isNear ? 1 : 0.4);
         });
         
-        document.getElementById('nearCount').innerHTML = `🎯 В радиусе ${radius}м: <strong style="color:#22c55e">${nearCount}</strong>`;
-        
-        // Перестраиваем маршруты от точки
         buildRoutesFromPoint();
     }
     
     async function buildRoutesFromPoint() {
-        // Удаляем старые маршруты
         currentRoutes.forEach(route => {
-            if (route && map.geoObjects.indexOf(route) !== -1) {
-                map.geoObjects.remove(route);
-            }
+            if (route && map.geoObjects.indexOf(route) !== -1) map.geoObjects.remove(route);
         });
         currentRoutes = [];
         
         if (!userPoint) return;
         
         const pointCoords = [userPoint.lat, userPoint.lng];
+        const mode = travelMode === 'car' ? 'auto' : 'pedestrian';
         
         for (const obj of currentObjects) {
             if (!obj.coordinates) continue;
-            
             const targetCoords = [obj.coordinates.lat, obj.coordinates.lng];
             const distance = ymaps.coordSystem.geo.getDistance(pointCoords, targetCoords);
             
-            // Строим маршрут только для объектов в радиусе или если нужно показать все маршруты
             if (distance <= radius * 1.2) {
                 try {
                     const multiRoute = new ymaps.multiRouter.MultiRoute({
                         referencePoints: [pointCoords, targetCoords],
-                        params: { routingMode: 'pedestrian' }
-                    }, {
-                        boundsAutoApply: false,
-                        wayPointDraggable: false,
-                        visible: false  // скрываем по умолчанию
-                    });
+                        params: { routingMode: mode }
+                    }, { boundsAutoApply: false, wayPointDraggable: false, opacity: 0.3, strokeColor: '#3b82f6', strokeWidth: 3 });
                     
-                    multiRoute.userData = { objectId: obj.id, distance: distance };
+                    multiRoute.userData = { objectId: obj.id };
                     
-                    // Ждём загрузки маршрута
                     multiRoute.model.events.add('requestsuccess', () => {
                         const routes = multiRoute.getRoutes();
                         if (routes.length > 0) {
-                            const routeDistance = routes[0].properties.get('distance')?.text || 
-                                                  (distance / 1000).toFixed(1) + ' км';
-                            multiRoute.userData.distanceText = routeDistance;
+                            const dist = routes[0].properties.get('distance');
+                            if (dist) multiRoute.userData.distanceText = dist.text;
                         }
                     });
                     
                     map.geoObjects.add(multiRoute);
                     currentRoutes.push(multiRoute);
-                } catch(e) {
-                    console.error('Ошибка маршрута', e);
+                } catch(e) { console.error('Маршрут ошибка:', e); }
+            }
+        }
+    }
+    
+    function highlightRouteToObject(objectId) {
+        currentRoutes.forEach(route => {
+            if (route) {
+                route.options.set('strokeColor', '#3b82f6');
+                route.options.set('opacity', 0.3);
+                route.options.set('strokeWidth', 3);
+            }
+        });
+        
+        const targetRoute = currentRoutes.find(r => r.userData?.objectId === objectId);
+        if (targetRoute) {
+            targetRoute.options.set('strokeColor', '#ef4444');
+            targetRoute.options.set('opacity', 1);
+            targetRoute.options.set('strokeWidth', 5);
+            
+            if (targetRoute.userData?.distanceText) {
+                const info = document.querySelector('.stats');
+                if (info) {
+                    const distDiv = document.getElementById('distanceInfo') || (() => {
+                        const d = document.createElement('div');
+                        d.id = 'distanceInfo';
+                        d.style.cssText = 'position:absolute; bottom:80px; left:20px; background:white; padding:8px 12px; border-radius:12px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); z-index:20;';
+                        document.querySelector('.map-container').appendChild(d);
+                        return d;
+                    })();
+                    distDiv.innerHTML = `🚶 Расстояние: ${targetRoute.userData.distanceText}`;
+                    distDiv.style.display = 'block';
+                    setTimeout(() => { if(distDiv) distDiv.style.display = 'none'; }, 3000);
                 }
             }
         }
     }
     
     function setUserPoint(coords) {
-        if (userPointPlacemark) {
-            map.geoObjects.remove(userPointPlacemark);
-        }
+        if (userPointPlacemark) map.geoObjects.remove(userPointPlacemark);
         
         userPoint = { lat: coords[0], lng: coords[1] };
-        
         userPointPlacemark = new ymaps.Placemark(coords, {
             hintContent: 'Центр поиска',
-            balloonContent: `Точка поиска<br>Радиус: ${radius} м`
-        }, {
-            preset: 'islands#redCircleIcon',
-            draggable: true
-        });
+            balloonContent: `Радиус: ${radius} м`
+        }, { preset: 'islands#redCircleIcon', draggable: true });
         
         userPointPlacemark.events.add('dragend', (e) => {
             const newCoords = e.get('target').geometry.getCoordinates();
@@ -609,7 +545,6 @@
         
         map.geoObjects.add(userPointPlacemark);
         document.getElementById('clearPointBtn').style.display = 'block';
-        
         updatePlacemarksOpacity();
     }
     
@@ -621,240 +556,27 @@
         userPoint = null;
         
         currentRoutes.forEach(route => {
-            if (route && map.geoObjects.indexOf(route) !== -1) {
-                map.geoObjects.remove(route);
-            }
+            if (route && map.geoObjects.indexOf(route) !== -1) map.geoObjects.remove(route);
         });
         currentRoutes = [];
         
         document.getElementById('clearPointBtn').style.display = 'none';
-        document.getElementById('radiusControl').style.display = 'none';
-        document.getElementById('nearCount').textContent = '';
+        document.getElementById('radiusSection').style.display = 'none';
         
-        // Восстанавливаем цвета меток
         placemarks.forEach(pm => {
             pm.options.set('iconColor', pm.userData.originalColor);
             pm.options.set('opacity', 1);
         });
     }
     
-    document.getElementById('clearPointBtn').addEventListener('click', () => {
-        clearUserPoint();
-    });
-    
-    document.getElementById('radiusSlider').addEventListener('input', (e) => {
-        radius = parseInt(e.target.value);
-        document.getElementById('radiusValue').textContent = radius + ' м';
-        if (userPoint) {
-            updatePlacemarksOpacity();
-        }
-    });
-    
-    function createPlacemark(obj) {
-        const loadPercent = parseInt(obj.loadPercent);
-        let color = obj.type === 'school' ? '#3b82f6' : '#22c55e';
-        
-        const placemark = new ymaps.Placemark(
-            [obj.coordinates.lat, obj.coordinates.lng],
-            {
-                balloonContentHeader: obj.name,
-                balloonContentBody: `
-                    <strong>Тип:</strong> ${obj.type === 'school' ? 'Школа' : 'Детский сад'}<br>
-                    <strong>Адрес:</strong> ${obj.address || '—'}<br>
-                    ${obj.capacity ? `<strong>Вместимость:</strong> ${obj.capacity} мест<br>` : ''}
-                    ${obj.loadPercent ? `<strong>Загрузка:</strong> ${obj.loadPercent}%<br>` : ''}
-                    <a href="#" onclick="selectObjectById('${obj.id}'); return false;">Подробнее →</a>
-                `,
-                hintContent: obj.name
-            },
-            {
-                preset: 'islands#circleIcon',
-                iconColor: color
-            }
-        );
-        
-        placemark.userData = {
-            objectId: obj.id,
-            originalColor: color,
-            type: obj.type
-        };
-        
-        placemark.events.add('click', () => {
-            const idx = currentObjects.findIndex(o => o.id === obj.id);
-            if (idx !== -1) selectObject(obj, idx);
-        });
-        
-        return placemark;
-    }
-    
-    async function geocodeAllObjects(objects) {
-        const geocodePromises = objects.map(async (obj, idx) => {
-            if (!obj.coordinates && obj.address) {
-                try {
-                    const result = await ymaps.geocode(obj.address, { results: 1 });
-                    const firstGeoObject = result.geoObjects.get(0);
-                    if (firstGeoObject) {
-                        const coords = firstGeoObject.geometry.getCoordinates();
-                        obj.coordinates = { lat: coords[0], lng: coords[1] };
-                        
-                        const placemark = createPlacemark(obj);
-                        placemarks.push(placemark);
-                        map.geoObjects.add(placemark);
-                    }
-                } catch (err) {
-                    console.error(`Геокодирование для ${obj.name} не удалось:`, err);
-                }
-            } else if (obj.coordinates) {
-                const placemark = createPlacemark(obj);
-                placemarks.push(placemark);
-                map.geoObjects.add(placemark);
-            }
-        });
-        
-        await Promise.all(geocodePromises);
-        renderObjectsList(objects);
-        
-        const firstWithCoords = objects.find(o => o.coordinates);
-        if (firstWithCoords) {
-            map.setCenter([firstWithCoords.coordinates.lat, firstWithCoords.coordinates.lng], 12);
-        }
-    }
-    
-    function selectObject(obj, idx) {
-        document.querySelectorAll('.object-card').forEach((card, i) => {
-            card.classList.toggle('active', i === idx);
-        });
-        showInfoPanel(obj);
-        
-        if (obj.coordinates) {
-            map.setCenter([obj.coordinates.lat, obj.coordinates.lng], 16);
-            
-            // Показываем маршрут от точки до объекта
-            if (userPoint) {
-                highlightRouteToObject(obj.id);
-            }
-        }
-    }
-    
-    function highlightRouteToObject(objectId) {
-        // Убираем подсветку всех маршрутов
-        currentRoutes.forEach(route => {
-            if (route) {
-                route.options.set('strokeColor', '#3b82f6');
-                route.options.set('strokeWidth', 3);
-                route.options.set('opacity', 0.3);
-            }
-        });
-        
-        // Подсвечиваем нужный
-        const targetRoute = currentRoutes.find(r => r.userData?.objectId === objectId);
-        if (targetRoute) {
-            targetRoute.options.set('strokeColor', '#ef4444');
-            targetRoute.options.set('strokeWidth', 5);
-            targetRoute.options.set('opacity', 1);
-            targetRoute.options.set('visible', true);
-            
-            // Показываем расстояние
-            if (targetRoute.userData?.distanceText) {
-                const panel = document.getElementById('infoPanel');
-                if (panel.classList.contains('show')) {
-                    const content = document.getElementById('infoContent');
-                    const distHtml = `<div class="info-field" style="background:#eef2ff; padding:8px; border-radius:8px; margin-top:8px;">
-                        <div class="info-label">🚶 Расстояние от точки поиска</div>
-                        <div class="info-value">${targetRoute.userData.distanceText}</div>
-                    </div>`;
-                    // Добавляем, если ещё нет
-                    if (!content.innerHTML.includes('Расстояние от точки поиска')) {
-                        content.innerHTML += distHtml;
-                    }
-                }
-            }
-        }
-    }
-    
-    function selectObjectById(id) {
-        const idx = currentObjects.findIndex(o => o.id === id);
-        if (idx !== -1) {
-            selectObject(currentObjects[idx], idx);
-        }
-    }
-    
-    function showInfoPanel(obj) {
-        const panel = document.getElementById('infoPanel');
-        const content = document.getElementById('infoContent');
-        
-        content.innerHTML = `
-            <h3>${obj.name || 'Без названия'}</h3>
-            <div class="info-field">
-                <div class="info-label">Тип учреждения</div>
-                <div class="info-value">${obj.type === 'school' ? '🏫 Школа' : '🏫 Детский сад'}</div>
-            </div>
-            <div class="info-field">
-                <div class="info-label">📍 Адрес</div>
-                <div class="info-value">${obj.address || 'Не указан'}</div>
-            </div>
-            <div class="info-field">
-                <div class="info-label">🏛️ Городской округ</div>
-                <div class="info-value">${obj.district || 'Не указан'}</div>
-            </div>
-            ${obj.capacity ? `
-            <div class="info-field">
-                <div class="info-label">👥 Вместимость</div>
-                <div class="info-value">${obj.capacity} мест</div>
-            </div>
-            ` : ''}
-            ${obj.loadPercent ? `
-            <div class="info-field">
-                <div class="info-label">📊 Загрузка</div>
-                <div class="info-value">${obj.loadPercent}%</div>
-            </div>
-            ` : ''}
-            ${obj.secondShift ? `
-            <div class="info-field">
-                <div class="info-label">🕐 Вторая смена</div>
-                <div class="info-value">${obj.secondShift} детей</div>
-            </div>
-            ` : ''}
-            ${obj.status ? `
-            <div class="info-field">
-                <div class="info-label">📋 Статус</div>
-                <div class="info-value">${obj.status}</div>
-            </div>
-            ` : ''}
-        `;
-        
-        panel.classList.add('show');
-    }
-    
-    function closeInfoPanel() {
-        document.getElementById('infoPanel').classList.remove('show');
-        
-        // Убираем подсветку маршрутов
-        currentRoutes.forEach(route => {
-            if (route) {
-                route.options.set('strokeColor', '#3b82f6');
-                route.options.set('strokeWidth', 3);
-                route.options.set('opacity', 0.3);
-            }
-        });
-    }
-    
     function clearMap() {
         if (placemarks.length) {
-            placemarks.forEach(p => {
-                if (p && map.geoObjects.indexOf(p) !== -1) {
-                    map.geoObjects.remove(p);
-                }
-            });
+            placemarks.forEach(p => { if (p && map.geoObjects.indexOf(p) !== -1) map.geoObjects.remove(p); });
             placemarks = [];
         }
-        currentRoutes.forEach(route => {
-            if (route && map.geoObjects.indexOf(route) !== -1) {
-                map.geoObjects.remove(route);
-            }
-        });
+        currentRoutes.forEach(route => { if (route && map.geoObjects.indexOf(route) !== -1) map.geoObjects.remove(route); });
         currentRoutes = [];
-        closeInfoPanel();
+        clearUserPoint();
     }
 </script>
 </body>
