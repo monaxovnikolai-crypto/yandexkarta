@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Карта школ и детских садов Московской области</title>
+    <title>Карта школ и садов Московской области</title>
     <style>
         * {
             margin: 0;
@@ -20,13 +20,26 @@
         .app {
             display: flex;
             height: 100vh;
+            flex-direction: row;
         }
         
-        /* Левая панель */
+        /* КАРТА СЛЕВА */
+        .map-container {
+            flex: 2;
+            position: relative;
+            min-width: 60%;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* ПАНЕЛЬ СПРАВА */
         .sidebar {
-            width: 360px;
+            width: 380px;
             background: #f8fafc;
-            border-right: 1px solid #e2e8f0;
+            border-left: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
@@ -73,7 +86,6 @@
             font-size: 14px;
             background: white;
             cursor: pointer;
-            transition: all 0.2s;
         }
         
         .district-select:focus {
@@ -87,6 +99,32 @@
             font-size: 13px;
             color: #1e40af;
             border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .radius-control {
+            padding: 12px 20px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .radius-control label {
+            font-size: 12px;
+            color: #64748b;
+            display: block;
+            margin-bottom: 6px;
+        }
+        
+        .radius-slider {
+            width: 100%;
+        }
+        
+        .radius-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-top: 4px;
         }
         
         .objects-list {
@@ -111,8 +149,17 @@
         }
         
         .object-card.active {
-            border-left: 3px solid #3b82f6;
+            border-left: 3px solid;
+        }
+        
+        .object-card.school.active {
+            border-left-color: #3b82f6;
             background: #eff6ff;
+        }
+        
+        .object-card.kindergarten.active {
+            border-left-color: #22c55e;
+            background: #f0fdf4;
         }
         
         .object-name {
@@ -151,24 +198,28 @@
             color: #64748b;
         }
         
-        /* Карта */
-        .map-container {
-            flex: 1;
-            position: relative;
+        .load-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
         }
         
-        #map {
-            width: 100%;
+        .load-bar-fill {
             height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.3s;
         }
         
-        /* Информационная панель */
+        /* Информационная панель на карте */
         .info-panel {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            width: 340px;
-            max-height: 80vh;
+            width: 320px;
+            max-height: 70vh;
             overflow-y: auto;
             background: white;
             border-radius: 16px;
@@ -217,56 +268,75 @@
             color: #1e293b;
         }
         
-        .route-btn {
-            width: 100%;
+        .route-list {
             margin-top: 12px;
-            padding: 10px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+        }
+        
+        .route-item {
+            padding: 8px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin-bottom: 6px;
             cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
         }
         
-        .route-btn:hover {
-            background: #2563eb;
-        }
-        
-        .load-bar {
-            height: 4px;
+        .route-item:hover {
             background: #e2e8f0;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 8px;
         }
         
-        .load-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: #ef4444;
-            border-radius: 2px;
-            transition: width 0.3s;
+        .route-item .route-dist {
+            float: right;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        
+        .clear-point-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            z-index: 20;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .clear-point-btn:hover {
+            background: #f1f5f9;
         }
         
         @media (max-width: 768px) {
             .sidebar {
-                width: 280px;
+                width: 300px;
             }
             .info-panel {
                 width: 280px;
-                bottom: 10px;
-                right: 10px;
             }
         }
     </style>
 </head>
 <body>
 <div class="app">
+    <div class="map-container">
+        <div id="map"></div>
+        <button class="clear-point-btn" id="clearPointBtn" style="display: none;">🗑️ Очистить точку</button>
+        <div id="infoPanel" class="info-panel">
+            <button class="close" onclick="closeInfoPanel()">×</button>
+            <div id="infoContent"></div>
+        </div>
+    </div>
+    
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>🏫 Образовательная инфраструктура</h1>
-            <p>Школы Московской области</p>
+            <h1>🏫 Образовательная инфраструктура МО</h1>
+            <p>Школы и детские сады</p>
         </div>
         
         <div class="filters">
@@ -276,37 +346,37 @@
             </select>
         </div>
         
+        <div class="radius-control" id="radiusControl" style="display: none;">
+            <label>🎯 Радиус подсветки (метров)</label>
+            <input type="range" id="radiusSlider" class="radius-slider" min="100" max="2000" step="50" value="800">
+            <div class="radius-value" id="radiusValue">800 м</div>
+        </div>
+        
         <div id="stats" class="stats" style="display: none;">
-            📍 Объектов: <span id="objectCount">0</span>
+            <span>📍 Объектов: <span id="objectCount">0</span></span>
+            <span id="nearCount" style="color: #22c55e;"></span>
         </div>
         
         <div id="objectsList" class="objects-list">
             <div class="loading">Выберите округ для загрузки объектов</div>
         </div>
     </div>
-    
-    <div class="map-container">
-        <div id="map"></div>
-        <div id="infoPanel" class="info-panel">
-            <button class="close" onclick="closeInfoPanel()">×</button>
-            <div id="infoContent"></div>
-        </div>
-    </div>
 </div>
 
 <script src="https://api-maps.yandex.ru/2.1/?apikey=87be84cf-0dc0-454f-974a-dc91198feaca&lang=ru_RU"></script>
 <script>
-    // URL вашего Worker
     const WORKER_URL = 'https://yandexkarty.monaxovnikolai-31d.workers.dev';
     
     let map = null;
     let placemarks = [];
     let currentObjects = [];
     let currentDistrict = '';
-    let currentRoute = null;
-    let currentUserPlacemark = null;
+    let currentRoutes = []; // массив маршрутов
+    let userPoint = null;
+    let userPointPlacemark = null;
+    let radius = 800;
+    let activeRoute = null;
     
-    // Инициализация карты
     ymaps.ready(() => {
         map = new ymaps.Map('map', {
             center: [55.7, 37.6],
@@ -314,15 +384,19 @@
             controls: ['zoomControl', 'fullscreenControl']
         });
         
+        // Клик по карте — ставим точку
+        map.events.add('click', (e) => {
+            const coords = e.get('coords');
+            setUserPoint(coords);
+        });
+        
         loadDistricts();
     });
     
-    // Загрузка списка округов
     async function loadDistricts() {
         try {
             const response = await fetch(`${WORKER_URL}/districts`);
             const data = await response.json();
-            
             const select = document.getElementById('districtSelect');
             
             if (data.districts && data.districts.length > 0) {
@@ -335,28 +409,27 @@
                 });
             } else {
                 select.innerHTML = '<option value="">Нет данных</option>';
-                console.error('Нет округов:', data);
             }
             
             select.addEventListener('change', (e) => {
                 if (e.target.value) {
+                    clearUserPoint();
                     loadObjects(e.target.value);
                 } else {
                     clearMap();
                 }
             });
-            
         } catch (err) {
-            console.error('Ошибка загрузки округов:', err);
+            console.error(err);
             document.getElementById('districtSelect').innerHTML = '<option value="">Ошибка загрузки</option>';
         }
     }
     
-    // Загрузка объектов по округу
     async function loadObjects(district) {
         currentDistrict = district;
         document.getElementById('objectsList').innerHTML = '<div class="loading">Загрузка объектов...</div>';
         clearMap();
+        clearUserPoint();
         
         try {
             const response = await fetch(`${WORKER_URL}/objects?district=${encodeURIComponent(district)}`);
@@ -364,7 +437,7 @@
             
             if (data.objects && data.objects.length > 0) {
                 currentObjects = data.objects;
-                document.getElementById('stats').style.display = 'block';
+                document.getElementById('stats').style.display = 'flex';
                 document.getElementById('objectCount').textContent = data.objects.length;
                 renderObjectsList(data.objects);
                 await geocodeAllObjects(data.objects);
@@ -372,14 +445,12 @@
                 document.getElementById('objectsList').innerHTML = '<div class="loading">Нет объектов в выбранном округе</div>';
                 document.getElementById('stats').style.display = 'none';
             }
-            
         } catch (err) {
-            console.error('Ошибка загрузки объектов:', err);
+            console.error(err);
             document.getElementById('objectsList').innerHTML = '<div class="loading">Ошибка загрузки объектов</div>';
         }
     }
     
-    // Рендер списка объектов
     function renderObjectsList(objects) {
         const container = document.getElementById('objectsList');
         container.innerHTML = '';
@@ -389,11 +460,13 @@
             const loadColor = loadPercent > 120 ? '#ef4444' : (loadPercent > 100 ? '#e8a000' : '#22c55e');
             
             const card = document.createElement('div');
-            card.className = 'object-card';
+            card.className = `object-card ${obj.type}`;
             card.setAttribute('data-id', obj.id);
             card.innerHTML = `
                 <div class="object-name">
-                    <span class="object-badge badge-school">🏫 Школа</span>
+                    <span class="object-badge ${obj.type === 'school' ? 'badge-school' : 'badge-kindergarten'}">
+                        ${obj.type === 'school' ? '🏫 Школа' : '🏫 Детский сад'}
+                    </span>
                     <span style="margin-left: 8px;">${obj.name || 'Без названия'}</span>
                 </div>
                 <div class="object-address">📍 ${obj.address || 'Адрес не указан'}</div>
@@ -417,24 +490,179 @@
         });
     }
     
-    // Создание метки
-    function createPlacemark(obj, idx) {
+    function getObjectColor(obj, isNear = true) {
+        const baseColor = obj.type === 'school' ? '#3b82f6' : '#22c55e';
+        if (!isNear) {
+            // Затемнённый цвет
+            return obj.type === 'school' ? '#1e40af' : '#14532d';
+        }
+        return baseColor;
+    }
+    
+    function updatePlacemarksOpacity() {
+        if (!userPoint) {
+            // Нет точки — все яркие
+            placemarks.forEach(pm => {
+                pm.options.set('iconColor', pm.userData.originalColor);
+                pm.options.set('opacity', 1);
+            });
+            document.getElementById('radiusControl').style.display = 'none';
+            document.getElementById('nearCount').textContent = '';
+            return;
+        }
+        
+        document.getElementById('radiusControl').style.display = 'block';
+        
+        let nearCount = 0;
+        const point = [userPoint.lat, userPoint.lng];
+        
+        placemarks.forEach(pm => {
+            const coords = pm.geometry.getCoordinates();
+            const distance = ymaps.coordSystem.geo.getDistance(point, coords);
+            const isNear = distance <= radius;
+            
+            if (isNear) nearCount++;
+            
+            const color = getObjectColor(pm.userData, isNear);
+            pm.options.set('iconColor', color);
+            pm.options.set('opacity', isNear ? 1 : 0.5);
+        });
+        
+        document.getElementById('nearCount').innerHTML = `🎯 В радиусе ${radius}м: <strong style="color:#22c55e">${nearCount}</strong>`;
+        
+        // Перестраиваем маршруты от точки
+        buildRoutesFromPoint();
+    }
+    
+    async function buildRoutesFromPoint() {
+        // Удаляем старые маршруты
+        currentRoutes.forEach(route => {
+            if (route && map.geoObjects.indexOf(route) !== -1) {
+                map.geoObjects.remove(route);
+            }
+        });
+        currentRoutes = [];
+        
+        if (!userPoint) return;
+        
+        const pointCoords = [userPoint.lat, userPoint.lng];
+        
+        for (const obj of currentObjects) {
+            if (!obj.coordinates) continue;
+            
+            const targetCoords = [obj.coordinates.lat, obj.coordinates.lng];
+            const distance = ymaps.coordSystem.geo.getDistance(pointCoords, targetCoords);
+            
+            // Строим маршрут только для объектов в радиусе или если нужно показать все маршруты
+            if (distance <= radius * 1.2) {
+                try {
+                    const multiRoute = new ymaps.multiRouter.MultiRoute({
+                        referencePoints: [pointCoords, targetCoords],
+                        params: { routingMode: 'pedestrian' }
+                    }, {
+                        boundsAutoApply: false,
+                        wayPointDraggable: false,
+                        visible: false  // скрываем по умолчанию
+                    });
+                    
+                    multiRoute.userData = { objectId: obj.id, distance: distance };
+                    
+                    // Ждём загрузки маршрута
+                    multiRoute.model.events.add('requestsuccess', () => {
+                        const routes = multiRoute.getRoutes();
+                        if (routes.length > 0) {
+                            const routeDistance = routes[0].properties.get('distance')?.text || 
+                                                  (distance / 1000).toFixed(1) + ' км';
+                            multiRoute.userData.distanceText = routeDistance;
+                        }
+                    });
+                    
+                    map.geoObjects.add(multiRoute);
+                    currentRoutes.push(multiRoute);
+                } catch(e) {
+                    console.error('Ошибка маршрута', e);
+                }
+            }
+        }
+    }
+    
+    function setUserPoint(coords) {
+        if (userPointPlacemark) {
+            map.geoObjects.remove(userPointPlacemark);
+        }
+        
+        userPoint = { lat: coords[0], lng: coords[1] };
+        
+        userPointPlacemark = new ymaps.Placemark(coords, {
+            hintContent: 'Центр поиска',
+            balloonContent: `Точка поиска<br>Радиус: ${radius} м`
+        }, {
+            preset: 'islands#redCircleIcon',
+            draggable: true
+        });
+        
+        userPointPlacemark.events.add('dragend', (e) => {
+            const newCoords = e.get('target').geometry.getCoordinates();
+            userPoint = { lat: newCoords[0], lng: newCoords[1] };
+            updatePlacemarksOpacity();
+        });
+        
+        map.geoObjects.add(userPointPlacemark);
+        document.getElementById('clearPointBtn').style.display = 'block';
+        
+        updatePlacemarksOpacity();
+    }
+    
+    function clearUserPoint() {
+        if (userPointPlacemark) {
+            map.geoObjects.remove(userPointPlacemark);
+            userPointPlacemark = null;
+        }
+        userPoint = null;
+        
+        currentRoutes.forEach(route => {
+            if (route && map.geoObjects.indexOf(route) !== -1) {
+                map.geoObjects.remove(route);
+            }
+        });
+        currentRoutes = [];
+        
+        document.getElementById('clearPointBtn').style.display = 'none';
+        document.getElementById('radiusControl').style.display = 'none';
+        document.getElementById('nearCount').textContent = '';
+        
+        // Восстанавливаем цвета меток
+        placemarks.forEach(pm => {
+            pm.options.set('iconColor', pm.userData.originalColor);
+            pm.options.set('opacity', 1);
+        });
+    }
+    
+    document.getElementById('clearPointBtn').addEventListener('click', () => {
+        clearUserPoint();
+    });
+    
+    document.getElementById('radiusSlider').addEventListener('input', (e) => {
+        radius = parseInt(e.target.value);
+        document.getElementById('radiusValue').textContent = radius + ' м';
+        if (userPoint) {
+            updatePlacemarksOpacity();
+        }
+    });
+    
+    function createPlacemark(obj) {
         const loadPercent = parseInt(obj.loadPercent);
-        let color = '#3b82f6';
-        if (loadPercent > 120) color = '#ef4444';
-        else if (loadPercent > 100) color = '#e8a000';
-        else if (obj.capacity && parseInt(obj.capacity) > 0) color = '#22c55e';
+        let color = obj.type === 'school' ? '#3b82f6' : '#22c55e';
         
         const placemark = new ymaps.Placemark(
             [obj.coordinates.lat, obj.coordinates.lng],
             {
-                balloonContentHeader: obj.name || 'Школа',
+                balloonContentHeader: obj.name,
                 balloonContentBody: `
+                    <strong>Тип:</strong> ${obj.type === 'school' ? 'Школа' : 'Детский сад'}<br>
                     <strong>Адрес:</strong> ${obj.address || '—'}<br>
                     ${obj.capacity ? `<strong>Вместимость:</strong> ${obj.capacity} мест<br>` : ''}
                     ${obj.loadPercent ? `<strong>Загрузка:</strong> ${obj.loadPercent}%<br>` : ''}
-                    ${obj.secondShift ? `<strong>2-я смена:</strong> ${obj.secondShift} детей<br>` : ''}
-                    ${obj.status ? `<strong>Статус:</strong> ${obj.status}<br>` : ''}
                     <a href="#" onclick="selectObjectById('${obj.id}'); return false;">Подробнее →</a>
                 `,
                 hintContent: obj.name
@@ -445,14 +673,20 @@
             }
         );
         
+        placemark.userData = {
+            objectId: obj.id,
+            originalColor: color,
+            type: obj.type
+        };
+        
         placemark.events.add('click', () => {
-            selectObject(obj, idx);
+            const idx = currentObjects.findIndex(o => o.id === obj.id);
+            if (idx !== -1) selectObject(obj, idx);
         });
         
         return placemark;
     }
     
-    // Геокодирование всех объектов
     async function geocodeAllObjects(objects) {
         const geocodePromises = objects.map(async (obj, idx) => {
             if (!obj.coordinates && obj.address) {
@@ -463,7 +697,7 @@
                         const coords = firstGeoObject.geometry.getCoordinates();
                         obj.coordinates = { lat: coords[0], lng: coords[1] };
                         
-                        const placemark = createPlacemark(obj, idx);
+                        const placemark = createPlacemark(obj);
                         placemarks.push(placemark);
                         map.geoObjects.add(placemark);
                     }
@@ -471,7 +705,7 @@
                     console.error(`Геокодирование для ${obj.name} не удалось:`, err);
                 }
             } else if (obj.coordinates) {
-                const placemark = createPlacemark(obj, idx);
+                const placemark = createPlacemark(obj);
                 placemarks.push(placemark);
                 map.geoObjects.add(placemark);
             }
@@ -486,7 +720,6 @@
         }
     }
     
-    // Выбор объекта
     function selectObject(obj, idx) {
         document.querySelectorAll('.object-card').forEach((card, i) => {
             card.classList.toggle('active', i === idx);
@@ -494,7 +727,48 @@
         showInfoPanel(obj);
         
         if (obj.coordinates) {
-            buildRoute(obj.coordinates);
+            map.setCenter([obj.coordinates.lat, obj.coordinates.lng], 16);
+            
+            // Показываем маршрут от точки до объекта
+            if (userPoint) {
+                highlightRouteToObject(obj.id);
+            }
+        }
+    }
+    
+    function highlightRouteToObject(objectId) {
+        // Убираем подсветку всех маршрутов
+        currentRoutes.forEach(route => {
+            if (route) {
+                route.options.set('strokeColor', '#3b82f6');
+                route.options.set('strokeWidth', 3);
+                route.options.set('opacity', 0.3);
+            }
+        });
+        
+        // Подсвечиваем нужный
+        const targetRoute = currentRoutes.find(r => r.userData?.objectId === objectId);
+        if (targetRoute) {
+            targetRoute.options.set('strokeColor', '#ef4444');
+            targetRoute.options.set('strokeWidth', 5);
+            targetRoute.options.set('opacity', 1);
+            targetRoute.options.set('visible', true);
+            
+            // Показываем расстояние
+            if (targetRoute.userData?.distanceText) {
+                const panel = document.getElementById('infoPanel');
+                if (panel.classList.contains('show')) {
+                    const content = document.getElementById('infoContent');
+                    const distHtml = `<div class="info-field" style="background:#eef2ff; padding:8px; border-radius:8px; margin-top:8px;">
+                        <div class="info-label">🚶 Расстояние от точки поиска</div>
+                        <div class="info-value">${targetRoute.userData.distanceText}</div>
+                    </div>`;
+                    // Добавляем, если ещё нет
+                    if (!content.innerHTML.includes('Расстояние от точки поиска')) {
+                        content.innerHTML += distHtml;
+                    }
+                }
+            }
         }
     }
     
@@ -505,7 +779,6 @@
         }
     }
     
-    // Показать информационную панель
     function showInfoPanel(obj) {
         const panel = document.getElementById('infoPanel');
         const content = document.getElementById('infoContent');
@@ -514,7 +787,7 @@
             <h3>${obj.name || 'Без названия'}</h3>
             <div class="info-field">
                 <div class="info-label">Тип учреждения</div>
-                <div class="info-value">🏫 Школа</div>
+                <div class="info-value">${obj.type === 'school' ? '🏫 Школа' : '🏫 Детский сад'}</div>
             </div>
             <div class="info-field">
                 <div class="info-label">📍 Адрес</div>
@@ -548,15 +821,6 @@
                 <div class="info-value">${obj.status}</div>
             </div>
             ` : ''}
-            ${obj.repairYear ? `
-            <div class="info-field">
-                <div class="info-label">🔧 Год ремонта</div>
-                <div class="info-value">${obj.repairYear}</div>
-            </div>
-            ` : ''}
-            <button class="route-btn" onclick="buildRouteFromCurrent(${obj.coordinates ? `[${obj.coordinates.lat}, ${obj.coordinates.lng}]` : 'null'})">
-                🚶 Построить маршрут
-            </button>
         `;
         
         panel.classList.add('show');
@@ -564,78 +828,17 @@
     
     function closeInfoPanel() {
         document.getElementById('infoPanel').classList.remove('show');
-        if (currentRoute) {
-            map.geoObjects.remove(currentRoute);
-            currentRoute = null;
-        }
-    }
-    
-    // Построить маршрут
-    async function buildRoute(targetCoords) {
-        if (!targetCoords) {
-            alert('Координаты объекта не определены');
-            return;
-        }
         
-        if (!navigator.geolocation) {
-            alert('Ваш браузер не поддерживает геолокацию');
-            return;
-        }
-        
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const userCoords = [position.coords.latitude, position.coords.longitude];
-                const target = [targetCoords.lat, targetCoords.lng];
-                
-                if (currentRoute) {
-                    map.geoObjects.remove(currentRoute);
-                }
-                
-                try {
-                    const multiRoute = new ymaps.multiRouter.MultiRoute({
-                        referencePoints: [userCoords, target],
-                        params: { routingMode: 'pedestrian' }
-                    }, {
-                        boundsAutoApply: true,
-                        wayPointDraggable: false
-                    });
-                    
-                    map.geoObjects.add(multiRoute);
-                    currentRoute = multiRoute;
-                    
-                    if (currentUserPlacemark) {
-                        map.geoObjects.remove(currentUserPlacemark);
-                    }
-                    currentUserPlacemark = new ymaps.Placemark(userCoords, {
-                        hintContent: 'Ваше местоположение',
-                        balloonContent: 'Вы здесь'
-                    }, {
-                        preset: 'islands#circleIcon',
-                        iconColor: '#ef4444'
-                    });
-                    map.geoObjects.add(currentUserPlacemark);
-                    
-                } catch (err) {
-                    console.error('Ошибка построения маршрута:', err);
-                    alert('Не удалось построить маршрут');
-                }
-            },
-            (err) => {
-                alert('Не удалось определить ваше местоположение. Разрешите доступ к геолокации.');
-                console.error(err);
+        // Убираем подсветку маршрутов
+        currentRoutes.forEach(route => {
+            if (route) {
+                route.options.set('strokeColor', '#3b82f6');
+                route.options.set('strokeWidth', 3);
+                route.options.set('opacity', 0.3);
             }
-        );
+        });
     }
     
-    async function buildRouteFromCurrent(coordsArray) {
-        if (!coordsArray) {
-            alert('Координаты объекта не определены');
-            return;
-        }
-        await buildRoute({ lat: coordsArray[0], lng: coordsArray[1] });
-    }
-    
-    // Очистка карты
     function clearMap() {
         if (placemarks.length) {
             placemarks.forEach(p => {
@@ -645,14 +848,12 @@
             });
             placemarks = [];
         }
-        if (currentRoute) {
-            map.geoObjects.remove(currentRoute);
-            currentRoute = null;
-        }
-        if (currentUserPlacemark) {
-            map.geoObjects.remove(currentUserPlacemark);
-            currentUserPlacemark = null;
-        }
+        currentRoutes.forEach(route => {
+            if (route && map.geoObjects.indexOf(route) !== -1) {
+                map.geoObjects.remove(route);
+            }
+        });
+        currentRoutes = [];
         closeInfoPanel();
     }
 </script>
