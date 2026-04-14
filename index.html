@@ -71,7 +71,7 @@
         
         .main-content { display: flex; flex: 1; overflow: hidden; }
         .sidebar-left, .sidebar-right {
-            width: 340px;
+            width: 360px;
             background: #f8fafc;
             display: flex;
             flex-direction: column;
@@ -193,7 +193,7 @@
         }
         
         @media (max-width: 1200px) {
-            .sidebar-left, .sidebar-right { width: 280px; }
+            .sidebar-left, .sidebar-right { width: 300px; }
         }
     </style>
 </head>
@@ -201,9 +201,9 @@
 <div class="app">
     <div class="top-panel">
         <div class="filter-group">
-            <label>🏛️ Округ:</label>
+            <label>🏛️ Городской округ:</label>
             <select id="districtSelect" class="district-select">
-                <option value="">-- Загрузка округов --</option>
+                <option value="">-- Выберите округ --</option>
             </select>
         </div>
         <div class="filter-group">
@@ -265,7 +265,21 @@
 
 <script src="https://api-maps.yandex.ru/2.1/?apikey=87be84cf-0dc0-454f-974a-dc91198feaca&lang=ru_RU"></script>
 <script>
-    // Прямая загрузка данных из Google Sheets (в обход Worker для надежности)
+    // Точный список городских округов Московской области (столбец C в Excel)
+    const DISTRICTS_LIST = [
+        "Балашиха", "Богородский", "Бронницы", "Власиха", "Волоколамск",
+        "Воскресенск", "Восход", "Дмитров", "Долгопрудный", "Домодедово",
+        "Дубна", "Егорьевск", "Жуковский", "Зарайск", "Звездный городок",
+        "Истра", "Кашира", "Клин", "Коломна", "Котельники",
+        "Красногорск", "Краснознаменск", "Королев", "Ленинский", "Лобня",
+        "Лосино-Петровский", "Лотошино", "Луховицы", "Лыткарино", "Люберцы",
+        "Можайск", "Молодежный", "Мытищи", "Наро-Фоминский", "Одинцовский",
+        "Орехово-Зуево", "Павловский Посад", "Подольск", "Пушкинский", "Раменский",
+        "Реутов", "Руза", "Сергиево-Посадский", "Серебряные Пруды", "Серпухов",
+        "Солнечногорск", "Ступино", "Талдом", "Фрязино", "Химки",
+        "Черноголовка", "Чехов", "Шатура", "Шаховская", "Щелково", "Электросталь"
+    ];
+    
     const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTK9GH4MFpbHAJfZpdMtSUoZ-cEhLyGP5TmVdUSvW8rwIRdH6n5V_erDA21R-hMsL3wAVWsJTwdObae/pub?output=csv';
     
     let map = null;
@@ -277,7 +291,7 @@
     let currentMode = 'pedestrian';
     let currentCenterPoint = null;
     let currentUserPlacemark = null;
-    let districtsList = [];
+    let geocodingInProgress = false;
 
     // Инициализация
     ymaps.ready(() => {
@@ -286,9 +300,22 @@
             zoom: 10,
             controls: ['zoomControl', 'fullscreenControl']
         });
+        
+        initDistrictSelect();
         loadAllData();
         setupEventListeners();
     });
+
+    function initDistrictSelect() {
+        const select = document.getElementById('districtSelect');
+        select.innerHTML = '<option value="">-- Выберите округ --</option>';
+        DISTRICTS_LIST.forEach(district => {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            select.appendChild(option);
+        });
+    }
 
     function setupEventListeners() {
         document.getElementById('districtSelect').addEventListener('change', (e) => {
@@ -334,30 +361,12 @@
             const text = await response.text();
             const data = parseCSV(text);
             
-            // Собираем уникальные округа
-            const districtsSet = new Set();
-            data.forEach(row => {
-                if (row.district && row.district.trim()) {
-                    districtsSet.add(row.district.trim());
-                }
-            });
-            districtsList = Array.from(districtsSet).sort();
-            
-            const select = document.getElementById('districtSelect');
-            select.innerHTML = '<option value="">-- Выберите округ --</option>';
-            districtsList.forEach(district => {
-                const option = document.createElement('option');
-                option.value = district;
-                option.textContent = district;
-                select.appendChild(option);
-            });
-            
-            // Сохраняем все данные
-            allObjects = data;
+            // Фильтруем только те объекты, округ которых есть в нашем списке
+            allObjects = data.filter(obj => DISTRICTS_LIST.includes(obj.district));
+            console.log(`Загружено объектов: ${allObjects.length}`);
             
         } catch (err) {
             console.error('Ошибка загрузки данных:', err);
-            document.getElementById('districtSelect').innerHTML = '<option value="">Ошибка загрузки</option>';
         }
     }
 
@@ -367,11 +376,10 @@
         
         const result = [];
         
-        for (let i = 1; i < lines.length; i++) { // Пропускаем заголовок
+        for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
             
-            // Парсим CSV с учетом кавычек
             const values = [];
             let inQuote = false;
             let current = '';
@@ -389,36 +397,44 @@
             }
             values.push(current.trim());
             
-            // Очищаем от кавычек
             const cleanValues = values.map(v => v.replace(/^"|"$/g, ''));
             
-            // Столбцы: 0-№, 1-Тип, 2-Округ, 3-Наименование, 4-Адрес, 5-Год постройки, 
-            // 6-Площадь, 7-Мощность, 8-Факт, 9-% загрузки, 10-2-я смена, 11-Статус, 12-Год ремонта
+            // Определяем тип объекта (столбец B)
             const typeRaw = cleanValues[1] || '';
-            const isKindergarten = typeRaw.toLowerCase().includes('детский сад') || typeRaw.toLowerCase().includes('дошкольное');
+            const isKindergarten = typeRaw.toLowerCase().includes('детский сад') || 
+                                   typeRaw.toLowerCase().includes('дошкольное') ||
+                                   typeRaw === 'Детский сад';
             
-            // Вычисляем % загрузки если есть формула
+            // Вычисляем % загрузки
             let loadPercent = cleanValues[9] || '';
             if (loadPercent && loadPercent.startsWith('=')) {
-                const capacity = parseFloat(cleanValues[7]);
-                const fact = parseFloat(cleanValues[8]);
+                const capacity = parseFloat(cleanValues[7]?.replace(',', '.'));
+                const fact = parseFloat(cleanValues[8]?.replace(',', '.'));
                 if (capacity && capacity > 0 && fact) {
-                    loadPercent = ((fact / capacity) * 100).toFixed(1) + '%';
+                    loadPercent = ((fact / capacity) * 100).toFixed(1);
                 } else {
                     loadPercent = '';
                 }
+            } else if (loadPercent) {
+                loadPercent = loadPercent.replace('%', '').trim();
             }
+            
+            // Округ (столбец C)
+            let district = cleanValues[2] || '';
+            // Нормализация названий округов
+            if (district === 'Ленинский г.о.' || district === 'Ленинский городской округ') district = 'Ленинский';
+            if (district === 'Талдомский') district = 'Талдом';
             
             result.push({
                 id: `obj_${i}`,
                 type: isKindergarten ? 'kindergarten' : 'school',
-                district: cleanValues[2] || '',
+                district: district,
                 name: cleanValues[3] || '',
                 address: cleanValues[4] || '',
                 buildYear: cleanValues[5] || '',
-                area: cleanValues[6] || '',
-                capacity: cleanValues[7] || '',
-                fact: cleanValues[8] || '',
+                area: cleanValues[6]?.replace(',', '.') || '',
+                capacity: cleanValues[7]?.replace(',', '.') || '',
+                fact: cleanValues[8]?.replace(',', '.') || '',
                 loadPercent: loadPercent,
                 secondShift: cleanValues[10] || '',
                 status: cleanValues[11] || '',
@@ -431,12 +447,8 @@
     }
 
     async function filterObjectsByDistrict(district) {
-        // Фильтруем объекты по округу (точное совпадение)
-        const filtered = allObjects.filter(obj => 
-            obj.district && obj.district.trim() === district
-        );
-        
-        currentDistrict = district;
+        const filtered = allObjects.filter(obj => obj.district === district);
+        console.log(`Найдено объектов в округе ${district}: ${filtered.length}`);
         await renderObjects(filtered);
     }
 
@@ -461,52 +473,79 @@
     async function renderObjects(objects) {
         clearMap();
         
-        // Геокодируем адреса
-        const geocodePromises = objects.map(async (obj) => {
+        if (!objects.length) {
+            updateStats(objects);
+            renderLists(objects);
+            updateTable(objects);
+            return;
+        }
+        
+        // Показываем загрузку
+        document.getElementById('schoolsList').innerHTML = '<div class="loading">Геокодирование адресов...</div>';
+        document.getElementById('kindergartensList').innerHTML = '<div class="loading">Геокодирование адресов...</div>';
+        
+        // Геокодируем адреса с задержкой для избежания блокировки API
+        for (let i = 0; i < objects.length; i++) {
+            const obj = objects[i];
             if (obj.address && !obj.coordinates) {
                 try {
                     const coords = await geocodeAddress(obj.address);
-                    if (coords) obj.coordinates = coords;
+                    if (coords) {
+                        obj.coordinates = coords;
+                    }
+                    // Небольшая задержка между запросами
+                    await new Promise(r => setTimeout(r, 100));
                 } catch (e) {
                     console.error(`Геокодирование ошибка: ${obj.name}`, e);
                 }
             }
+        }
+        
+        // Создаем метки только для объектов с координатами
+        const objectsWithCoords = objects.filter(o => o.coordinates);
+        console.log(`Объектов с координатами: ${objectsWithCoords.length}`);
+        
+        objectsWithCoords.forEach(obj => {
+            const placemark = createPlacemark(obj);
+            placemarks.push(placemark);
+            map.geoObjects.add(placemark);
         });
         
-        await Promise.all(geocodePromises);
-        
-        // Создаем метки
-        objects.forEach(obj => {
-            if (obj.coordinates) {
-                const placemark = createPlacemark(obj);
-                placemarks.push(placemark);
-                map.geoObjects.add(placemark);
-            }
-        });
-        
-        // Обновляем статистику и списки
         updateStats(objects);
         renderLists(objects);
         updateTable(objects);
         
-        // Центрируем карту
-        const firstWithCoords = objects.find(o => o.coordinates);
+        // Центрируем карту на первый объект с координатами или на округ
+        const firstWithCoords = objectsWithCoords[0];
         if (firstWithCoords) {
             map.setCenter([firstWithCoords.coordinates.lat, firstWithCoords.coordinates.lng], 11);
+        } else if (objects.length > 0) {
+            // Если нет координат, центрируем по области Московской области
+            map.setCenter([55.7, 37.6], 10);
         }
     }
 
     async function geocodeAddress(address) {
         if (!address) return null;
         
-        // Кешируем в sessionStorage
-        const cacheKey = `geocode_${address}`;
+        // Очищаем адрес от лишних символов
+        let cleanAddress = address
+            .replace(/\n/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        // Добавляем "Московская область" если нет
+        if (!cleanAddress.toLowerCase().includes('московская') && 
+            !cleanAddress.toLowerCase().includes('мо')) {
+            cleanAddress = cleanAddress + ', Московская область';
+        }
+        
+        const cacheKey = `geocode_${cleanAddress}`;
         const cached = sessionStorage.getItem(cacheKey);
         if (cached) return JSON.parse(cached);
         
         try {
-            // Используем Яндекс геокодер
-            const url = `https://geocode-maps.yandex.ru/1.x/?apikey=87be84cf-0dc0-454f-974a-dc91198feaca&geocode=${encodeURIComponent(address)}&format=json`;
+            const url = `https://geocode-maps.yandex.ru/1.x/?apikey=87be84cf-0dc0-454f-974a-dc91198feaca&geocode=${encodeURIComponent(cleanAddress)}&format=json`;
             const response = await fetch(url);
             const data = await response.json();
             const pos = data.response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.Point?.pos;
@@ -517,7 +556,7 @@
                 return coords;
             }
         } catch (e) {
-            console.error('Геокодирование:', e);
+            console.error('Геокодирование ошибка:', e);
         }
         return null;
     }
@@ -536,6 +575,7 @@
                     <strong>Адрес:</strong> ${obj.address || '—'}<br>
                     <strong>Тип:</strong> ${obj.type === 'school' ? 'Школа' : 'Детский сад'}<br>
                     ${obj.capacity ? `<strong>Вместимость:</strong> ${obj.capacity} мест<br>` : ''}
+                    ${obj.fact ? `<strong>Факт:</strong> ${obj.fact} чел.<br>` : ''}
                     ${obj.loadPercent ? `<strong>Загрузка:</strong> ${obj.loadPercent}%<br>` : ''}
                     ${obj.secondShift ? `<strong>2-я смена:</strong> ${obj.secondShift} детей<br>` : ''}
                     <a href="#" onclick="window.selectObjectById('${obj.id}')">Подробнее →</a>
@@ -562,6 +602,8 @@
         if (allWithLoad.length > 0) {
             const avgLoad = allWithLoad.reduce((sum, o) => sum + parseFloat(o.loadPercent), 0) / allWithLoad.length;
             document.getElementById('avgLoad').textContent = Math.round(avgLoad);
+        } else {
+            document.getElementById('avgLoad').textContent = '0';
         }
     }
 
@@ -597,9 +639,9 @@
                 </div>
                 <div class="object-address">📍 ${obj.address || 'Адрес не указан'}</div>
                 <div class="object-stats">
-                    ${obj.capacity ? `🎓 ${obj.capacity} мест` : ''}
-                    ${obj.fact ? `👥 ${obj.fact} чел.` : ''}
-                    ${obj.secondShift ? `🕐 2 смена: ${obj.secondShift}` : ''}
+                    ${obj.capacity ? `🎓 ${parseInt(obj.capacity).toLocaleString()} мест` : ''}
+                    ${obj.fact ? `👥 ${parseInt(obj.fact).toLocaleString()} чел.` : ''}
+                    ${obj.secondShift ? `🕐 2 смена: ${parseInt(obj.secondShift).toLocaleString()}` : ''}
                 </div>
                 ${obj.loadPercent ? `
                     <div class="load-bar">
@@ -737,6 +779,8 @@
         if (obj.coordinates) {
             map.setCenter([obj.coordinates.lat, obj.coordinates.lng], 17);
             showInfoPanel(obj);
+        } else if (obj.address) {
+            showInfoPanel(obj);
         }
     }
 
@@ -756,10 +800,13 @@
             <h3>${obj.name || 'Без названия'}</h3>
             <div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">Тип</div><div>${obj.type === 'school' ? '🏫 Школа' : '🏠 Детский сад'}</div></div>
             <div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">📍 Адрес</div><div>${obj.address || 'Не указан'}</div></div>
-            ${obj.capacity ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">👥 Вместимость</div><div>${obj.capacity} мест</div></div>` : ''}
+            <div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">🏛️ Округ</div><div>${obj.district || 'Не указан'}</div></div>
+            ${obj.capacity ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">👥 Вместимость</div><div>${parseInt(obj.capacity).toLocaleString()} мест</div></div>` : ''}
+            ${obj.fact ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">📋 Факт</div><div>${parseInt(obj.fact).toLocaleString()} чел.</div></div>` : ''}
             ${obj.loadPercent ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">📊 Загрузка</div><div>${obj.loadPercent}%</div></div>` : ''}
-            ${obj.secondShift ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">🕐 Вторая смена</div><div>${obj.secondShift} детей</div></div>` : ''}
+            ${obj.secondShift ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">🕐 Вторая смена</div><div>${parseInt(obj.secondShift).toLocaleString()} детей</div></div>` : ''}
             ${obj.status ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">📋 Статус</div><div>${obj.status}</div></div>` : ''}
+            ${obj.repairYear ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">🔧 Год ремонта</div><div>${obj.repairYear}</div></div>` : ''}
         `;
         map.container.appendChild(panel);
     }
@@ -776,7 +823,7 @@
             row.insertCell(4).textContent = obj.area || '';
             row.insertCell(5).textContent = obj.capacity || '';
             row.insertCell(6).textContent = obj.fact || '';
-            row.insertCell(7).textContent = obj.loadPercent || '';
+            row.insertCell(7).textContent = obj.loadPercent ? obj.loadPercent + '%' : '';
             row.insertCell(8).textContent = obj.secondShift || '';
             row.insertCell(9).textContent = obj.status || '';
             row.insertCell(10).textContent = obj.repairYear || '';
