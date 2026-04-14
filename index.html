@@ -77,8 +77,52 @@
             cursor: pointer;
         }
         .reset-btn:hover { background: #dc2626; }
-        .stats-summary { display: flex; gap: 24px; margin-left: auto; font-size: 13px; }
-        .stat-card { background: #eef2ff; padding: 6px 14px; border-radius: 20px; color: #1e40af; }
+        
+        .stats-container {
+            display: flex;
+            gap: 16px;
+            margin-left: auto;
+        }
+        .stat-block {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 8px 16px;
+            min-width: 200px;
+        }
+        .stat-block h4 {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+        .stat-block .stat-numbers {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .stat-block .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .stat-block .stat-label {
+            font-size: 10px;
+            font-weight: normal;
+            color: #64748b;
+        }
+        .stat-block .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .load-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .load-high { background: #fee2e2; color: #dc2626; }
+        .load-medium { background: #fef3c7; color: #d97706; }
+        .load-low { background: #dcfce7; color: #16a34a; }
         
         .main-content { display: flex; flex: 1; overflow: hidden; }
         .sidebar-left, .sidebar-right {
@@ -100,7 +144,14 @@
             z-index: 5;
         }
         .section-header h3 { font-size: 16px; font-weight: 600; }
-        .section-header .count { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .section-header .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #475569;
+            flex-wrap: wrap;
+        }
         
         .objects-list { flex: 1; padding: 8px; overflow-y: auto; }
         .object-card {
@@ -135,64 +186,6 @@
         .map-container { flex: 1; position: relative; }
         #map { width: 100%; height: 100%; }
         
-        .toggle-table-btn {
-            position: absolute;
-            bottom: 10px;
-            right: 20px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 8px 16px;
-            font-size: 12px;
-            cursor: pointer;
-            z-index: 25;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        
-        .table-panel {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            max-height: 40%;
-            overflow-y: auto;
-            z-index: 20;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            display: none;
-        }
-        .table-panel.show { display: block; }
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 16px;
-            background: #f1f5f9;
-            border-bottom: 1px solid #e2e8f0;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-        }
-        .data-table th, .data-table td {
-            border: 1px solid #e2e8f0;
-            padding: 8px 6px;
-            text-align: left;
-        }
-        .data-table th {
-            background: #f8fafc;
-            font-weight: 600;
-            position: sticky;
-            top: 48px;
-            z-index: 5;
-        }
-        
         .loading { padding: 20px; text-align: center; color: #64748b; }
         .route-info { font-size: 10px; color: #3b82f6; margin-top: 4px; }
         .info-panel {
@@ -209,13 +202,26 @@
             z-index: 30;
             border: 1px solid #e2e8f0;
         }
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #3b82f6;
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 100;
+        }
         
         @media (max-width: 1200px) {
             .sidebar-left, .sidebar-right { width: 300px; }
+            .stats-container { display: none; }
         }
     </style>
 </head>
 <body>
+<div class="progress-bar" id="progressBar"></div>
 <div class="app">
     <div class="top-panel">
         <div class="filter-group">
@@ -238,51 +244,29 @@
             <button class="mode-btn" data-mode="auto">🚗 Авто</button>
         </div>
         <button class="reset-btn" onclick="resetAll()">🔄 Сбросить</button>
-        <div class="stats-summary">
-            <div class="stat-card">🏫 Школ: <span id="schoolCount">0</span></div>
-            <div class="stat-card">🏠 Садов: <span id="kindergartenCount">0</span></div>
-            <div class="stat-card">📊 Средняя загрузка: <span id="avgLoad">0</span>%</div>
-        </div>
+        
+        <div class="stats-container" id="statsContainer"></div>
     </div>
 
     <div class="main-content">
         <div class="sidebar-left">
             <div class="section-header">
                 <h3>🏫 Школы</h3>
-                <div class="count"><span id="schoolListCount">0</span> объектов</div>
+                <div class="stats-row" id="schoolStatsRow"></div>
             </div>
             <div id="schoolsList" class="objects-list"><div class="loading">Выберите округ</div></div>
         </div>
 
         <div class="map-container">
             <div id="map"></div>
-            <button class="toggle-table-btn" onclick="toggleTable()">📋 Показать таблицу</button>
         </div>
 
         <div class="sidebar-right">
             <div class="section-header">
                 <h3>🏠 Детские сады</h3>
-                <div class="count"><span id="kindergartenListCount">0</span> объектов</div>
+                <div class="stats-row" id="kindergartenStatsRow"></div>
             </div>
             <div id="kindergartensList" class="objects-list"><div class="loading">Выберите округ</div></div>
-        </div>
-    </div>
-
-    <div id="tablePanel" class="table-panel">
-        <div class="table-header">
-            <strong>📋 Объекты в выбранном округе</strong>
-            <button class="close-table" onclick="toggleTable()">×</button>
-        </div>
-        <div style="overflow-x: auto;">
-            <table class="data-table" id="dataTable">
-                <thead>
-                    <tr>
-                        <th>Тип</th><th>Наименование</th><th>Адрес</th><th>Год пост.</th><th>Площадь</th>
-                        <th>Мощность</th><th>Факт</th><th>% загрузки</th><th>2-я смена</th><th>Статус</th><th>Год ремонта</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
         </div>
     </div>
 </div>
@@ -315,6 +299,7 @@
     let currentCenterPoint = null;
     let currentUserPlacemark = null;
     let objectsInRadiusList = [];
+    let hintTimeout = null;
 
     ymaps.ready(() => {
         map = new ymaps.Map('map', {
@@ -375,38 +360,47 @@
             updateAccessibility(coords);
             addUserMarker(coords);
         });
+        
+        // Хинты при наведении на карту
+        map.events.add('mousemove', (e) => {
+            const coords = e.get('coords');
+            showHintAtCoords(coords);
+        });
+    }
+
+    function showHintAtCoords(coords) {
+        if (hintTimeout) clearTimeout(hintTimeout);
+        hintTimeout = setTimeout(async () => {
+            try {
+                const result = await ymaps.geocode(coords, { results: 1 });
+                const first = result.geoObjects.get(0);
+                if (first) {
+                    const address = first.getAddressLine();
+                    const hint = new ymaps.Hint();
+                    map.hint.open(coords, `📍 ${address}`);
+                    setTimeout(() => map.hint.close(), 3000);
+                }
+            } catch(e) {}
+        }, 500);
     }
 
     window.resetAll = function() {
-        // Сбрасываем все, кроме округа
         currentCenterPoint = null;
         objectsInRadiusList = [];
-        
-        // Очищаем маршруты
         radiusRoutes.forEach(route => {
             if (route && map.geoObjects.indexOf(route) !== -1) map.geoObjects.remove(route);
         });
         radiusRoutes = [];
-        
-        // Удаляем маркер пользователя
         if (currentUserPlacemark) {
             map.geoObjects.remove(currentUserPlacemark);
             currentUserPlacemark = null;
         }
-        
-        // Сбрасываем радиус на 800
         document.getElementById('radiusInput').value = '800';
         currentRadius = 800;
-        
-        // Сбрасываем режим на пешком
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         document.querySelector('.mode-btn[data-mode="pedestrian"]').classList.add('active');
         currentMode = 'pedestrian';
-        
-        // Очищаем поиск
         document.getElementById('searchInput').value = '';
-        
-        // Перезагружаем объекты текущего округа
         if (currentDistrict) {
             const filtered = allObjects.filter(obj => obj.district === currentDistrict);
             renderObjects(filtered);
@@ -420,9 +414,27 @@
             const data = parseCSV(text);
             allObjects = data.filter(obj => DISTRICTS_LIST.includes(obj.district));
             console.log(`Загружено объектов: ${allObjects.length}`);
+            
+            // Фоновая предзагрузка координат
+            setTimeout(() => preloadAllCoordinates(), 500);
         } catch (err) {
             console.error('Ошибка загрузки данных:', err);
         }
+    }
+
+    async function preloadAllCoordinates() {
+        console.log('Предзагрузка координат...');
+        const progressBar = document.getElementById('progressBar');
+        const objectsToGeocode = allObjects.filter(o => o.address && !o.coordinates);
+        
+        for (let i = 0; i < objectsToGeocode.length; i++) {
+            const obj = objectsToGeocode[i];
+            progressBar.style.width = `${(i / objectsToGeocode.length) * 100}%`;
+            const coords = await geocodeAddressFast(obj.address);
+            if (coords) obj.coordinates = coords;
+        }
+        progressBar.style.width = '0%';
+        console.log('Предзагрузка завершена');
     }
 
     function parseCSV(csvText) {
@@ -513,25 +525,19 @@
     async function renderObjects(objects) {
         clearMap();
         if (!objects.length) {
-            updateStats(objects);
+            updateStatsUI(objects);
             renderLists(objects, []);
-            updateTable(objects);
             return;
         }
         
-        document.getElementById('schoolsList').innerHTML = '<div class="loading">Геокодирование адресов...</div>';
-        document.getElementById('kindergartensList').innerHTML = '<div class="loading">Геокодирование адресов...</div>';
+        document.getElementById('schoolsList').innerHTML = '<div class="loading">Загрузка объектов...</div>';
+        document.getElementById('kindergartensList').innerHTML = '<div class="loading">Загрузка объектов...</div>';
         
-        for (let i = 0; i < objects.length; i++) {
-            const obj = objects[i];
-            if (obj.address && !obj.coordinates) {
-                try {
-                    const coords = await geocodeAddress(obj.address);
-                    if (coords) obj.coordinates = coords;
-                    await new Promise(r => setTimeout(r, 100));
-                } catch (e) { console.error(`Геокодирование ошибка: ${obj.name}`); }
-            }
-        }
+        // Параллельное геокодирование
+        const toGeocode = objects.filter(o => o.address && !o.coordinates);
+        await Promise.all(toGeocode.map(obj => geocodeAddressFast(obj.address).then(coords => {
+            if (coords) obj.coordinates = coords;
+        })));
         
         const objectsWithCoords = objects.filter(o => o.coordinates);
         objectsWithCoords.forEach(obj => {
@@ -540,15 +546,13 @@
             map.geoObjects.add(placemark);
         });
         
-        updateStats(objects);
+        updateStatsUI(objects);
         
-        // Если есть центр, обновляем доступность
         if (currentCenterPoint) {
             updateAccessibility(currentCenterPoint);
         } else {
             renderLists(objects, []);
         }
-        updateTable(objects);
         
         const firstWithCoords = objectsWithCoords[0];
         if (firstWithCoords) {
@@ -556,13 +560,9 @@
         }
     }
 
-    async function geocodeAddress(address) {
+    async function geocodeAddressFast(address) {
         if (!address) return null;
         let cleanAddress = address.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-        if (!cleanAddress.toLowerCase().includes('московская') && 
-            !cleanAddress.toLowerCase().includes('мо')) {
-            cleanAddress = cleanAddress + ', Московская область';
-        }
         
         const cacheKey = `geocode_${cleanAddress}`;
         const cached = sessionStorage.getItem(cacheKey);
@@ -584,8 +584,19 @@
     }
 
     function createPlacemark(obj) {
-        // Только синий для школ, зеленый для садов
         const color = obj.type === 'school' ? '#3b82f6' : '#22c55e';
+        
+        // Содержимое всплывающей подсказки при наведении
+        const hintContent = `
+            <div style="max-width: 250px;">
+                <b>${obj.name || 'Без названия'}</b><br>
+                📍 ${obj.address || '—'}<br>
+                ${obj.buildYear ? `🏛️ Год постройки: ${obj.buildYear}<br>` : ''}
+                ${obj.area ? `📐 Площадь: ${obj.area} м²<br>` : ''}
+                ${obj.capacity ? `👥 Вместимость: ${parseInt(obj.capacity).toLocaleString()} мест<br>` : ''}
+                ${obj.loadPercent ? `📊 Загрузка: ${obj.loadPercent}%` : ''}
+            </div>
+        `;
         
         const placemark = new ymaps.Placemark(
             [obj.coordinates.lat, obj.coordinates.lng],
@@ -594,19 +605,71 @@
                 balloonContentBody: `
                     <strong>Адрес:</strong> ${obj.address || '—'}<br>
                     <strong>Тип:</strong> ${obj.type === 'school' ? 'Школа' : 'Детский сад'}<br>
+                    ${obj.buildYear ? `<strong>Год постройки:</strong> ${obj.buildYear}<br>` : ''}
+                    ${obj.area ? `<strong>Площадь:</strong> ${obj.area} м²<br>` : ''}
                     ${obj.capacity ? `<strong>Вместимость:</strong> ${parseInt(obj.capacity).toLocaleString()} мест<br>` : ''}
                     ${obj.fact ? `<strong>Факт:</strong> ${parseInt(obj.fact).toLocaleString()} чел.<br>` : ''}
                     ${obj.loadPercent ? `<strong>Загрузка:</strong> ${obj.loadPercent}%<br>` : ''}
                     ${obj.secondShift ? `<strong>2-я смена:</strong> ${parseInt(obj.secondShift).toLocaleString()} детей<br>` : ''}
                     <a href="#" onclick="window.selectObjectById('${obj.id}')">Подробнее →</a>
                 `,
-                hintContent: obj.name
+                hintContent: hintContent
             },
-            { preset: 'islands#circleIcon', iconColor: color }
+            { preset: 'islands#circleIcon', iconColor: color, hintOpenTimeout: 300 }
         );
         
         placemark.events.add('click', () => selectObject(obj));
         return placemark;
+    }
+
+    function updateStatsUI(objects) {
+        const schools = objects.filter(o => o.type === 'school');
+        const kindergartens = objects.filter(o => o.type === 'kindergarten');
+        
+        // Общая статистика сверху
+        const allCapacity = objects.reduce((sum, o) => sum + (parseFloat(o.capacity) || 0), 0);
+        const allFact = objects.reduce((sum, o) => sum + (parseFloat(o.fact) || 0), 0);
+        const avgLoad = allCapacity > 0 ? Math.round((allFact / allCapacity) * 100) : 0;
+        
+        document.getElementById('statsContainer').innerHTML = `
+            <div class="stat-block">
+                <h4>📊 Общая статистика</h4>
+                <div class="stat-numbers">
+                    <div class="stat-item"><span class="stat-label">Мощность</span><span class="stat-value">${allCapacity.toLocaleString()}</span></div>
+                    <div class="stat-item"><span class="stat-label">Факт</span><span class="stat-value">${allFact.toLocaleString()}</span></div>
+                    <div class="stat-item"><span class="stat-label">Загрузка</span><span class="stat-value ${avgLoad > 100 ? 'load-high' : (avgLoad > 90 ? 'load-medium' : 'load-low')}">${avgLoad}%</span></div>
+                </div>
+            </div>
+        `;
+        
+        // Статистика школ
+        const schoolCapacity = schools.reduce((sum, o) => sum + (parseFloat(o.capacity) || 0), 0);
+        const schoolFact = schools.reduce((sum, o) => sum + (parseFloat(o.fact) || 0), 0);
+        const schoolSecondShift = schools.reduce((sum, o) => sum + (parseFloat(o.secondShift) || 0), 0);
+        const schoolAvgLoad = schoolCapacity > 0 ? Math.round((schoolFact / schoolCapacity) * 100) : 0;
+        
+        document.getElementById('schoolStatsRow').innerHTML = `
+            <span>📐 Мощность: ${schoolCapacity.toLocaleString()}</span>
+            <span>👥 Факт: ${schoolFact.toLocaleString()}</span>
+            <span>🕐 2-я смена: ${schoolSecondShift.toLocaleString()}</span>
+            <span>📊 Загрузка: <span class="${schoolAvgLoad > 100 ? 'load-high' : (schoolAvgLoad > 90 ? 'load-medium' : 'load-low')}">${schoolAvgLoad}%</span></span>
+        `;
+        
+        // Статистика детских садов (очередность 3-7)
+        const kindergartenCapacity = kindergartens.reduce((sum, o) => sum + (parseFloat(o.capacity) || 0), 0);
+        const kindergartenFact = kindergartens.reduce((sum, o) => sum + (parseFloat(o.fact) || 0), 0);
+        const kindergartenQueue = Math.max(0, kindergartenFact - kindergartenCapacity);
+        const kindergartenAvgLoad = kindergartenCapacity > 0 ? Math.round((kindergartenFact / kindergartenCapacity) * 100) : 0;
+        
+        document.getElementById('kindergartenStatsRow').innerHTML = `
+            <span>📐 Мощность: ${kindergartenCapacity.toLocaleString()}</span>
+            <span>👥 Факт: ${kindergartenFact.toLocaleString()}</span>
+            <span>⏳ Очередность (3-7 лет): ${kindergartenQueue.toLocaleString()}</span>
+            <span>📊 Загрузка: <span class="${kindergartenAvgLoad > 100 ? 'load-high' : (kindergartenAvgLoad > 90 ? 'load-medium' : 'load-low')}">${kindergartenAvgLoad}%</span></span>
+        `;
+        
+        document.getElementById('schoolCount').textContent = schools.length;
+        document.getElementById('kindergartenCount').textContent = kindergartens.length;
     }
 
     function updateAccessibility(centerCoords) {
@@ -617,14 +680,12 @@
         
         const currentObjects = allObjects.filter(obj => obj.district === currentDistrict);
         
-        // Обновляем объекты в радиусе
         objectsInRadiusList = currentObjects.filter(obj => {
             if (!obj.coordinates) return false;
             const distance = getDistance(centerCoords, [obj.coordinates.lat, obj.coordinates.lng]);
             return distance <= currentRadius;
         });
         
-        // Обновляем метки на карте
         currentObjects.forEach(obj => {
             if (!obj.coordinates) return;
             const distance = getDistance(centerCoords, [obj.coordinates.lat, obj.coordinates.lng]);
@@ -640,10 +701,7 @@
             }
         });
         
-        // Строим маршруты
         objectsInRadiusList.forEach(obj => buildRouteToObject(centerCoords, obj));
-        
-        // Обновляем списки (объекты в радиусе сверху)
         renderLists(currentObjects, objectsInRadiusList);
     }
 
@@ -700,49 +758,28 @@
         }
     }
 
-    function updateStats(objects) {
+    function renderLists(objects, objectsInRadius) {
         const schools = objects.filter(o => o.type === 'school');
         const kindergartens = objects.filter(o => o.type === 'kindergarten');
         
-        document.getElementById('schoolCount').textContent = schools.length;
-        document.getElementById('kindergartenCount').textContent = kindergartens.length;
-        document.getElementById('schoolListCount').textContent = schools.length;
-        document.getElementById('kindergartenListCount').textContent = kindergartens.length;
+        const inRadiusIds = objectsInRadius ? new Set(objectsInRadius.map(o => o.id)) : new Set();
         
-        const allWithLoad = objects.filter(o => o.loadPercent && !isNaN(parseFloat(o.loadPercent)));
-        if (allWithLoad.length > 0) {
-            const avgLoad = allWithLoad.reduce((sum, o) => sum + parseFloat(o.loadPercent), 0) / allWithLoad.length;
-            document.getElementById('avgLoad').textContent = Math.round(avgLoad);
-        } else {
-            document.getElementById('avgLoad').textContent = '0';
-        }
+        const sortByRadius = (a, b) => {
+            const aIn = inRadiusIds.has(a.id);
+            const bIn = inRadiusIds.has(b.id);
+            if (aIn && !bIn) return -1;
+            if (!aIn && bIn) return 1;
+            return 0;
+        };
+        
+        schools.sort(sortByRadius);
+        kindergartens.sort(sortByRadius);
+        
+        renderObjectList('schoolsList', schools, inRadiusIds);
+        renderObjectList('kindergartensList', kindergartens, inRadiusIds);
     }
 
-    function renderLists(objects, objectsInRadius = null) {
-        const schools = objects.filter(o => o.type === 'school');
-        const kindergartens = objects.filter(o => o.type === 'kindergarten');
-        
-        // Если есть объекты в радиусе, сортируем (сначала те, что в радиусе)
-        if (objectsInRadius && objectsInRadius.length > 0) {
-            const inRadiusIds = new Set(objectsInRadius.map(o => o.id));
-            
-            const sortByRadius = (a, b) => {
-                const aInRadius = inRadiusIds.has(a.id);
-                const bInRadius = inRadiusIds.has(b.id);
-                if (aInRadius && !bInRadius) return -1;
-                if (!aInRadius && bInRadius) return 1;
-                return 0;
-            };
-            
-            schools.sort(sortByRadius);
-            kindergartens.sort(sortByRadius);
-        }
-        
-        renderObjectList('schoolsList', schools, objectsInRadius);
-        renderObjectList('kindergartensList', kindergartens, objectsInRadius);
-    }
-
-    function renderObjectList(containerId, objects, objectsInRadius = null) {
+    function renderObjectList(containerId, objects, inRadiusIds) {
         const container = document.getElementById(containerId);
         if (!objects.length) {
             container.innerHTML = '<div class="loading">Нет объектов</div>';
@@ -750,8 +787,6 @@
         }
         
         container.innerHTML = '';
-        const inRadiusIds = objectsInRadius ? new Set(objectsInRadius.map(o => o.id)) : new Set();
-        
         objects.forEach(obj => {
             const loadPercent = parseFloat(obj.loadPercent);
             const isInRadius = inRadiusIds.has(obj.id);
@@ -768,6 +803,8 @@
                 </div>
                 <div class="object-address">📍 ${obj.address || 'Адрес не указан'}</div>
                 <div class="object-stats">
+                    ${obj.buildYear ? `🏛️ ${obj.buildYear}` : ''}
+                    ${obj.area ? `📐 ${obj.area} м²` : ''}
                     ${obj.capacity ? `🎓 ${parseInt(obj.capacity).toLocaleString()} мест` : ''}
                     ${obj.fact ? `👥 ${parseInt(obj.fact).toLocaleString()} чел.` : ''}
                     ${obj.secondShift ? `🕐 2 смена: ${parseInt(obj.secondShift).toLocaleString()}` : ''}
@@ -828,6 +865,8 @@
             <div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">Тип</div><div>${obj.type === 'school' ? '🏫 Школа' : '🏠 Детский сад'}</div></div>
             <div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">📍 Адрес</div><div>${obj.address || 'Не указан'}</div></div>
             <div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">🏛️ Округ</div><div>${obj.district || 'Не указан'}</div></div>
+            ${obj.buildYear ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">🏛️ Год постройки</div><div>${obj.buildYear}</div></div>` : ''}
+            ${obj.area ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">📐 Площадь здания</div><div>${obj.area} м²</div></div>` : ''}
             ${obj.capacity ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">👥 Вместимость</div><div>${parseInt(obj.capacity).toLocaleString()} мест</div></div>` : ''}
             ${obj.fact ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">📋 Факт</div><div>${parseInt(obj.fact).toLocaleString()} чел.</div></div>` : ''}
             ${obj.loadPercent ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">📊 Загрузка</div><div>${obj.loadPercent}%</div></div>` : ''}
@@ -836,29 +875,6 @@
             ${obj.repairYear ? `<div style="margin-bottom: 12px;"><div style="font-size: 11px; font-weight: 600; color: #64748b;">🔧 Год ремонта</div><div>${obj.repairYear}</div></div>` : ''}
         `;
         map.container.appendChild(panel);
-    }
-
-    function updateTable(objects) {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        objects.forEach(obj => {
-            const row = tbody.insertRow();
-            row.insertCell(0).textContent = obj.type === 'school' ? 'Школа' : 'Детский сад';
-            row.insertCell(1).textContent = obj.name || '';
-            row.insertCell(2).textContent = obj.address || '';
-            row.insertCell(3).textContent = obj.buildYear || '';
-            row.insertCell(4).textContent = obj.area || '';
-            row.insertCell(5).textContent = obj.capacity || '';
-            row.insertCell(6).textContent = obj.fact || '';
-            row.insertCell(7).textContent = obj.loadPercent ? obj.loadPercent + '%' : '';
-            row.insertCell(8).textContent = obj.secondShift || '';
-            row.insertCell(9).textContent = obj.status || '';
-            row.insertCell(10).textContent = obj.repairYear || '';
-        });
-    }
-
-    function toggleTable() {
-        document.getElementById('tablePanel').classList.toggle('show');
     }
 
     function clearMap() {
@@ -874,9 +890,9 @@
         objectsInRadiusList = [];
         document.getElementById('schoolsList').innerHTML = '<div class="loading">Выберите округ</div>';
         document.getElementById('kindergartensList').innerHTML = '<div class="loading">Выберите округ</div>';
-        document.getElementById('schoolCount').textContent = '0';
-        document.getElementById('kindergartenCount').textContent = '0';
-        document.getElementById('avgLoad').textContent = '0';
+        document.getElementById('statsContainer').innerHTML = '';
+        document.getElementById('schoolStatsRow').innerHTML = '';
+        document.getElementById('kindergartenStatsRow').innerHTML = '';
         currentCenterPoint = null;
     }
 </script>
