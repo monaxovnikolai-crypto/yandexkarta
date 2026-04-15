@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>РНГП 713/30 — Расчёт потребности + Карта</title>
+    <title>РНГП 713/30 — Калькулятор + Карта</title>
     <style>
-        /* ========== ОРИГИНАЛЬНЫЕ СТИЛИ КАЛЬКУЛЯТОРА ========== */
+        /* ========== СТИЛИ КАЛЬКУЛЯТОРА ========== */
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 700px;
+            max-width: 750px;
             margin: 0 auto;
             background: white;
             border-radius: 28px;
@@ -370,15 +370,6 @@
             font-size: 0.8rem;
         }
 
-        .reserve-note {
-            margin-top: 6px;
-            padding: 6px;
-            background: #fff3cd;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            color: #856404;
-        }
-
         .ai-card {
             background: white;
             border-radius: 24px;
@@ -547,8 +538,8 @@
         }
         .capture-data-btn:hover { transform: scale(1.02); }
         
-        /* Стили карты */
-        .app { display: flex; height: 100%; flex-direction: column; }
+        /* Стили карты (полностью из вашего рабочего файла) */
+        .map-app { display: flex; height: 100%; flex-direction: column; }
         .top-panel {
             background: white;
             padding: 10px 12px;
@@ -573,7 +564,7 @@
             position: relative;
         }
         .filter-group label { font-size: 12px; font-weight: 500; color: #475569; }
-        .district-select, .search-input {
+        .map-district-select, .search-input {
             padding: 6px 8px;
             border: none;
             border-radius: 16px;
@@ -581,7 +572,7 @@
             background: transparent;
             flex: 1;
         }
-        .district-select:focus, .search-input:focus { outline: none; }
+        .map-district-select:focus, .search-input:focus { outline: none; }
         .suggest-dropdown {
             position: absolute;
             top: 100%;
@@ -751,11 +742,11 @@
             <table class="normative-table">
                 <tr><td>🏫 Школы (135 мест / 1000 жителей)</td><td id="schoolRequired">0</td></tr>
                 <tr><td>🏠 Детские сады (65 мест / 1000 жителей)</td><td id="kindergartenRequired">0</td></tr>
-            </table>
+             </table>
             <div class="normative-note">* Расчёт выполнен по нормативам РНГП 713/30</div>
         </div>
 
-        <!-- 3. Выбор городского округа (синхронизируется с картой) -->
+        <!-- 3. Выбор городского округа -->
         <div class="card">
             <div class="card-title">🏙️ Городской округ</div>
             <div class="input-group">
@@ -870,9 +861,9 @@
 <div id="mapModal" class="map-modal">
     <div class="map-wrapper">
         <button id="closeMapBtn" class="close-map-btn">✕ Закрыть карту</button>
-        <div class="app">
+        <div class="map-app">
             <div class="top-panel">
-                <div class="filter-group"><label>🏛️</label><select id="mapDistrictSelect" class="district-select"><option value="">Округ</option></select></div>
+                <div class="filter-group"><label>🏛️</label><select id="mapDistrictSelect" class="map-district-select"><option value="">Округ</option></select></div>
                 <div class="filter-group" style="position: relative;"><label>🔍</label><input type="text" id="searchInput" class="search-input" placeholder="Поиск адреса..."><div id="suggestContainer" class="suggest-dropdown" style="display: none;"></div></div>
                 <div class="radius-control"><label>🚶‍♂️ Школы</label><input type="number" id="radiusInput" class="radius-input" value="800" step="100"><span>м</span><span class="radius-hint">(сады 800м)</span></div>
                 <div class="mode-toggle"><button class="mode-btn active" data-mode="pedestrian">🚶</button><button class="mode-btn" data-mode="auto">🚗</button></div>
@@ -909,6 +900,7 @@
         "Ступино", "Талдомский", "Фрязино", "Химки", "Черноголовка", "Чехов",
         "Шатура", "Шаховская", "Щёлково", "Электросталь"
     ];
+    
     const SCHOOL_RATE = 0.135;
     const KINDER_RATE = 0.065;
     const PROXY_URL = 'https://gemini-proxy.monaxovnikolai-31d.workers.dev';
@@ -951,6 +943,14 @@
     const aiOpinionBtn = document.getElementById('aiOpinionBtn');
     const aiResponse = document.getElementById('aiResponse');
     const aiText = document.getElementById('aiText');
+
+    // Заполнение списка округов в калькуляторе
+    DISTRICTS_LIST.forEach(district => {
+        const option = document.createElement('option');
+        option.value = district;
+        option.textContent = district;
+        districtSelect.appendChild(option);
+    });
 
     // ========== ФУНКЦИИ КАЛЬКУЛЯТОРА ==========
     function getPopulation() {
@@ -1170,6 +1170,7 @@
             }
             const totalZU1 = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
             html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 1: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU1.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            
             html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 2 (средние объекты)</strong></td></tr>`;
             if (schoolMedium.length > 0) {
                 let schoolTotalZU = 0;
@@ -1328,182 +1329,634 @@
     toggleSecondShiftField();
     toggleQueueField();
 
-    // ========== ЗАПОЛНЕНИЕ СПИСКА ОКРУГОВ В КАЛЬКУЛЯТОРЕ ==========
-    DISTRICTS_LIST.forEach(district => {
-        const option = document.createElement('option');
-        option.value = district;
-        option.textContent = district;
-        districtSelect.appendChild(option);
-    });
-
-    // ========== ЛОГИКА КАРТЫ ==========
-    let map = null, allObjects = [], currentDistrictMap = '', placemarks = [], currentRoute = null, currentRadiusSchool = 800, currentModeMap = 'pedestrian', currentCenterPoint = null, currentUserPlacemark = null, objectsInRadiusForSchool = [], objectsInRadiusForKindergarten = [], selectedObjectId = null, suggestTimeout = null;
+    // ========== ЛОГИКА КАРТЫ (ПОЛНОСТЬЮ ИЗ ВАШЕГО РАБОЧЕГО ФАЙЛА) ==========
+    let map = null;
+    let allObjects = [];
+    let currentDistrictMap = '';
+    let placemarks = [];
+    let currentRoute = null;
+    let currentRadius = 800;
+    let currentModeMap = 'pedestrian';
+    let currentCenterPoint = null;
+    let currentUserPlacemark = null;
+    let objectsInRadiusList = [];
+    let selectedObjectId = null;
+    let suggestTimeout = null;
     let mapInitialized = false;
 
-    async function loadAllData() {
-        try {
-            const response = await fetch(CSV_URL);
-            const text = await response.text();
-            allObjects = parseCSV(text);
-            console.log(`Загружено ${allObjects.length} объектов для карты`);
-            if(mapInitialized && currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
-        } catch(err) { console.error(err); }
+    function loadAllData() {
+        fetch(CSV_URL)
+            .then(response => response.text())
+            .then(text => {
+                allObjects = parseCSV(text);
+                console.log(`Загружено ${allObjects.length} объектов`);
+                if (mapInitialized && currentDistrictMap) {
+                    filterObjectsByDistrict(currentDistrictMap);
+                }
+            })
+            .catch(err => {
+                console.error('Ошибка загрузки CSV:', err);
+                document.getElementById('schoolsList').innerHTML = '<div class="loading">Ошибка загрузки данных. Проверьте интернет или откройте через Live Server.</div>';
+                document.getElementById('kindergartensList').innerHTML = '<div class="loading">Ошибка загрузки данных. Проверьте интернет или откройте через Live Server.</div>';
+            });
     }
-    
+
     function parseCSV(csvText) {
-        const lines = csvText.split('\n'); if(lines.length<2) return [];
+        const lines = csvText.split('\n');
+        if (lines.length < 2) return [];
         const headers = parseCSVLine(lines[0]);
-        const colIndex = { type: headers.findIndex(h => h?.toLowerCase().includes('тип')), district: headers.findIndex(h => h?.toLowerCase().includes('г.о.')), name: headers.findIndex(h => h?.toLowerCase().includes('наименование')), address: headers.findIndex(h => h?.toLowerCase() === 'адрес'), coords: headers.findIndex(h => h?.toLowerCase().includes('координат')), capacity: headers.findIndex(h => h?.toLowerCase() === 'мощность'), fact: headers.findIndex(h => h?.toLowerCase() === 'факт'), secondShift: headers.findIndex(h => h?.toLowerCase().includes('2-я смена')) };
+        const colIndex = {
+            type: headers.findIndex(h => h?.toLowerCase().includes('тип')),
+            district: headers.findIndex(h => h?.toLowerCase().includes('г.о.') || h?.toLowerCase().includes('городской')),
+            name: headers.findIndex(h => h?.toLowerCase().includes('наименование') && !h?.toLowerCase().includes('г.о.')),
+            address: headers.findIndex(h => h?.toLowerCase() === 'адрес'),
+            coords: headers.findIndex(h => h?.toLowerCase().includes('координат') || h?.toLowerCase().includes('кодинат')),
+            capacity: headers.findIndex(h => h?.toLowerCase() === 'мощность'),
+            fact: headers.findIndex(h => h?.toLowerCase() === 'факт'),
+            secondShift: headers.findIndex(h => h?.toLowerCase().includes('2-я смена') || h?.toLowerCase().includes('2 смена')),
+            loadPercent: headers.findIndex(h => h?.toLowerCase().includes('% наполнения')),
+            buildYear: headers.findIndex(h => h?.toLowerCase().includes('год постройки')),
+            area: headers.findIndex(h => h?.toLowerCase().includes('площадь здания')),
+            status: headers.findIndex(h => h?.toLowerCase().includes('новостройка'))
+        };
         const result = [];
-        for(let i=1;i<lines.length;i++) {
-            const line = lines[i].trim(); if(!line) continue;
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
             const values = parseCSVLine(line);
-            let district = (colIndex.district>=0 ? (values[colIndex.district]||'').trim() : '');
-            district = district.replace(' г.о.','').replace(' городской округ','');
-            if(!district) continue;
-            const typeRaw = colIndex.type>=0 ? (values[colIndex.type]||'') : '';
+            let district = colIndex.district >= 0 ? (values[colIndex.district] || '').trim() : '';
+            district = district.replace(' г.о.', '').replace(' городской округ', '').replace(' муниципальный округ', '').replace(' район', '');
+            if (!district) continue;
+            const typeRaw = colIndex.type >= 0 ? (values[colIndex.type] || '') : '';
             const isKindergarten = typeRaw.toLowerCase().includes('детский сад');
             const isSchool = typeRaw.toLowerCase().includes('школа');
-            if(!isKindergarten && !isSchool) continue;
+            if (!isKindergarten && !isSchool) continue;
             let coordinates = null;
-            if(colIndex.coords>=0 && values[colIndex.coords]) coordinates = extractCoordinates(values[colIndex.coords]);
-            if(!coordinates) continue;
-            let secondShiftVal = colIndex.secondShift>=0 ? (values[colIndex.secondShift]||'') : '';
-            secondShiftVal = secondShiftVal.replace(/[^0-9]/g,'');
-            result.push({ id:`${district}_${i}`, type: isKindergarten ? 'kindergarten' : 'school', district, name: colIndex.name>=0 ? (values[colIndex.name]||'') : '', address: colIndex.address>=0 ? (values[colIndex.address]||'') : '', capacity: colIndex.capacity>=0 ? (values[colIndex.capacity]?.replace(',','.')||'') : '', fact: colIndex.fact>=0 ? (values[colIndex.fact]?.replace(',','.')||'') : '', secondShift: secondShiftVal, lat: coordinates.lat, lng: coordinates.lng });
+            if (colIndex.coords >= 0 && values[colIndex.coords]) {
+                coordinates = extractCoordinates(values[colIndex.coords]);
+            }
+            if (!coordinates) continue;
+            let loadPercent = colIndex.loadPercent >= 0 ? (values[colIndex.loadPercent] || '') : '';
+            if (loadPercent && loadPercent.startsWith('=')) {
+                const capacity = parseFloat(values[colIndex.capacity]?.replace(',', '.'));
+                const fact = parseFloat(values[colIndex.fact]?.replace(',', '.'));
+                if (capacity && capacity > 0 && fact) loadPercent = ((fact / capacity) * 100).toFixed(1);
+                else loadPercent = '';
+            } else if (loadPercent) loadPercent = loadPercent.replace('%', '').trim();
+            
+            let secondShift = colIndex.secondShift >= 0 ? (values[colIndex.secondShift] || '') : '';
+            secondShift = secondShift.replace(/[^0-9]/g, '');
+            
+            result.push({
+                id: `${district}_${i}`,
+                type: isKindergarten ? 'kindergarten' : 'school',
+                district: district,
+                name: colIndex.name >= 0 ? (values[colIndex.name] || '') : '',
+                address: colIndex.address >= 0 ? (values[colIndex.address] || '') : '',
+                buildYear: colIndex.buildYear >= 0 ? (values[colIndex.buildYear] || '') : '',
+                area: colIndex.area >= 0 ? (values[colIndex.area]?.replace(',', '.') || '') : '',
+                capacity: colIndex.capacity >= 0 ? (values[colIndex.capacity]?.replace(',', '.') || '') : '',
+                fact: colIndex.fact >= 0 ? (values[colIndex.fact]?.replace(',', '.') || '') : '',
+                secondShift: secondShift,
+                loadPercent: loadPercent,
+                status: colIndex.status >= 0 ? (values[colIndex.status] || '') : '',
+                lat: coordinates.lat, lng: coordinates.lng
+            });
         }
         return result;
     }
     
-    function parseCSVLine(line) { let res=[], inQuote=false, cur=''; for(let ch of line) { if(ch==='"') inQuote=!inQuote; else if(ch===',' && !inQuote) { res.push(cur.trim()); cur=''; } else cur+=ch; } res.push(cur.trim()); return res.map(v=>v.replace(/^"|"$/g,'')); }
+    function parseCSVLine(line) {
+        const result = [];
+        let inQuote = false, current = '';
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') inQuote = !inQuote;
+            else if (char === ',' && !inQuote) { result.push(current.trim()); current = ''; }
+            else current += char;
+        }
+        result.push(current.trim());
+        return result.map(v => v.replace(/^"|"$/g, ''));
+    }
     
-    function extractCoordinates(cell) { let m = cell?.match(/(\d+\.?\d*),\s*(\d+\.?\d*)/); if(m){ let lat=parseFloat(m[1]), lng=parseFloat(m[2]); if(lat>=54 && lat<=57 && lng>=35 && lng<=40) return {lat,lng}; } return null; }
-    
+    function extractCoordinates(cell) {
+        if (!cell || typeof cell !== 'string') return null;
+        const match = cell.match(/(\d+\.?\d*),\s*(\d+\.?\d*)/);
+        if (match) {
+            const lat = parseFloat(match[1]), lng = parseFloat(match[2]);
+            if (!isNaN(lat) && !isNaN(lng) && lat >= 54 && lat <= 57 && lng >= 35 && lng <= 40)
+                return { lat, lng };
+        }
+        return null;
+    }
+
     function initMap() {
         if(mapInitialized) return;
-        map = new ymaps.Map('map', { center: [55.7, 37.6], zoom: 10, controls: ['zoomControl','fullscreenControl'] });
+        map = new ymaps.Map('map', {
+            center: [55.7, 37.6],
+            zoom: 10,
+            controls: ['zoomControl', 'fullscreenControl']
+        });
+        
         const select = document.getElementById('mapDistrictSelect');
-        DISTRICTS_LIST.forEach(d => { let opt = document.createElement('option'); opt.value=d; opt.textContent=d; select.appendChild(opt); });
+        DISTRICTS_LIST.forEach(district => {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            select.appendChild(option);
+        });
+        
         setupMapEvents();
         setupGeocoderSearch();
         loadAllData();
+        
+        // Синхронизация выбора округа из калькулятора
+        const selectedDistrictFromCalc = districtSelect.value;
+        if(selectedDistrictFromCalc) {
+            select.value = selectedDistrictFromCalc;
+            currentDistrictMap = selectedDistrictFromCalc;
+        }
+        
         mapInitialized = true;
     }
     
     function setupMapEvents() {
-        document.getElementById('mapDistrictSelect').addEventListener('change', (e) => { currentDistrictMap = e.target.value; if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap); else clearAllMap(); });
-        document.getElementById('radiusInput').addEventListener('change', (e) => { currentRadiusSchool = parseInt(e.target.value)||800; if(currentCenterPoint) updateAccessibility(currentCenterPoint); });
-        document.querySelectorAll('#mapModal .mode-btn').forEach(btn => { btn.addEventListener('click',()=>{ document.querySelectorAll('#mapModal .mode-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentModeMap=btn.dataset.mode; if(selectedObjectId && currentCenterPoint){ let obj=allObjects.find(o=>o.id===selectedObjectId); if(obj) buildRoute(currentCenterPoint,[obj.lat,obj.lng]); } }); });
-        map.events.add('click', (e) => { const coords = e.get('coords'); currentCenterPoint=coords; updateAccessibility(coords); addUserMarker(coords); if(currentRoute) map.geoObjects.remove(currentRoute); selectedObjectId=null; document.querySelectorAll('#mapModal .object-card').forEach(c=>c.classList.remove('active')); });
-        document.getElementById('resetMapBtn').onclick = () => { currentCenterPoint=null; if(currentRoute) map.geoObjects.remove(currentRoute); if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark); if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap); };
+        document.getElementById('mapDistrictSelect').addEventListener('change', (e) => {
+            currentDistrictMap = e.target.value;
+            if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
+            else clearAllMap();
+        });
+        
+        document.getElementById('radiusInput').addEventListener('change', (e) => {
+            currentRadius = parseInt(e.target.value) || 800;
+            if(currentCenterPoint) updateAccessibility(currentCenterPoint);
+        });
+        
+        document.querySelectorAll('#mapModal .mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#mapModal .mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentModeMap = btn.dataset.mode;
+                if(selectedObjectId && currentCenterPoint) {
+                    const obj = allObjects.find(o => o.id === selectedObjectId);
+                    if(obj) buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
+                }
+            });
+        });
+        
+        map.events.add('click', (e) => {
+            const coords = e.get('coords');
+            currentCenterPoint = coords;
+            updateAccessibility(coords);
+            addUserMarker(coords);
+            if(currentRoute) {
+                map.geoObjects.remove(currentRoute);
+                currentRoute = null;
+            }
+            selectedObjectId = null;
+            document.querySelectorAll('#mapModal .object-card').forEach(c => c.classList.remove('active'));
+        });
+        
+        document.getElementById('resetMapBtn').onclick = () => {
+            currentCenterPoint = null;
+            if(currentRoute) map.geoObjects.remove(currentRoute);
+            if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark);
+            if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
+            document.getElementById('captureDataBtn').style.display = 'none';
+        };
     }
     
-    async function filterObjectsByDistrict(district) { let filtered = allObjects.filter(obj=>obj.district===district); await renderObjects(filtered); }
+    function filterObjectsByDistrict(district) {
+        const filtered = allObjects.filter(obj => obj.district === district);
+        renderObjects(filtered);
+    }
     
-    async function renderObjects(objects) { clearMap(); if(!objects.length) return; objects.forEach(obj=>{ let p = createPlacemark(obj); placemarks.push(p); map.geoObjects.add(p); }); if(currentCenterPoint) updateAccessibility(currentCenterPoint); let first=objects.find(o=>o.lat); if(first) map.setCenter([first.lat,first.lng],11); }
+    function renderObjects(objects) {
+        clearMap();
+        if(!objects.length) {
+            updateTotalStats(objects);
+            renderLists(objects, []);
+            document.getElementById('captureDataBtn').style.display = 'none';
+            return;
+        }
+        const objectsWithCoords = objects.filter(o => o.lat && o.lng);
+        objectsWithCoords.forEach(obj => {
+            const placemark = createPlacemark(obj);
+            placemarks.push(placemark);
+            map.geoObjects.add(placemark);
+        });
+        if(currentCenterPoint) updateAccessibility(currentCenterPoint);
+        else {
+            renderLists(objects, []);
+            updateTotalStats(objects);
+        }
+        const first = objectsWithCoords[0];
+        if(first) map.setCenter([first.lat, first.lng], 11);
+    }
     
-    function createPlacemark(obj){ let color = obj.type==='school'?'#3b82f6':'#22c55e'; let pm = new ymaps.Placemark([obj.lat,obj.lng],{balloonContent:`<div class="ballon-content"><strong>${obj.name||'Без названия'}</strong><br>📍${obj.address||'—'}<br><button class="ballon-route-btn" onclick="window.selectObjectMap('${obj.id}')">📍 Маршрут</button></div>`},{preset:'islands#circleIcon',iconColor:color}); pm.events.add('click',()=>selectObjectMap(obj.id)); return pm; }
+    function createPlacemark(obj) {
+        const color = obj.type === 'school' ? '#3b82f6' : '#22c55e';
+        
+        let extraInfo = '';
+        if(obj.type === 'school' && obj.secondShift && parseInt(obj.secondShift) > 0) {
+            extraInfo += `🕐 2-я смена: ${parseInt(obj.secondShift).toLocaleString()} чел.<br>`;
+        }
+        if(obj.type === 'kindergarten') {
+            const queue = Math.max(0, (parseFloat(obj.fact) || 0) - (parseFloat(obj.capacity) || 0));
+            if(queue > 0) extraInfo += `⏳ Очередность 3-7 лет: ${queue.toLocaleString()} чел.<br>`;
+        }
+        
+        const balloonContent = `
+            <div class="ballon-content">
+                <strong>${obj.name || 'Без названия'}</strong><br>
+                📍 ${obj.address || '—'}<br>
+                🏷️ ${obj.type === 'school' ? 'Школа' : 'Детский сад'}<br>
+                ${obj.buildYear ? `🏛️ Постройка: ${obj.buildYear}<br>` : ''}
+                ${obj.capacity ? `👥 Вместимость: ${parseInt(obj.capacity).toLocaleString()} мест<br>` : ''}
+                ${obj.fact ? `📊 Факт: ${parseInt(obj.fact).toLocaleString()} чел.<br>` : ''}
+                ${extraInfo}
+                ${obj.loadPercent ? `📈 Загрузка: ${obj.loadPercent}%<br>` : ''}
+                <button class="ballon-route-btn" onclick="window.selectObjectMap('${obj.id}')">📍 Построить маршрут</button>
+            </div>
+        `;
+        
+        const placemark = new ymaps.Placemark([obj.lat, obj.lng], {
+            balloonContent: balloonContent,
+            hintContent: obj.name
+        }, { 
+            preset: 'islands#circleIcon', 
+            iconColor: color, 
+            hintOpenTimeout: 300,
+            balloonMaxWidth: 280
+        });
+        
+        placemark.events.add('click', () => {
+            selectObjectMap(obj.id);
+        });
+        
+        return placemark;
+    }
     
-    window.selectObjectMap = function(id){ let obj=allObjects.find(o=>o.id===id); if(!obj) return; selectedObjectId=id; if(currentCenterPoint) buildRoute(currentCenterPoint,[obj.lat,obj.lng]); else { map.setCenter([obj.lat,obj.lng],15); currentCenterPoint=[obj.lat,obj.lng]; addUserMarker(currentCenterPoint); updateAccessibility(currentCenterPoint); } };
+    window.selectObjectMap = function(id) {
+        const obj = allObjects.find(o => o.id === id);
+        if(!obj) return;
+        selectedObjectId = id;
+        
+        if(currentCenterPoint) {
+            buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
+        } else {
+            map.setCenter([obj.lat, obj.lng], 15);
+            currentCenterPoint = [obj.lat, obj.lng];
+            addUserMarker(currentCenterPoint);
+            updateAccessibility(currentCenterPoint);
+            buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
+        }
+        
+        document.querySelectorAll('#mapModal .object-card').forEach(c => {
+            c.classList.remove('active');
+            if(c.dataset.id === id) c.classList.add('active');
+        });
+        
+        const placemark = placemarks.find(p => {
+            const coords = p.geometry.getCoordinates();
+            return coords[0] === obj.lat && coords[1] === obj.lng;
+        });
+        if(placemark) placemark.balloon.open();
+    };
     
-    function buildRoute(start,end){ if(currentRoute) map.geoObjects.remove(currentRoute); try{ currentRoute = new ymaps.multiRouter.MultiRoute({referencePoints:[start,end], params:{routingMode:currentModeMap==='pedestrian'?'pedestrian':'auto'}},{strokeColor:'#3b82f6'}); map.geoObjects.add(currentRoute); }catch(e){} }
+    function buildRoute(start, end) {
+        if(currentRoute) map.geoObjects.remove(currentRoute);
+        const routeMode = currentModeMap === 'pedestrian' ? 'pedestrian' : 'auto';
+        try {
+            currentRoute = new ymaps.multiRouter.MultiRoute({
+                referencePoints: [start, end],
+                params: { routingMode: routeMode }
+            }, { boundsAutoApply: false, wayPointDraggable: false, strokeColor: '#3b82f6', strokeWidth: 4 });
+            map.geoObjects.add(currentRoute);
+        } catch(e) {}
+    }
     
-    function updateAccessibility(center){ let curObjs = allObjects.filter(o=>o.district===currentDistrictMap); objectsInRadiusForSchool = curObjs.filter(o=>o.type==='school' && getDistance(center,[o.lat,o.lng])<=currentRadiusSchool); objectsInRadiusForKindergarten = curObjs.filter(o=>o.type==='kindergarten' && getDistance(center,[o.lat,o.lng])<=800); let schoolIds=new Set(objectsInRadiusForSchool.map(o=>o.id)), kinderIds=new Set(objectsInRadiusForKindergarten.map(o=>o.id)); curObjs.forEach(obj=>{ let pm=placemarks.find(p=>{let c=p.geometry.getCoordinates(); return c[0]===obj.lat && c[1]===obj.lng;}); if(pm){ let isIn = obj.type==='school' ? schoolIds.has(obj.id) : kinderIds.has(obj.id); pm.options.set('iconColor', isIn ? (obj.type==='school'?'#3b82f6':'#22c55e') : '#94a3b8'); pm.options.set('opacity', isIn?1:0.5); } }); updateTotalStats(curObjs); updateRadiusStats(); renderLists(curObjs, schoolIds, kinderIds); }
+    function updateAccessibility(centerCoords) {
+        const currentObjects = allObjects.filter(obj => obj.district === currentDistrictMap);
+        objectsInRadiusList = currentObjects.filter(obj => {
+            if(!obj.lat) return false;
+            return getDistance(centerCoords, [obj.lat, obj.lng]) <= currentRadius;
+        });
+        const inRadiusIds = new Set(objectsInRadiusList.map(o => o.id));
+        currentObjects.forEach(obj => {
+            const isInRadius = inRadiusIds.has(obj.id);
+            const placemark = placemarks.find(p => {
+                const coords = p.geometry.getCoordinates();
+                return coords[0] === obj.lat && coords[1] === obj.lng;
+            });
+            if(placemark) {
+                const baseColor = obj.type === 'school' ? '#3b82f6' : '#22c55e';
+                placemark.options.set('iconColor', isInRadius ? baseColor : '#94a3b8');
+                placemark.options.set('opacity', isInRadius ? 1 : 0.5);
+            }
+        });
+        
+        updateTotalStats(currentObjects);
+        updateRadiusStats(objectsInRadiusList);
+        renderLists(currentObjects, objectsInRadiusList);
+        
+        if(objectsInRadiusList.length > 0 && currentCenterPoint) {
+            document.getElementById('captureDataBtn').style.display = 'block';
+        } else {
+            document.getElementById('captureDataBtn').style.display = 'none';
+        }
+    }
     
-    function getDistance(c1,c2){ const R=6371000; let lat1=c1[0]*Math.PI/180, lat2=c2[0]*Math.PI/180; let dLat=(c2[0]-c1[0])*Math.PI/180, dLon=(c2[1]-c1[1])*Math.PI/180; let a=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+    function updateTotalStats(objects) {
+        const schools = objects.filter(o => o.type === 'school');
+        const kindergartens = objects.filter(o => o.type === 'kindergarten');
+        
+        const schoolCap = schools.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
+        const schoolFact = schools.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
+        const schoolSecondShift = schools.reduce((s, o) => s + (parseFloat(o.secondShift)||0), 0);
+        const schoolLoad = schoolCap > 0 ? Math.round((schoolFact/schoolCap)*100) : 0;
+        document.getElementById('schoolTotalStats').innerHTML = `
+            <span>📐 Мощность: ${schoolCap.toLocaleString()}</span>
+            <span>👥 Факт: ${schoolFact.toLocaleString()}</span>
+            <span>🕐 2-я смена: ${schoolSecondShift.toLocaleString()}</span>
+            <span>📊 Загрузка: <span class="${schoolLoad>100?'load-critical-red':(schoolLoad>90?'load-high-yellow':'load-low-dark')}">${schoolLoad}%</span></span>
+        `;
+        
+        const kgCap = kindergartens.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
+        const kgFact = kindergartens.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
+        const kgQueue = Math.max(0, kgFact - kgCap);
+        const kgLoad = kgCap > 0 ? Math.round((kgFact/kgCap)*100) : 0;
+        document.getElementById('kindergartenTotalStats').innerHTML = `
+            <span>📐 Мощность: ${kgCap.toLocaleString()}</span>
+            <span>👥 Факт: ${kgFact.toLocaleString()}</span>
+            <span>⏳ Очередь 3-7 лет: ${kgQueue.toLocaleString()}</span>
+            <span>📊 Загрузка: <span class="${kgLoad>100?'load-critical-red':(kgLoad>90?'load-high-yellow':'load-low-dark')}">${kgLoad}%</span></span>
+        `;
+    }
     
-    function addUserMarker(coords){ if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark); currentUserPlacemark = new ymaps.Placemark(coords,{},{preset:'islands#circleIcon',iconColor:'#ef4444'}); map.geoObjects.add(currentUserPlacemark); }
-    
-    function clearMap(){ placemarks.forEach(p=>{if(p && map.geoObjects.indexOf(p)!==-1) map.geoObjects.remove(p);}); placemarks=[]; if(currentRoute) map.geoObjects.remove(currentRoute); if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark); }
-    
-    function clearAllMap(){ clearMap(); objectsInRadiusForSchool=[]; objectsInRadiusForKindergarten=[]; currentCenterPoint=null; document.getElementById('schoolsList').innerHTML='<div class="loading">Выберите округ</div>'; document.getElementById('kindergartensList').innerHTML='<div class="loading">Выберите округ</div>'; }
-    
-    function updateTotalStats(objects){ let schools=objects.filter(o=>o.type==='school'), kgs=objects.filter(o=>o.type==='kindergarten'); let schoolCap=schools.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0), schoolFact=schools.reduce((s,o)=>s+(parseFloat(o.fact)||0),0), schoolShift=schools.reduce((s,o)=>s+(parseFloat(o.secondShift)||0),0); let kgCap=kgs.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0), kgFact=kgs.reduce((s,o)=>s+(parseFloat(o.fact)||0),0); document.getElementById('schoolTotalStats').innerHTML=`<span>📐 ${schoolCap.toLocaleString()}</span><span>👥 ${schoolFact.toLocaleString()}</span><span>🕐 ${schoolShift.toLocaleString()}</span>`; document.getElementById('kindergartenTotalStats').innerHTML=`<span>📐 ${kgCap.toLocaleString()}</span><span>👥 ${kgFact.toLocaleString()}</span>`; }
-    
-    function updateRadiusStats() {
-        const schoolsCount = objectsInRadiusForSchool.length;
-        const kindergartensCount = objectsInRadiusForKindergarten.length;
-        const schoolCap = objectsInRadiusForSchool.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0);
-        const schoolFact = objectsInRadiusForSchool.reduce((s,o)=>s+(parseFloat(o.fact)||0),0);
-        const schoolShift = objectsInRadiusForSchool.reduce((s,o)=>s+(parseFloat(o.secondShift)||0),0);
-        const kgCap = objectsInRadiusForKindergarten.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0);
-        const kgFact = objectsInRadiusForKindergarten.reduce((s,o)=>s+(parseFloat(o.fact)||0),0);
-        if (schoolsCount > 0) {
+    function updateRadiusStats(objectsInRadius) {
+        const schoolsInRadius = objectsInRadius.filter(o => o.type === 'school');
+        const kindergartensInRadius = objectsInRadius.filter(o => o.type === 'kindergarten');
+        
+        const schoolCap = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
+        const schoolFact = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
+        const schoolSecondShift = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.secondShift)||0), 0);
+        const schoolLoad = schoolCap > 0 ? Math.round((schoolFact/schoolCap)*100) : 0;
+        
+        const kgCap = kindergartensInRadius.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
+        const kgFact = kindergartensInRadius.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
+        const kgQueue = Math.max(0, kgFact - kgCap);
+        const kgLoad = kgCap > 0 ? Math.round((kgFact/kgCap)*100) : 0;
+        
+        if(objectsInRadius.length > 0) {
             document.getElementById('schoolRadiusStats').style.display = 'flex';
-            document.getElementById('schoolRadiusStats').innerHTML = `<span>🎯 В радиусе ${currentRadiusSchool}м: ${schoolsCount} школ</span><span>📐 ${schoolCap.toLocaleString()}</span><span>👥 ${schoolFact.toLocaleString()}</span><span>🕐 ${schoolShift.toLocaleString()}</span>`;
-        } else { document.getElementById('schoolRadiusStats').style.display = 'none'; }
-        if (kindergartensCount > 0) {
             document.getElementById('kindergartenRadiusStats').style.display = 'flex';
-            document.getElementById('kindergartenRadiusStats').innerHTML = `<span>🎯 В радиусе 800м: ${kindergartensCount} садов</span><span>📐 ${kgCap.toLocaleString()}</span><span>👥 ${kgFact.toLocaleString()}</span>`;
-        } else { document.getElementById('kindergartenRadiusStats').style.display = 'none'; }
+            
+            document.getElementById('schoolRadiusStats').innerHTML = `
+                <span>🎯 В радиусе ${currentRadius}м: ${schoolsInRadius.length} школ</span>
+                <span>📐 ${schoolCap.toLocaleString()}</span>
+                <span>👥 ${schoolFact.toLocaleString()}</span>
+                <span>🕐 2 см: ${schoolSecondShift.toLocaleString()}</span>
+                <span>📊 ${schoolLoad}%</span>
+            `;
+            
+            document.getElementById('kindergartenRadiusStats').innerHTML = `
+                <span>🎯 В радиусе ${currentRadius}м: ${kindergartensInRadius.length} садов</span>
+                <span>📐 ${kgCap.toLocaleString()}</span>
+                <span>👥 ${kgFact.toLocaleString()}</span>
+                <span>⏳ Очередь: ${kgQueue.toLocaleString()}</span>
+                <span>📊 ${kgLoad}%</span>
+            `;
+        } else {
+            document.getElementById('schoolRadiusStats').style.display = 'none';
+            document.getElementById('kindergartenRadiusStats').style.display = 'none';
+        }
     }
     
-    function renderLists(objects, schoolIds, kinderIds){ let schools=objects.filter(o=>o.type==='school'), kgs=objects.filter(o=>o.type==='kindergarten'); renderObjectList('schoolsList', schools, schoolIds); renderObjectList('kindergartensList', kgs, kinderIds); }
+    function getDistance(coord1, coord2) {
+        const R = 6371000;
+        const lat1 = coord1[0] * Math.PI/180, lat2 = coord2[0] * Math.PI/180;
+        const deltaLat = (coord2[0] - coord1[0]) * Math.PI/180;
+        const deltaLon = (coord2[1] - coord1[1]) * Math.PI/180;
+        const a = Math.sin(deltaLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(deltaLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
     
-    function renderObjectList(containerId, objects, inIds){ let cont=document.getElementById(containerId); if(!objects.length){ cont.innerHTML='<div class="loading">Нет объектов</div>'; return; } cont.innerHTML=''; objects.forEach(obj=>{ let div=document.createElement('div'); div.className=`object-card ${inIds.has(obj.id)?'in-radius':'out-radius'}`; div.dataset.id=obj.id; div.innerHTML=`<div class="object-name"><span class="object-badge ${obj.type==='school'?'badge-school':'badge-kindergarten'}">${obj.type==='school'?'🏫 Школа':'🏠 Детский сад'}</span> ${obj.name||'Без названия'}</div><div class="object-address">📍 ${obj.address||'—'}</div>`; div.onclick=()=>selectObjectMap(obj.id); cont.appendChild(div); }); }
+    function renderLists(objects, objectsInRadius) {
+        const schools = objects.filter(o => o.type === 'school');
+        const kindergartens = objects.filter(o => o.type === 'kindergarten');
+        const inRadiusIds = new Set(objectsInRadius.map(o => o.id));
+        const sortByRadius = (a,b) => (inRadiusIds.has(b.id) - inRadiusIds.has(a.id));
+        schools.sort(sortByRadius);
+        kindergartens.sort(sortByRadius);
+        renderObjectList('schoolsList', schools, inRadiusIds);
+        renderObjectList('kindergartensList', kindergartens, inRadiusIds);
+    }
     
-    function setupGeocoderSearch(){ let inp=document.getElementById('searchInput'), cont=document.getElementById('suggestContainer'); inp.addEventListener('input',(e)=>{ let q=e.target.value.trim(); if(suggestTimeout) clearTimeout(suggestTimeout); if(q.length<3){ cont.style.display='none'; return; } suggestTimeout=setTimeout(()=>fetchSuggestions(q),300); }); document.addEventListener('click',(e)=>{ if(!inp.contains(e.target) && !cont.contains(e.target)) cont.style.display='none'; }); }
+    function renderObjectList(containerId, objects, inRadiusIds) {
+        const container = document.getElementById(containerId);
+        if(!objects.length) { container.innerHTML = '<div class="loading">Нет объектов</div>'; return; }
+        container.innerHTML = '';
+        objects.forEach(obj => {
+            const loadPercent = parseFloat(obj.loadPercent);
+            const isInRadius = inRadiusIds.has(obj.id);
+            
+            let extraStat = '';
+            if(obj.type === 'school' && obj.secondShift && parseInt(obj.secondShift) > 0) {
+                extraStat = `<span>🕐 2 см: ${parseInt(obj.secondShift).toLocaleString()}</span>`;
+            }
+            if(obj.type === 'kindergarten') {
+                const queue = Math.max(0, (parseFloat(obj.fact)||0) - (parseFloat(obj.capacity)||0));
+                if(queue > 0) extraStat = `<span>⏳ Очередь: ${queue.toLocaleString()}</span>`;
+            }
+            
+            const card = document.createElement('div');
+            card.className = `object-card ${isInRadius ? 'in-radius' : 'out-radius'}`;
+            card.dataset.id = obj.id;
+            card.innerHTML = `
+                <div class="object-name"><span class="object-badge ${obj.type==='school'?'badge-school':'badge-kindergarten'}">${obj.type==='school'?'🏫 Школа':'🏠 Детский сад'}</span> ${obj.name||'Без названия'}</div>
+                <div class="object-address">📍 ${obj.address||'—'}</div>
+                <div class="object-stats">
+                    ${obj.buildYear?`🏛️ ${obj.buildYear}`:''} 
+                    ${obj.capacity?`🎓 ${parseInt(obj.capacity).toLocaleString()} мест`:''} 
+                    ${obj.fact?`👥 ${parseInt(obj.fact).toLocaleString()} чел.`:''}
+                    ${extraStat}
+                </div>
+                ${obj.loadPercent?`<div class="load-bar"><div class="load-bar-fill" style="width:${Math.min(loadPercent,200)}%; background:${loadPercent>120?'#ef4444':(loadPercent>100?'#fde047':'#22c55e')}"></div></div><div class="object-stats">📊 ${obj.loadPercent}%</div>`:''}
+            `;
+            card.onclick = () => selectObjectMap(obj.id);
+            container.appendChild(card);
+        });
+    }
     
-    async function fetchSuggestions(q){ try{ let res=await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=9e0575ab-d520-4bcf-bb0e-4ee68968f45d&geocode=${encodeURIComponent(q)}&results=6&format=json`); let data=await res.json(); let members=data.response.GeoObjectCollection.featureMember; if(!members) return; let suggs=members.map(m=>{ let g=m.GeoObject, name=g.name, desc=g.description||'', full=g.metaDataProperty.GeocoderMetaData.text, coords=g.Point.pos.split(' ').map(Number); return {text:full, displayName:name+(desc?`, ${desc}`:''), coords:[coords[1],coords[0]]}; }); renderSuggestions(suggs); }catch(e){ console.warn(e); } }
+    function addUserMarker(coords) {
+        if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark);
+        currentUserPlacemark = new ymaps.Placemark(coords, { hintContent: 'Центр поиска' }, { preset: 'islands#circleIcon', iconColor: '#ef4444' });
+        map.geoObjects.add(currentUserPlacemark);
+    }
     
-    function renderSuggestions(sugs){ let c=document.getElementById('suggestContainer'); if(!sugs.length){c.style.display='none';return;} c.innerHTML=''; sugs.forEach(s=>{ let div=document.createElement('div'); div.className='suggest-item'; div.innerHTML=`<strong>${s.displayName.substring(0,60)}</strong><br><small>${s.text.substring(0,80)}</small>`; div.onclick=()=>{ currentCenterPoint=s.coords; map.setCenter(s.coords,15); addUserMarker(s.coords); updateAccessibility(s.coords); if(currentRoute) map.geoObjects.remove(currentRoute); selectedObjectId=null; document.getElementById('searchInput').value=s.text; c.style.display='none'; }; c.appendChild(div); }); c.style.display='block'; }
+    function clearMap() {
+        placemarks.forEach(p => { if(p && map.geoObjects.indexOf(p) !== -1) map.geoObjects.remove(p); });
+        placemarks = [];
+        if(currentRoute) { map.geoObjects.remove(currentRoute); currentRoute = null; }
+        if(currentUserPlacemark) { map.geoObjects.remove(currentUserPlacemark); currentUserPlacemark = null; }
+    }
     
-    // Функция захвата данных с карты в калькулятор
+    function clearAllMap() {
+        clearMap();
+        objectsInRadiusList = [];
+        currentCenterPoint = null;
+        document.getElementById('schoolsList').innerHTML = '<div class="loading">Выберите округ</div>';
+        document.getElementById('kindergartensList').innerHTML = '<div class="loading">Выберите округ</div>';
+        document.getElementById('schoolTotalStats').innerHTML = '';
+        document.getElementById('kindergartenTotalStats').innerHTML = '';
+        document.getElementById('schoolRadiusStats').style.display = 'none';
+        document.getElementById('kindergartenRadiusStats').style.display = 'none';
+    }
+    
+    function setupGeocoderSearch() {
+        let inp = document.getElementById('searchInput'), cont = document.getElementById('suggestContainer');
+        inp.addEventListener('input', (e) => {
+            let q = e.target.value.trim();
+            if(suggestTimeout) clearTimeout(suggestTimeout);
+            if(q.length < 3){ cont.style.display = 'none'; return; }
+            suggestTimeout = setTimeout(() => fetchSuggestions(q), 300);
+        });
+        document.addEventListener('click', (e) => {
+            if(!inp.contains(e.target) && !cont.contains(e.target)) cont.style.display = 'none';
+        });
+    }
+    
+    async function fetchSuggestions(q) {
+        try {
+            let res = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=9e0575ab-d520-4bcf-bb0e-4ee68968f45d&geocode=${encodeURIComponent(q)}&results=6&format=json`);
+            let data = await res.json();
+            let members = data.response.GeoObjectCollection.featureMember;
+            if(!members) return;
+            let suggs = members.map(m => {
+                let g = m.GeoObject, name = g.name, desc = g.description || '', full = g.metaDataProperty.GeocoderMetaData.text, coords = g.Point.pos.split(' ').map(Number);
+                return { text: full, displayName: name + (desc ? `, ${desc}` : ''), coords: [coords[1], coords[0]] };
+            });
+            renderSuggestions(suggs);
+        } catch(e) { console.warn(e); }
+    }
+    
+    function renderSuggestions(sugs) {
+        let c = document.getElementById('suggestContainer');
+        if(!sugs.length) { c.style.display = 'none'; return; }
+        c.innerHTML = '';
+        sugs.forEach(s => {
+            let div = document.createElement('div');
+            div.className = 'suggest-item';
+            div.innerHTML = `<strong>${s.displayName.substring(0,60)}</strong><br><small>${s.text.substring(0,80)}</small>`;
+            div.onclick = () => {
+                currentCenterPoint = s.coords;
+                map.setCenter(s.coords, 15);
+                addUserMarker(s.coords);
+                updateAccessibility(s.coords);
+                if(currentRoute) map.geoObjects.remove(currentRoute);
+                selectedObjectId = null;
+                document.getElementById('searchInput').value = s.text;
+                c.style.display = 'none';
+            };
+            c.appendChild(div);
+        });
+        c.style.display = 'block';
+    }
+    
+    // ========== ЗАПИСЬ ДАННЫХ В КАЛЬКУЛЯТОР ==========
     function captureDataToCalculator() {
-        if(!currentDistrictMap) { alert("Сначала выберите городской округ на карте!"); return; }
-        if(!currentCenterPoint) { alert("Кликните на карту, чтобы установить центр поиска (радиус)."); return; }
+        if(!currentDistrictMap) {
+            alert("Сначала выберите городской округ на карте!");
+            return;
+        }
+        if(!currentCenterPoint) {
+            alert("Кликните на карту, чтобы установить центр поиска (радиус).");
+            return;
+        }
+        
         let totalSchoolPlan = 0, totalSchoolFact = 0, totalSecondShift = 0;
-        objectsInRadiusForSchool.forEach(s => { totalSchoolPlan += parseFloat(s.capacity)||0; totalSchoolFact += parseFloat(s.fact)||0; totalSecondShift += parseFloat(s.secondShift)||0; });
         let totalKinderPlan = 0, totalKinderFact = 0, totalQueue = 0;
-        objectsInRadiusForKindergarten.forEach(k => { totalKinderPlan += parseFloat(k.capacity)||0; totalKinderFact += parseFloat(k.fact)||0; let queue = Math.max(0, (parseFloat(k.fact)||0) - (parseFloat(k.capacity)||0)); totalQueue += queue; });
+        
+        objectsInRadiusList.forEach(obj => {
+            const capacity = parseFloat(obj.capacity) || 0;
+            const fact = parseFloat(obj.fact) || 0;
+            
+            if(obj.type === 'school') {
+                totalSchoolPlan += capacity;
+                totalSchoolFact += fact;
+                totalSecondShift += parseFloat(obj.secondShift) || 0;
+            } else if(obj.type === 'kindergarten') {
+                totalKinderPlan += capacity;
+                totalKinderFact += fact;
+                const queue = Math.max(0, fact - capacity);
+                totalQueue += queue;
+            }
+        });
+        
         schoolPlan.value = totalSchoolPlan;
         schoolActual.value = totalSchoolFact;
         kindergartenPlan.value = totalKinderPlan;
         kindergartenActual.value = totalKinderFact;
-        if(totalSecondShift > 0) { secondShiftToggle.checked = true; secondShiftNumber.value = totalSecondShift; secondShiftNumber.style.display = "inline-block"; }
-        else { secondShiftToggle.checked = false; secondShiftNumber.value = 0; secondShiftNumber.style.display = "none"; }
-        if(totalQueue > 0) { queueToggle.checked = true; queueNumber.value = totalQueue; queueNumber.style.display = "inline-block"; }
-        else { queueToggle.checked = false; queueNumber.value = 0; queueNumber.style.display = "none"; }
+        
+        if(totalSecondShift > 0) {
+            secondShiftToggle.checked = true;
+            secondShiftNumber.value = totalSecondShift;
+            secondShiftNumber.style.display = "inline-block";
+        } else {
+            secondShiftToggle.checked = false;
+            secondShiftNumber.value = 0;
+            secondShiftNumber.style.display = "none";
+        }
+        
+        if(totalQueue > 0) {
+            queueToggle.checked = true;
+            queueNumber.value = totalQueue;
+            queueNumber.style.display = "inline-block";
+        } else {
+            queueToggle.checked = false;
+            queueNumber.value = 0;
+            queueNumber.style.display = "none";
+        }
+        
         recalc();
         alert("✅ Данные перенесены в калькулятор!");
         document.getElementById('mapModal').classList.remove('active');
     }
-
-    // ========== СИНХРОНИЗАЦИЯ ВЫБОРА ОКРУГА ==========
-    // Когда пользователь выбирает округ в калькуляторе — сохраняем и синхронизируем с картой
-    districtSelect.addEventListener('change', (e) => {
-        selectedDistrict = e.target.value;
-        // Если карта уже инициализирована, синхронизируем её выбор
-        if(mapInitialized) {
-            const mapDistrictSelect = document.getElementById('mapDistrictSelect');
-            if(mapDistrictSelect) {
-                mapDistrictSelect.value = selectedDistrict;
-                currentDistrictMap = selectedDistrict;
-                if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
-                else clearAllMap();
-            }
-        }
-        recalc();
-    });
     
-    // Управление модальным окном карты
+    // ========== УПРАВЛЕНИЕ ОТКРЫТИЕМ КАРТЫ ==========
     document.getElementById('openMapBtn').onclick = () => {
-        // Перед открытием карты — синхронизируем выбранный округ
-        const currentSelectedDistrict = districtSelect.value;
-        if(mapInitialized && currentSelectedDistrict) {
-            const mapDistrictSelect = document.getElementById('mapDistrictSelect');
-            if(mapDistrictSelect && mapDistrictSelect.value !== currentSelectedDistrict) {
-                mapDistrictSelect.value = currentSelectedDistrict;
-                currentDistrictMap = currentSelectedDistrict;
-                if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
-                else clearAllMap();
+        const selectedDistrictFromCalc = districtSelect.value;
+        if(selectedDistrictFromCalc && mapInitialized) {
+            const mapSelect = document.getElementById('mapDistrictSelect');
+            if(mapSelect && mapSelect.value !== selectedDistrictFromCalc) {
+                mapSelect.value = selectedDistrictFromCalc;
+                currentDistrictMap = selectedDistrictFromCalc;
+                filterObjectsByDistrict(currentDistrictMap);
             }
         }
         document.getElementById('mapModal').classList.add('active');
         if(!mapInitialized) initMap();
     };
-    document.getElementById('closeMapBtn').onclick = () => document.getElementById('mapModal').classList.remove('active');
+    
+    document.getElementById('closeMapBtn').onclick = () => {
+        document.getElementById('mapModal').classList.remove('active');
+    };
+    
     document.getElementById('captureDataBtn').onclick = captureDataToCalculator;
+    
+    // Синхронизация выбора округа из калькулятора в карту
+    districtSelect.addEventListener('change', (e) => {
+        const selectedDistrict = e.target.value;
+        if(mapInitialized && selectedDistrict) {
+            const mapSelect = document.getElementById('mapDistrictSelect');
+            if(mapSelect && mapSelect.value !== selectedDistrict) {
+                mapSelect.value = selectedDistrict;
+                currentDistrictMap = selectedDistrict;
+                filterObjectsByDistrict(currentDistrictMap);
+            }
+        }
+    });
 </script>
 </body>
 </html>
