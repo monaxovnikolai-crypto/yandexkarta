@@ -2,14 +2,553 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Образовательная карта Московской области</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>РНГП 713/30 — Расчёт потребности + Карта</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; height: 100vh; overflow: hidden; background: #f5f7fb; }
+        /* ========== ОРИГИНАЛЬНЫЕ СТИЛИ КАЛЬКУЛЯТОРА ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #eef2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c2c 0%, #2c3e50 100%);
+            color: white;
+            padding: 18px 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 6px;
+        }
+
+        .content {
+            padding: 24px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #e4e7ec;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: #1f2f3a;
+            border-left: 4px solid #2c7a4d;
+            padding-left: 12px;
+        }
+
+        .card-subnote {
+            font-size: 0.65rem;
+            color: #5b6e8c;
+            margin-bottom: 20px;
+            padding-left: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 6px;
+            color: #2c3e50;
+        }
+
+        .input-group select,
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        .input-group select:focus,
+        .input-group input:focus {
+            border-color: #27ae60;
+            outline: none;
+        }
+
+        .hint {
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            margin-top: 6px;
+        }
+
+        .normative-card {
+            background: #f5f9ff;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #dce5f0;
+            margin-bottom: 24px;
+        }
+
+        .normative-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #2c3e50;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .normative-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .normative-table tr {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .normative-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .normative-table td {
+            padding: 12px 8px;
+            font-size: 0.9rem;
+        }
+
+        .normative-table td:first-child {
+            color: #475569;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .normative-table td:last-child {
+            text-align: right;
+            font-weight: 700;
+            color: #1f4f2d;
+            font-size: 1.4rem;
+        }
+
+        .normative-note {
+            font-size: 0.65rem;
+            color: #5b6e8c;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .overload-card {
+            background: #fefce8;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #fde047;
+            margin-bottom: 24px;
+        }
+
+        .overload-title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #854d0e;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .overload-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .overload-table tr {
+            border-bottom: 1px solid #fde047;
+        }
+
+        .overload-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .overload-table td {
+            padding: 10px 8px;
+            font-size: 0.85rem;
+        }
+
+        .overload-table td:first-child {
+            color: #713f12;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .overload-table td:last-child {
+            text-align: right;
+            font-weight: 700;
+            color: #854d0e;
+            font-size: 1.1rem;
+        }
+
+        .split-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .split-col {
+            flex: 1;
+            min-width: 250px;
+            background: #fefefe;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #ecf3fa;
+        }
+
+        .split-col h4 {
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #27ae60;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .number-field {
+            width: 100px;
+            padding: 8px 10px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+            width: 100%;
+            margin-top: 8px;
+            text-align: center;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #219a52;
+        }
+
+        .btn-secondary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #2980b9;
+        }
+
+        .map-button-wrapper {
+            margin-bottom: 24px;
+        }
+
+        .solutions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+            margin-bottom: 24px;
+        }
+
+        .solution-block {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 16px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .solution-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+
+        .solution-text {
+            font-size: 0.85rem;
+            color: #1e293b;
+            line-height: 1.4;
+        }
+
+        .solution-detail {
+            margin-top: 8px;
+            padding: 8px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .reserve-note {
+            margin-top: 6px;
+            padding: 6px;
+            background: #fff3cd;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #856404;
+        }
+
+        .ai-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            border: 3px solid #3b82f6;
+            animation: borderGlow 2s infinite ease-in-out;
+            margin-top: 24px;
+        }
+
+        @keyframes borderGlow {
+            0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
+            50% { border-color: #a855f7; box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.1); }
+            100% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
+        }
+
+        .ai-button {
+            background: linear-gradient(125deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .ai-button:hover {
+            transform: scale(1.01);
+            opacity: 0.95;
+        }
+
+        .ai-response {
+            background: #f0f9ff;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+            border-left: 4px solid #3b82f6;
+            text-align: left;
+            display: none;
+        }
+
+        .vpn-note {
+            font-size: 0.7rem;
+            color: #ef4444;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        .proposal-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #e4e7ec;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .proposal-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            color: #1f2f3a;
+            border-left: 4px solid #2c7a4d;
+            padding-left: 12px;
+        }
+
+        .proposal-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .proposal-table th {
+            background: #f5f5f5;
+            padding: 10px 8px;
+            font-weight: 600;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .proposal-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .proposal-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .download-link {
+            color: #27ae60;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .download-link:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ========== СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА КАРТЫ ========== */
+        .map-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
+        .map-modal.active {
+            display: flex;
+        }
+        .map-wrapper {
+            width: 95vw;
+            height: 90vh;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .close-map-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .capture-data-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #27ae60, #2c7a4d);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 24px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .capture-data-btn:hover { transform: scale(1.02); }
         
-        .app { display: flex; height: 100vh; flex-direction: column; }
-        
+        /* Стили карты */
+        .app { display: flex; height: 100%; flex-direction: column; }
         .top-panel {
             background: white;
             padding: 10px 12px;
@@ -21,7 +560,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border-bottom: 1px solid #e2e8f0;
         }
-        
         .filter-group {
             display: flex;
             align-items: center;
@@ -32,6 +570,7 @@
             border: 1px solid #e2e8f0;
             flex: 1;
             min-width: 130px;
+            position: relative;
         }
         .filter-group label { font-size: 12px; font-weight: 500; color: #475569; }
         .district-select, .search-input {
@@ -43,7 +582,27 @@
             flex: 1;
         }
         .district-select:focus, .search-input:focus { outline: none; }
-        
+        .suggest-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-height: 260px;
+            overflow-y: auto;
+            margin-top: 4px;
+            border: 1px solid #e2e8f0;
+        }
+        .suggest-item {
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .suggest-item:hover { background: #eff6ff; }
         .radius-control {
             display: flex;
             align-items: center;
@@ -54,8 +613,8 @@
             border: 1px solid #e2e8f0;
         }
         .radius-control label { font-size: 12px; font-weight: 500; }
-        .radius-input { width: 60px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 10px; text-align: center; font-size: 12px; }
-        
+        .radius-input { width: 70px; padding: 4px 6px; border-radius: 10px; text-align: center; font-size: 12px; border: 1px solid #cbd5e1; }
+        .radius-hint { font-size: 10px; color: #3b82f6; margin-left: 4px; }
         .mode-toggle {
             display: flex;
             gap: 3px;
@@ -67,10 +626,10 @@
             padding: 5px 12px;
             border: none;
             border-radius: 18px;
-            cursor: pointer;
             font-size: 12px;
             font-weight: 500;
             background: transparent;
+            cursor: pointer;
         }
         .mode-btn.active { background: #3b82f6; color: white; }
         .reset-btn {
@@ -79,15 +638,11 @@
             border: none;
             border-radius: 20px;
             padding: 5px 14px;
-            font-size: 12px;
-            font-weight: 500;
             cursor: pointer;
         }
-        
         .main-content { display: flex; flex: 1; overflow: hidden; position: relative; }
-        
         .sidebar-left, .sidebar-right {
-            width: 360px;
+            width: 320px;
             background: #f8fafc;
             display: flex;
             flex-direction: column;
@@ -97,21 +652,6 @@
         }
         .sidebar-left { border-right: 1px solid #e2e8f0; }
         .sidebar-right { border-left: 1px solid #e2e8f0; }
-        
-        @media (max-width: 768px) {
-            .sidebar-left, .sidebar-right {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                width: 85%;
-                max-width: 340px;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            .sidebar-left.open { transform: translateX(0); }
-            .sidebar-right.open { transform: translateX(0); right: 0; left: auto; }
-        }
-        
         .section-header {
             padding: 12px 14px;
             background: white;
@@ -120,7 +660,7 @@
             top: 0;
             z-index: 5;
         }
-        .section-header h3 { font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .section-header h3 { font-size: 15px; font-weight: 600; }
         .stats-row { 
             font-size: 11px; 
             color: #475569; 
@@ -132,16 +672,12 @@
             padding: 8px 12px; 
             border-radius: 12px;
         }
-        .stats-row span { display: flex; align-items: center; gap: 4px; }
-        .radius-stats-row {
-            background: #e0f2fe;
-            margin-top: 8px;
-        }
-        .load-high { background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 20px; }
-        .load-medium { background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 20px; }
-        .load-low { background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 20px; }
-        .badge-stat { background: #e2e8f0; padding: 2px 8px; border-radius: 20px; }
-        
+        .radius-stats-row { background: #e0f2fe; margin-top: 8px; display: none; }
+        .load-low-dark { background: #1e3a8a; color: white; padding: 2px 8px; border-radius: 20px; }
+        .load-medium-light { background: #7dd3fc; color: #0c4a6e; padding: 2px 8px; border-radius: 20px; }
+        .load-high-yellow { background: #fde047; color: #854d0e; padding: 2px 8px; border-radius: 20px; }
+        .load-over-green { background: #22c55e; color: #14532d; padding: 2px 8px; border-radius: 20px; }
+        .load-critical-red { background: #ef4444; color: white; padding: 2px 8px; border-radius: 20px; }
         .objects-list { flex: 1; padding: 8px; overflow-y: auto; }
         .object-card {
             background: white;
@@ -154,10 +690,10 @@
         }
         .object-card:hover { border-color: #3b82f6; }
         .object-card.active { border-left: 4px solid #3b82f6; background: #eff6ff; }
-        .object-card.in-radius { opacity: 1; background: white; }
+        .object-card.in-radius { opacity: 1; }
         .object-card.out-radius { opacity: 0.45; background: #f1f5f9; }
-        .object-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
-        .object-address { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+        .object-name { font-weight: 600; font-size: 13px; }
+        .object-address { font-size: 11px; color: #64748b; }
         .object-badge {
             display: inline-block;
             padding: 2px 8px;
@@ -168,55 +704,10 @@
         }
         .badge-school { background: #dbeafe; color: #1e40af; }
         .badge-kindergarten { background: #dcfce7; color: #166534; }
-        .object-stats { font-size: 10px; color: #475569; display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
-        .load-bar { height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-top: 6px; }
-        .load-bar-fill { height: 100%; border-radius: 2px; }
-        
         .map-container { flex: 1; position: relative; }
         #map { width: 100%; height: 100%; }
-        
-        .panel-buttons {
-            position: absolute;
-            bottom: 16px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            z-index: 25;
-            pointer-events: none;
-        }
-        .panel-btn {
-            pointer-events: auto;
-            background: #1e293b;
-            color: white;
-            border: none;
-            border-radius: 40px;
-            padding: 10px 20px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .panel-btn:active { transform: scale(0.96); }
-        
-        @media (min-width: 769px) {
-            .panel-buttons { display: none; }
-        }
-        
         .loading { padding: 20px; text-align: center; color: #64748b; font-size: 12px; }
-        .route-info { font-size: 10px; color: #3b82f6; margin-top: 4px; }
-        
-        .ballon-content {
-            font-size: 13px;
-            line-height: 1.4;
-        }
-        .ballon-content strong {
-            color: #1e293b;
-        }
+        .ballon-content { font-size: 13px; }
         .ballon-route-btn {
             margin-top: 10px;
             padding: 6px 12px;
@@ -225,70 +716,187 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
             width: 100%;
-        }
-        .ballon-route-btn:hover {
-            background: #2563eb;
         }
     </style>
 </head>
 <body>
-<div class="app">
-    <div class="top-panel">
-        <div class="filter-group">
-            <label>🏛️</label>
-            <select id="districtSelect" class="district-select">
-                <option value="">Округ</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>🔍</label>
-            <input type="text" id="searchInput" class="search-input" placeholder="Поиск...">
-        </div>
-        <div class="radius-control">
-            <label>🚶</label>
-            <input type="number" id="radiusInput" class="radius-input" value="800" step="100" min="100" max="3000">
-            <span>м</span>
-        </div>
-        <div class="mode-toggle">
-            <button class="mode-btn active" data-mode="pedestrian">🚶</button>
-            <button class="mode-btn" data-mode="auto">🚗</button>
-        </div>
-        <button class="reset-btn" onclick="resetAll()">🔄 Сброс</button>
+<div class="container">
+    <div class="header">
+        <h1>🏗️ РНГП 713/30</h1>
+        <p>Расчёт нормативной потребности в школах и детских садах</p>
     </div>
 
-    <div class="main-content">
-        <div class="sidebar-left" id="sidebarLeft">
-            <div class="section-header">
-                <h3>🏫 Школы</h3>
-                <div class="stats-row" id="schoolTotalStats"></div>
-                <div class="stats-row radius-stats-row" id="schoolRadiusStats" style="display: none;"></div>
+    <div class="content">
+        <!-- 1. Способ расчёта -->
+        <div class="card">
+            <div class="card-title">📐 Способ расчёта</div>
+            <div class="input-group">
+                <label>Тип ввода</label>
+                <select id="calcType">
+                    <option value="area">По площади жилья (м²)</option>
+                    <option value="population">По численности населения (чел)</option>
+                </select>
             </div>
-            <div id="schoolsList" class="objects-list"><div class="loading">Выберите округ</div></div>
+            <div class="input-group">
+                <label id="inputLabel">Площадь жилья (м²)</label>
+                <input type="number" id="mainValue" placeholder="Введите значение" step="1">
+                <div class="hint" id="hintText"></div>
+            </div>
         </div>
 
-        <div class="map-container">
-            <div id="map"></div>
-            <div class="panel-buttons">
-                <button class="panel-btn" id="showSchoolsBtn">🏫 Школы</button>
-                <button class="panel-btn" id="showKindergartensBtn">🏠 Сады</button>
+        <!-- 2. Таблица с нормативами -->
+        <div class="normative-card">
+            <div class="normative-title">📋 Нормативная потребность по РНГП 713/30</div>
+            <table class="normative-table">
+                <tr><td>🏫 Школы (135 мест / 1000 жителей)</td><td id="schoolRequired">0</td></tr>
+                <tr><td>🏠 Детские сады (65 мест / 1000 жителей)</td><td id="kindergartenRequired">0</td></tr>
+            </table>
+            <div class="normative-note">* Расчёт выполнен по нормативам РНГП 713/30</div>
+        </div>
+
+        <!-- 3. Выбор городского округа (синхронизируется с картой) -->
+        <div class="card">
+            <div class="card-title">🏙️ Городской округ</div>
+            <div class="input-group">
+                <select id="districtSelect">
+                    <option value="">-- Выберите округ --</option>
+                </select>
             </div>
         </div>
 
-        <div class="sidebar-right" id="sidebarRight">
-            <div class="section-header">
-                <h3>🏠 Детские сады</h3>
-                <div class="stats-row" id="kindergartenTotalStats"></div>
-                <div class="stats-row radius-stats-row" id="kindergartenRadiusStats" style="display: none;"></div>
+        <!-- 4. План/факт школы и сады -->
+        <div class="card">
+            <div class="card-title">🏫 Школы и детские сады</div>
+            <div class="card-subnote">Указываются объекты по доступности в соответствии с РНГП 713/30</div>
+            <div class="split-row">
+                <div class="split-col">
+                    <h4>🏫 Школы</h4>
+                    <div class="input-group">
+                        <label>Мощность (план), чел</label>
+                        <input type="number" id="schoolPlan" placeholder="План" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Факт (чел)</label>
+                        <input type="number" id="schoolActual" placeholder="Факт" step="1">
+                    </div>
+                    <div class="toggle-block">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="secondShiftToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">🕐 Вторая смена</span>
+                        <input type="number" id="secondShiftNumber" class="number-field" placeholder="Кол-во чел" step="1" value="0" style="display:none;">
+                    </div>
+                </div>
+                <div class="split-col">
+                    <h4>🏠 Детские сады</h4>
+                    <div class="input-group">
+                        <label>Мощность (план), чел</label>
+                        <input type="number" id="kindergartenPlan" placeholder="План" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>Факт (чел)</label>
+                        <input type="number" id="kindergartenActual" placeholder="Факт" step="1">
+                    </div>
+                    <div class="toggle-block">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="queueToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">👶 Очередность 3–7 лет</span>
+                        <input type="number" id="queueNumber" class="number-field" placeholder="Детей в очереди" step="1" value="0" style="display:none;">
+                    </div>
+                </div>
             </div>
-            <div id="kindergartensList" class="objects-list"><div class="loading">Выберите округ</div></div>
         </div>
+
+        <!-- 5. Кнопка перехода на карту -->
+        <div class="map-button-wrapper">
+            <button id="openMapBtn" class="btn btn-secondary">🗺️ Перейти к карте</button>
+        </div>
+
+        <!-- 6. Таблица с переуплотнением -->
+        <div id="overloadSection" class="overload-card hidden">
+            <div class="overload-title">📊 Расчёт с учётом переуплотнения</div>
+            <table class="overload-table">
+                <tr style="background: #fef3c7;"><td colspan="3"><strong>🏫 Школы</strong></td></tr>
+                <tr><td>Максимальная вместимость (+20% к плану)</td><td id="schoolMaxCapacity">0</td><td>мест</td></tr>
+                <tr><td>Можно принять дополнительно</td><td id="schoolCanTake">0</td><td>детей</td></tr>
+                <tr style="border-bottom: 2px solid #fde047;"><td><strong>Остаток потребности (школы)</strong></td><td id="schoolRemainAfterOverload">0</td><td>мест</td></tr>
+                <tr style="background: #fef3c7;"><td colspan="3"><strong>🏠 Детские сады</strong></td></tr>
+                <tr><td>Максимальная вместимость (+40% к плану)</td><td id="kindergartenMaxCapacity">0</td><td>мест</td></tr>
+                <tr><td>Можно принять дополнительно</td><td id="kindergartenCanTake">0</td><td>детей</td></tr>
+                <tr><td><strong>Остаток потребности (сады)</strong></td><td id="kindergartenRemainAfterOverload">0</td><td>мест</td></tr>
+            </table>
+        </div>
+
+        <!-- 7. Скорректированная потребность -->
+        <div id="duplicateSection" class="normative-card hidden">
+            <div class="normative-title">📋 Скорректированная потребность</div>
+            <table class="normative-table">
+                <tr><td>🏫 Школы (с учётом размещения детей в существующие объекты)</td><td id="schoolFinal">0</td></tr>
+                <tr><td>🏠 Детские сады (с учётом размещения детей в существующие объекты)</td><td id="kindergartenFinal">0</td></tr>
+            </table>
+        </div>
+
+        <!-- 8. Кнопка "Сформировать решения" -->
+        <button id="generateSolutionsBtn" class="btn btn-primary">📋 Сформировать решения</button>
+
+        <!-- 9. Блок решений -->
+        <div id="solutionsContainer" class="solutions-container" style="display: none;">
+            <div class="solution-block"><div class="solution-title">🏫 Решение по школам</div><div class="solution-text" id="schoolSolutionText">Введите данные для расчёта</div></div>
+            <div class="solution-block"><div class="solution-title">🏠 Решение по детским садам</div><div class="solution-text" id="kindergartenSolutionText">Введите данные для расчёта</div></div>
+        </div>
+
+        <!-- 10. Мнение ИИ -->
+        <div class="ai-card">
+            <button id="aiOpinionBtn" class="ai-button">🧠 Мнение ИИ</button>
+            <div id="aiResponse" class="ai-response"><div id="aiText"></div><div class="vpn-note">⚠️ Мнение ИИ доступно только при включенном VPN</div></div>
+        </div>
+
+        <!-- 11. Таблица "Предложения по реализации" -->
+        <div id="proposalSection" class="proposal-card hidden">
+            <div class="proposal-title">📋 Предложения по реализации</div>
+            <table class="proposal-table" id="proposalTable">
+                <thead><tr><th>Мощность</th><th>S земельного участка</th><th>Набор помещений</th><th>Набор площадок</th></tr></thead>
+                <tbody id="proposalTableBody"><tr><td colspan="4" style="text-align: center;">Нет данных для отображения</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно с картой -->
+<div id="mapModal" class="map-modal">
+    <div class="map-wrapper">
+        <button id="closeMapBtn" class="close-map-btn">✕ Закрыть карту</button>
+        <div class="app">
+            <div class="top-panel">
+                <div class="filter-group"><label>🏛️</label><select id="mapDistrictSelect" class="district-select"><option value="">Округ</option></select></div>
+                <div class="filter-group" style="position: relative;"><label>🔍</label><input type="text" id="searchInput" class="search-input" placeholder="Поиск адреса..."><div id="suggestContainer" class="suggest-dropdown" style="display: none;"></div></div>
+                <div class="radius-control"><label>🚶‍♂️ Школы</label><input type="number" id="radiusInput" class="radius-input" value="800" step="100"><span>м</span><span class="radius-hint">(сады 800м)</span></div>
+                <div class="mode-toggle"><button class="mode-btn active" data-mode="pedestrian">🚶</button><button class="mode-btn" data-mode="auto">🚗</button></div>
+                <button class="reset-btn" id="resetMapBtn">🔄 Сброс</button>
+            </div>
+            <div class="main-content">
+                <div class="sidebar-left" id="sidebarLeft">
+                    <div class="section-header"><h3>🏫 Школы</h3><div class="stats-row" id="schoolTotalStats"></div><div class="stats-row radius-stats-row" id="schoolRadiusStats" style="display: none;"></div></div>
+                    <div id="schoolsList" class="objects-list"><div class="loading">Выберите округ</div></div>
+                </div>
+                <div class="map-container"><div id="map"></div></div>
+                <div class="sidebar-right" id="sidebarRight">
+                    <div class="section-header"><h3>🏠 Детские сады</h3><div class="stats-row" id="kindergartenTotalStats"></div><div class="stats-row radius-stats-row" id="kindergartenRadiusStats" style="display: none;"></div></div>
+                    <div id="kindergartensList" class="objects-list"><div class="loading">Выберите округ</div></div>
+                </div>
+            </div>
+        </div>
+        <button id="captureDataBtn" class="capture-data-btn">📥 Записать данные в калькулятор</button>
     </div>
 </div>
 
 <script src="https://api-maps.yandex.ru/2.1/?apikey=9e0575ab-d520-4bcf-bb0e-4ee68968f45d&lang=ru_RU"></script>
 <script>
+    // ========== КОНСТАНТЫ ==========
     const DISTRICTS_LIST = [
         "Балашиха", "Богородский", "Бронницы", "Волоколамский", "Воскресенск",
         "Дмитровский", "Долгопрудный", "Домодедово", "Дубна", "Егорьевск",
@@ -301,513 +909,601 @@
         "Ступино", "Талдомский", "Фрязино", "Химки", "Черноголовка", "Чехов",
         "Шатура", "Шаховская", "Щёлково", "Электросталь"
     ];
-    
+    const SCHOOL_RATE = 0.135;
+    const KINDER_RATE = 0.065;
+    const PROXY_URL = 'https://gemini-proxy.monaxovnikolai-31d.workers.dev';
+    const TYPICAL_SCHOOL_CAPACITIES = [275, 550, 825, 1100, 1375, 1650, 1925, 2200, 2475, 2750, 3025];
+    const TYPICAL_KINDER_CAPACITIES = [100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400];
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZxvRRBwuNk8YOD6LIxBlFQOY8Geb3_E3ALIftje-BkKD5Ajm8MT7Xx8aot1ufx2C9oP4Ri1G92L8R/pub?output=csv';
-    
-    let map = null;
-    let allObjects = [];
-    let currentDistrict = '';
-    let placemarks = [];
-    let currentRoute = null;
-    let currentRadius = 800;
-    let currentMode = 'pedestrian';
-    let currentCenterPoint = null;
-    let currentUserPlacemark = null;
-    let objectsInRadiusList = [];
-    let selectedObjectId = null;
 
-    ymaps.ready(() => {
-        map = new ymaps.Map('map', {
-            center: [55.7, 37.6],
-            zoom: 10,
-            controls: ['zoomControl', 'fullscreenControl']
-        });
-        
-        const select = document.getElementById('districtSelect');
-        DISTRICTS_LIST.forEach(district => {
-            const option = document.createElement('option');
-            option.value = district;
-            option.textContent = district;
-            select.appendChild(option);
-        });
-        
-        loadAllData();
-        setupEventListeners();
-        
-        document.getElementById('showSchoolsBtn').onclick = () => {
-            document.getElementById('sidebarLeft').classList.toggle('open');
-            document.getElementById('sidebarRight').classList.remove('open');
-        };
-        document.getElementById('showKindergartensBtn').onclick = () => {
-            document.getElementById('sidebarRight').classList.toggle('open');
-            document.getElementById('sidebarLeft').classList.remove('open');
-        };
-    });
+    // ========== DOM ЭЛЕМЕНТЫ КАЛЬКУЛЯТОРА ==========
+    const calcType = document.getElementById('calcType');
+    const mainValue = document.getElementById('mainValue');
+    const inputLabel = document.getElementById('inputLabel');
+    const hintText = document.getElementById('hintText');
+    const schoolRequiredSpan = document.getElementById('schoolRequired');
+    const kindergartenRequiredSpan = document.getElementById('kindergartenRequired');
+    const districtSelect = document.getElementById('districtSelect');
+    const schoolPlan = document.getElementById('schoolPlan');
+    const schoolActual = document.getElementById('schoolActual');
+    const kindergartenPlan = document.getElementById('kindergartenPlan');
+    const kindergartenActual = document.getElementById('kindergartenActual');
+    const secondShiftToggle = document.getElementById('secondShiftToggle');
+    const secondShiftNumber = document.getElementById('secondShiftNumber');
+    const queueToggle = document.getElementById('queueToggle');
+    const queueNumber = document.getElementById('queueNumber');
+    const overloadSection = document.getElementById('overloadSection');
+    const duplicateSection = document.getElementById('duplicateSection');
+    const proposalSection = document.getElementById('proposalSection');
+    const proposalTableBody = document.getElementById('proposalTableBody');
+    const schoolMaxCapacitySpan = document.getElementById('schoolMaxCapacity');
+    const kindergartenMaxCapacitySpan = document.getElementById('kindergartenMaxCapacity');
+    const schoolCanTakeSpan = document.getElementById('schoolCanTake');
+    const kindergartenCanTakeSpan = document.getElementById('kindergartenCanTake');
+    const schoolRemainAfterOverloadSpan = document.getElementById('schoolRemainAfterOverload');
+    const kindergartenRemainAfterOverloadSpan = document.getElementById('kindergartenRemainAfterOverload');
+    const schoolFinalSpan = document.getElementById('schoolFinal');
+    const kindergartenFinalSpan = document.getElementById('kindergartenFinal');
+    const generateSolutionsBtn = document.getElementById('generateSolutionsBtn');
+    const solutionsContainer = document.getElementById('solutionsContainer');
+    const schoolSolutionText = document.getElementById('schoolSolutionText');
+    const kindergartenSolutionText = document.getElementById('kindergartenSolutionText');
+    const aiOpinionBtn = document.getElementById('aiOpinionBtn');
+    const aiResponse = document.getElementById('aiResponse');
+    const aiText = document.getElementById('aiText');
 
-    function setupEventListeners() {
-        document.getElementById('districtSelect').addEventListener('change', (e) => {
-            currentDistrict = e.target.value;
-            selectedObjectId = null;
-            if (currentDistrict) {
-                filterObjectsByDistrict(currentDistrict);
-            } else {
-                clearAll();
-            }
-        });
-        
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            if (currentDistrict) filterObjectsBySearch(e.target.value);
-        });
-        
-        document.getElementById('radiusInput').addEventListener('change', (e) => {
-            currentRadius = parseInt(e.target.value) || 800;
-            if (currentCenterPoint) updateAccessibility(currentCenterPoint);
-        });
-        
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentMode = btn.dataset.mode;
-                if (selectedObjectId && currentCenterPoint) {
-                    const obj = allObjects.find(o => o.id === selectedObjectId);
-                    if (obj) buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
-                }
-            });
-        });
-        
-        map.events.add('click', (e) => {
-            const coords = e.get('coords');
-            currentCenterPoint = coords;
-            updateAccessibility(coords);
-            addUserMarker(coords);
-            if (currentRoute) {
-                map.geoObjects.remove(currentRoute);
-                currentRoute = null;
-            }
-            selectedObjectId = null;
-            document.querySelectorAll('.object-card').forEach(c => c.classList.remove('active'));
-        });
+    // ========== ФУНКЦИИ КАЛЬКУЛЯТОРА ==========
+    function getPopulation() {
+        let val = parseFloat(mainValue.value) || 0;
+        return calcType.value === 'area' ? Math.floor(val / 28) : Math.floor(val);
     }
 
-    window.resetAll = function() {
-        currentCenterPoint = null;
-        selectedObjectId = null;
-        objectsInRadiusList = [];
-        if (currentRoute) { map.geoObjects.remove(currentRoute); currentRoute = null; }
-        if (currentUserPlacemark) { map.geoObjects.remove(currentUserPlacemark); currentUserPlacemark = null; }
-        document.getElementById('radiusInput').value = '800';
-        currentRadius = 800;
-        document.getElementById('searchInput').value = '';
-        document.querySelector('.mode-btn[data-mode="pedestrian"]').classList.add('active');
-        document.querySelector('.mode-btn[data-mode="auto"]').classList.remove('active');
-        currentMode = 'pedestrian';
-        if (currentDistrict) {
-            const filtered = allObjects.filter(obj => obj.district === currentDistrict);
-            renderObjects(filtered);
+    function updateHint() {
+        let val = parseFloat(mainValue.value) || 0;
+        if (calcType.value === 'area') {
+            hintText.innerText = `👥 Соответствует населению: ${Math.floor(val / 28)} чел.`;
+            inputLabel.innerText = 'Площадь жилья (м²)';
+        } else {
+            hintText.innerText = `🏘️ Соответствует площади жилья: ${Math.floor(val * 28)} м²`;
+            inputLabel.innerText = 'Численность населения (чел)';
         }
-        document.querySelectorAll('.object-card').forEach(c => c.classList.remove('active'));
+        recalc();
+    }
+
+    function recalc() {
+        const population = getPopulation();
+        const schoolNeed = Math.round(population * SCHOOL_RATE);
+        const kinderNeed = Math.round(population * KINDER_RATE);
+        schoolRequiredSpan.innerText = schoolNeed.toLocaleString();
+        kindergartenRequiredSpan.innerText = kinderNeed.toLocaleString();
+        calculateOverload();
+    }
+
+    function calculateOverload() {
+        const planSchool = parseFloat(schoolPlan.value) || 0;
+        const actualSchool = parseFloat(schoolActual.value) || 0;
+        const planKindergarten = parseFloat(kindergartenPlan.value) || 0;
+        const actualKindergarten = parseFloat(kindergartenActual.value) || 0;
+        
+        const schoolMaxCapacity = Math.floor(planSchool * 1.2);
+        const kindergartenMaxCapacity = Math.floor(planKindergarten * 1.4);
+        let schoolCanTake = Math.max(0, schoolMaxCapacity - actualSchool);
+        let kindergartenCanTake = Math.max(0, kindergartenMaxCapacity - actualKindergarten);
+        
+        schoolMaxCapacitySpan.innerText = schoolMaxCapacity.toLocaleString();
+        kindergartenMaxCapacitySpan.innerText = kindergartenMaxCapacity.toLocaleString();
+        schoolCanTakeSpan.innerText = schoolCanTake.toLocaleString();
+        kindergartenCanTakeSpan.innerText = kindergartenCanTake.toLocaleString();
+        
+        const population = getPopulation();
+        const schoolNeed = Math.round(population * SCHOOL_RATE);
+        const kinderNeed = Math.round(population * KINDER_RATE);
+        const schoolRemain = Math.max(0, schoolNeed - schoolCanTake);
+        const kindergartenRemain = Math.max(0, kinderNeed - kindergartenCanTake);
+        
+        schoolRemainAfterOverloadSpan.innerText = schoolRemain.toLocaleString();
+        kindergartenRemainAfterOverloadSpan.innerText = kindergartenRemain.toLocaleString();
+        schoolFinalSpan.innerText = schoolRemain.toLocaleString();
+        kindergartenFinalSpan.innerText = kindergartenRemain.toLocaleString();
+        
+        if (planSchool > 0 || planKindergarten > 0 || schoolNeed > 0 || kinderNeed > 0) {
+            overloadSection.classList.remove('hidden');
+            duplicateSection.classList.remove('hidden');
+        }
+    }
+
+    function toggleSecondShiftField() { secondShiftNumber.style.display = secondShiftToggle.checked ? "inline-block" : "none"; }
+    function toggleQueueField() { queueNumber.style.display = queueToggle.checked ? "inline-block" : "none"; }
+
+    function getSchoolZUArea(capacity) {
+        let norm;
+        if (capacity <= 175) norm = 80;
+        else if (capacity <= 350) norm = 55;
+        else if (capacity <= 500) norm = 45;
+        else if (capacity <= 700) norm = 40;
+        else if (capacity <= 1000) norm = 31;
+        else if (capacity <= 1500) norm = 24;
+        else norm = 22;
+        return (capacity * norm) / 10000;
+    }
+    
+    function getKindergartenZUArea(capacity) {
+        let norm;
+        if (capacity <= 100) norm = 44;
+        else if (capacity <= 500) norm = 38;
+        else norm = 30;
+        return (capacity * norm) / 10000;
+    }
+    
+    function splitLargeObjects(remaining, type) {
+        if (remaining <= 0) return [];
+        const capacities = type === 'school' ? TYPICAL_SCHOOL_CAPACITIES : TYPICAL_KINDER_CAPACITIES;
+        const minCapacity = capacities[0];
+        const maxCapacity = type === 'school' ? 2000 : 400;
+        const validCapacities = capacities.filter(c => c <= maxCapacity).sort((a, b) => b - a);
+        if (remaining < minCapacity) return [minCapacity];
+        if (remaining <= maxCapacity) {
+            for (let cap of capacities) if (cap >= remaining) return [cap];
+            return [minCapacity];
+        }
+        const result = [];
+        let remainingLocal = remaining;
+        for (let cap of validCapacities) {
+            while (remainingLocal >= cap) { result.push(cap); remainingLocal -= cap; }
+        }
+        if (remainingLocal > 0) {
+            if (remainingLocal < minCapacity) {
+                if (result.length > 0) {
+                    const combined = result[result.length-1] + remainingLocal;
+                    let combinedNearest = minCapacity;
+                    for (let cap of capacities) if (cap >= combined) { combinedNearest = cap; break; }
+                    if (combinedNearest <= combined + (type === 'school' ? 100 : 25)) {
+                        result[result.length-1] = combinedNearest;
+                        return result;
+                    }
+                }
+                result.push(minCapacity);
+            } else {
+                for (let cap of capacities) if (cap >= remainingLocal) { result.push(cap); break; }
+            }
+        }
+        return result;
+    }
+    
+    function splitMediumObjects(remaining, type) {
+        if (remaining <= 0) return [];
+        const capacities = type === 'school' ? TYPICAL_SCHOOL_CAPACITIES : TYPICAL_KINDER_CAPACITIES;
+        const minCapacity = capacities[0];
+        const maxCapacity = type === 'school' ? 2000 : 400;
+        const validCapacities = capacities.filter(c => c <= maxCapacity);
+        if (remaining < minCapacity) return [minCapacity];
+        if (remaining <= maxCapacity) {
+            for (let cap of capacities) if (cap >= remaining) return [cap];
+            return [minCapacity];
+        }
+        const targetMedium = type === 'school' ? 1100 : 200;
+        let objectCount = Math.ceil(remaining / targetMedium);
+        let avgPerObject = remaining / objectCount;
+        const result = [];
+        let remainingLocal = remaining;
+        for (let i = 0; i < objectCount - 1; i++) {
+            let bestCap = minCapacity;
+            let minDiff = Infinity;
+            for (let cap of validCapacities) {
+                if (cap <= remainingLocal && Math.abs(cap - avgPerObject) < minDiff) {
+                    minDiff = Math.abs(cap - avgPerObject);
+                    bestCap = cap;
+                }
+            }
+            result.push(bestCap);
+            remainingLocal -= bestCap;
+        }
+        if (remainingLocal < minCapacity) result.push(minCapacity);
+        else if (remainingLocal <= maxCapacity) {
+            for (let cap of capacities) if (cap >= remainingLocal) { result.push(cap); break; }
+        } else result.push(...splitLargeObjects(remainingLocal, type));
+        return result;
+    }
+    
+    function arraysEqual(a, b) {
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+        return true;
+    }
+    
+    window.downloadRooms = function(capacity, type) {
+        alert(`Скачивание помещений для ${type === 'school' ? 'школы' : 'сада'} на ${capacity} мест. Полная версия есть в исходном коде.`);
     };
+    window.downloadSPOZU = function(capacity, type) {
+        alert(`Скачивание СПОЗУ для ${type === 'school' ? 'школы' : 'сада'} на ${capacity} мест. Полная версия есть в исходном коде.`);
+    };
+    
+    function updateProposalTable() {
+        const schoolRemain = parseInt(schoolFinalSpan.innerText.replace(/\D/g, '')) || 0;
+        const kindergartenRemain = parseInt(kindergartenFinalSpan.innerText.replace(/\D/g, '')) || 0;
+        const schoolLarge = splitLargeObjects(schoolRemain, 'school');
+        const schoolMedium = splitMediumObjects(schoolRemain, 'school');
+        const kinderLarge = splitLargeObjects(kindergartenRemain, 'kindergarten');
+        const kinderMedium = splitMediumObjects(kindergartenRemain, 'kindergarten');
+        const schoolsSame = arraysEqual(schoolLarge, schoolMedium);
+        const kindersSame = arraysEqual(kinderLarge, kinderMedium);
+        if (schoolRemain === 0 && kindergartenRemain === 0) { proposalSection.classList.add('hidden'); return; }
+        proposalSection.classList.remove('hidden');
+        let html = '';
+        if (schoolsSame && kindersSame) {
+            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Предложения по реализации</strong></td></tr>`;
+            if (schoolLarge.length > 0) {
+                let schoolTotalZU = 0;
+                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы</strong></td></tr>`;
+                schoolLarge.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
+                });
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            }
+            if (kinderLarge.length > 0) {
+                let kinderTotalZU = 0;
+                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады</strong></td></tr>`;
+                kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
+                });
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            }
+            const totalZU = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+        } else {
+            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 1 (крупные объекты)</strong></td></tr>`;
+            if (schoolLarge.length > 0) {
+                let schoolTotalZU = 0;
+                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы</strong></td></tr>`;
+                schoolLarge.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
+                });
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            }
+            if (kinderLarge.length > 0) {
+                let kinderTotalZU = 0;
+                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады</strong></td></tr>`;
+                kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
+                });
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            }
+            const totalZU1 = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 1: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU1.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 2 (средние объекты)</strong></td></tr>`;
+            if (schoolMedium.length > 0) {
+                let schoolTotalZU = 0;
+                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы</strong></td></tr>`;
+                schoolMedium.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
+                });
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            }
+            if (kinderMedium.length > 0) {
+                let kinderTotalZU = 0;
+                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады</strong></td></tr>`;
+                kinderMedium.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
+                });
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            }
+            const totalZU2 = (schoolMedium.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderMedium.reduce((s,c)=>s+getKindergartenZUArea(c),0));
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 2: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU2.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+        }
+        proposalTableBody.innerHTML = html;
+    }
+    
+    function generateSolutions() {
+        const population = getPopulation();
+        const schoolNeed = Math.round(population * SCHOOL_RATE);
+        const kinderNeed = Math.round(population * KINDER_RATE);
+        const schoolPlanVal = parseFloat(schoolPlan.value) || 0;
+        const schoolActualVal = parseFloat(schoolActual.value) || 0;
+        const kinderPlanVal = parseFloat(kindergartenPlan.value) || 0;
+        const kinderActualVal = parseFloat(kindergartenActual.value) || 0;
+        const hasSecond = secondShiftToggle.checked;
+        const hasQueue = queueToggle.checked;
+        let schoolCanTake = 0;
+        if (schoolPlanVal > 0 && !hasSecond) {
+            let maxGoodLoad = 120;
+            let currentLoadPercent = (schoolActualVal / schoolPlanVal) * 100;
+            if (currentLoadPercent < maxGoodLoad) {
+                schoolCanTake = Math.floor(schoolPlanVal * (maxGoodLoad / 100) - schoolActualVal);
+                if (schoolCanTake < 0) schoolCanTake = 0;
+            }
+        }
+        let kinderCanTake = 0;
+        if (kinderPlanVal > 0 && !hasQueue) {
+            let maxGoodLoad = 140;
+            let currentLoadPercent = (kinderActualVal / kinderPlanVal) * 100;
+            if (currentLoadPercent < maxGoodLoad) {
+                kinderCanTake = Math.floor(kinderPlanVal * (maxGoodLoad / 100) - kinderActualVal);
+                if (kinderCanTake < 0) kinderCanTake = 0;
+            }
+        }
+        let schoolBuild = 0, schoolFinance = 0, schoolReserveArea = 0;
+        if (schoolCanTake > 0) {
+            const schoolCovered = Math.min(schoolCanTake, schoolNeed);
+            schoolFinance = schoolCovered;
+            schoolBuild = Math.max(0, schoolNeed - schoolCovered);
+            if (schoolFinance > 0) schoolReserveArea = (schoolFinance * 31) / 10000;
+        } else { schoolBuild = schoolNeed; }
+        let schoolHtml = `<strong>Требуется обеспечить ${schoolNeed} мест</strong><br>`;
+        if (schoolCanTake > 0) schoolHtml += `<span style="color: #27ae60;">✅ В существующую школу можно разместить до ${schoolCanTake} детей</span><br>`;
+        if (schoolBuild > 0) {
+            schoolHtml += `<br><div class="solution-detail"><strong>🏗️ Строительство школы застройщиком на ${schoolBuild} мест</strong><br>📊 Финансирование разницы по РНГП - ${schoolFinance} мест (размещение в существующих объектах)<br>`;
+            schoolHtml += schoolFinance > 0 ? (schoolReserveArea < 1 ? `⚠️ Менее 1 га — требуется учесть землю в строительстве объекта / расселение` : `🏞️ Резерв ЗУ: ${schoolReserveArea.toFixed(3)} га`) : `🏞️ Резерв ЗУ не требуется (финансирование отсутствует)`;
+            schoolHtml += `</div>`;
+        } else {
+            schoolHtml += `<br><div class="solution-detail">✅ Вся потребность покрывается существующими объектами (финансирование ${schoolFinance} мест), строительство не требуется<br>${schoolFinance > 0 ? (schoolReserveArea < 1 ? `⚠️ Менее 1 га — требуется учесть землю в строительстве объекта / расселение` : `🏞️ Резерв ЗУ: ${schoolReserveArea.toFixed(3)} га`) : ''}</div>`;
+        }
+        schoolSolutionText.innerHTML = schoolHtml;
+        let kinderBuild = 0, kinderFinance = 0, kinderReserveArea = 0;
+        if (kinderCanTake > 0) {
+            const kinderCovered = Math.min(kinderCanTake, kinderNeed);
+            kinderFinance = kinderCovered;
+            kinderBuild = Math.max(0, kinderNeed - kinderCovered);
+            if (kinderFinance > 0) kinderReserveArea = (kinderFinance * 38) / 10000;
+        } else { kinderBuild = kinderNeed; }
+        let kinderHtml = `<strong>Требуется обеспечить ${kinderNeed} мест</strong><br>`;
+        if (kinderCanTake > 0) kinderHtml += `<span style="color: #27ae60;">✅ В существующий сад можно разместить до ${kinderCanTake} детей</span><br>`;
+        if (kinderBuild > 0) {
+            kinderHtml += `<br><div class="solution-detail"><strong>🏗️ Строительство сада застройщиком на ${kinderBuild} мест</strong><br>📊 Финансирование разницы по РНГП - ${kinderFinance} мест (размещение в существующих объектах)<br>`;
+            kinderHtml += kinderFinance > 0 ? (kinderReserveArea < 1 ? `⚠️ Менее 1 га — требуется учесть землю в строительстве объекта / расселение` : `🏞️ Резерв ЗУ: ${kinderReserveArea.toFixed(3)} га`) : `🏞️ Резерв ЗУ не требуется (финансирование отсутствует)`;
+            kinderHtml += `</div>`;
+        } else {
+            kinderHtml += `<br><div class="solution-detail">✅ Вся потребность покрывается существующими объектами (финансирование ${kinderFinance} мест), строительство не требуется<br>${kinderFinance > 0 ? (kinderReserveArea < 1 ? `⚠️ Менее 1 га — требуется учесть землю в строительстве объекта / расселение` : `🏞️ Резерв ЗУ: ${kinderReserveArea.toFixed(3)} га`) : ''}</div>`;
+        }
+        kindergartenSolutionText.innerHTML = kinderHtml;
+        solutionsContainer.style.display = 'flex';
+        updateProposalTable();
+    }
+    
+    generateSolutionsBtn.addEventListener('click', generateSolutions);
+    
+    async function getAIOpinion() {
+        const population = getPopulation();
+        const schoolNeed = Math.round(population * SCHOOL_RATE);
+        const kinderNeed = Math.round(population * KINDER_RATE);
+        const schoolPlanVal = parseFloat(schoolPlan.value) || 0;
+        const schoolActualVal = parseFloat(schoolActual.value) || 0;
+        const kinderPlanVal = parseFloat(kindergartenPlan.value) || 0;
+        const kinderActualVal = parseFloat(kindergartenActual.value) || 0;
+        const hasSecond = secondShiftToggle.checked;
+        const hasQueue = queueToggle.checked;
+        const queueCount = parseFloat(queueNumber.value) || 0;
+        const schoolLoad = schoolPlanVal > 0 ? (schoolActualVal / schoolPlanVal) * 100 : 0;
+        const kinderLoad = kinderPlanVal > 0 ? (kinderActualVal / kinderPlanVal) * 100 : 0;
+        let schoolCanTake = 0;
+        if (schoolPlanVal > 0 && !hasSecond) {
+            let maxGoodLoad = 120;
+            let currentLoadPercent = (schoolActualVal / schoolPlanVal) * 100;
+            if (currentLoadPercent < maxGoodLoad) {
+                schoolCanTake = Math.floor(schoolPlanVal * (maxGoodLoad / 100) - schoolActualVal);
+                if (schoolCanTake < 0) schoolCanTake = 0;
+            }
+        }
+        let kinderCanTake = 0;
+        if (kinderPlanVal > 0 && !hasQueue) {
+            let maxGoodLoad = 140;
+            let currentLoadPercent = (kinderActualVal / kinderPlanVal) * 100;
+            if (currentLoadPercent < maxGoodLoad) {
+                kinderCanTake = Math.floor(kinderPlanVal * (maxGoodLoad / 100) - kinderActualVal);
+                if (kinderCanTake < 0) kinderCanTake = 0;
+            }
+        }
+        const schoolCovered = Math.min(schoolCanTake, schoolNeed);
+        const kinderCovered = Math.min(kinderCanTake, kinderNeed);
+        const schoolRemain = Math.max(0, schoolNeed - schoolCovered);
+        const kinderRemain = Math.max(0, kinderNeed - kinderCovered);
+        const prompt = `Ты эксперт по градостроительству. Отвечай ТОЛЬКО по-русски. 4-5 предложений.\n\nПравила:\n- Если застройщик строит объект полностью на требуемую мощность — земля НЕ резервируется.\n- Если застройщик часть детей размещает в существующих объектах (финансирование) — тогда нужен резерв земли под этих детей. Если площадь резерва менее 1 га — требуется учесть землю в строительстве объекта или расселение.\n- Сады: если нет возможности разместить детей в существующих садах, строим ПО ПРОЕКТНОЙ МОЩНОСТИ.\n- Школы: вторая смена — плохо, загрузка до 120% — норма.\n- Сады: загрузка до 140% — норма, очередь более 50 детей — плохо.\n\nДанные для нового ЖК:\n- Нужно построить: школа ${schoolNeed} мест, сад ${kinderNeed} мест.\n- Существующая школа: мощность ${schoolPlanVal}, факт ${schoolActualVal} (загрузка ${schoolLoad.toFixed(0)}%), вторая смена ${hasSecond ? "есть" : "нет"}. Можно принять дополнительно ${Math.max(0, schoolCanTake)} детей.\n- Существующий сад: мощность ${kinderPlanVal}, факт ${kinderActualVal} (загрузка ${kinderLoad.toFixed(0)}%), очередь ${hasQueue ? queueCount : 0} детей. Можно принять дополнительно ${Math.max(0, kinderCanTake)} детей.\n- Остаток после существующих: школа ${schoolRemain} мест, сад ${kinderRemain} мест.\n- Резерв земли нужен: школа ${schoolCovered > 0 ? "ДА (на финансируемых детей)" : "НЕТ"}, сад ${kinderCovered > 0 ? "ДА (на финансируемых детей)" : "НЕТ"}.\n\nОцени ситуацию и дай чёткую рекомендацию: что строить, что финансировать, нужен ли резерв земли. Для садов укажи, строится ли объект по проектной мощности.`;
+        aiText.innerHTML = "⏳ Анализирую данные...";
+        aiResponse.style.display = "block";
+        try {
+            const response = await fetch(PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: prompt }) });
+            const data = await response.json();
+            aiText.innerHTML = data.reply || data.error || `❌ Не удалось получить ответ от ИИ.`;
+        } catch (err) { aiText.innerHTML = `❌ Ошибка соединения: ${err.message}. Проверьте VPN.`; }
+    }
+    
+    aiOpinionBtn.addEventListener('click', () => {
+        const hasAnyData = (mainValue.value && parseFloat(mainValue.value) > 0) || (schoolPlan.value && parseFloat(schoolPlan.value) > 0) || (kindergartenPlan.value && parseFloat(kindergartenPlan.value) > 0);
+        if (!hasAnyData) { alert("Пожалуйста, введите данные перед запросом."); return; }
+        getAIOpinion();
+    });
+    
+    calcType.addEventListener('change', () => { updateHint(); recalc(); });
+    mainValue.addEventListener('input', () => { updateHint(); recalc(); });
+    secondShiftToggle.addEventListener('change', toggleSecondShiftField);
+    queueToggle.addEventListener('change', toggleQueueField);
+    secondShiftNumber.addEventListener('input', recalc);
+    queueNumber.addEventListener('input', recalc);
+    schoolPlan.addEventListener('input', recalc);
+    schoolActual.addEventListener('input', recalc);
+    kindergartenPlan.addEventListener('input', recalc);
+    kindergartenActual.addEventListener('input', recalc);
+    
+    updateHint();
+    recalc();
+    toggleSecondShiftField();
+    toggleQueueField();
+
+    // ========== ЗАПОЛНЕНИЕ СПИСКА ОКРУГОВ В КАЛЬКУЛЯТОРЕ ==========
+    DISTRICTS_LIST.forEach(district => {
+        const option = document.createElement('option');
+        option.value = district;
+        option.textContent = district;
+        districtSelect.appendChild(option);
+    });
+
+    // ========== ЛОГИКА КАРТЫ ==========
+    let map = null, allObjects = [], currentDistrictMap = '', placemarks = [], currentRoute = null, currentRadiusSchool = 800, currentModeMap = 'pedestrian', currentCenterPoint = null, currentUserPlacemark = null, objectsInRadiusForSchool = [], objectsInRadiusForKindergarten = [], selectedObjectId = null, suggestTimeout = null;
+    let mapInitialized = false;
 
     async function loadAllData() {
         try {
             const response = await fetch(CSV_URL);
             const text = await response.text();
             allObjects = parseCSV(text);
-            console.log(`Загружено ${allObjects.length} объектов`);
-        } catch (err) {
-            console.error(err);
-            document.getElementById('schoolsList').innerHTML = '<div class="loading">Ошибка загрузки</div>';
-            document.getElementById('kindergartensList').innerHTML = '<div class="loading">Ошибка загрузки</div>';
-        }
+            console.log(`Загружено ${allObjects.length} объектов для карты`);
+            if(mapInitialized && currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
+        } catch(err) { console.error(err); }
     }
-
+    
     function parseCSV(csvText) {
-        const lines = csvText.split('\n');
-        if (lines.length < 2) return [];
+        const lines = csvText.split('\n'); if(lines.length<2) return [];
         const headers = parseCSVLine(lines[0]);
-        const colIndex = {
-            type: headers.findIndex(h => h?.toLowerCase().includes('тип')),
-            district: headers.findIndex(h => h?.toLowerCase().includes('г.о.') || h?.toLowerCase().includes('городской')),
-            name: headers.findIndex(h => h?.toLowerCase().includes('наименование') && !h?.toLowerCase().includes('г.о.')),
-            address: headers.findIndex(h => h?.toLowerCase() === 'адрес'),
-            coords: headers.findIndex(h => h?.toLowerCase().includes('координат') || h?.toLowerCase().includes('кодинат')),
-            capacity: headers.findIndex(h => h?.toLowerCase() === 'мощность'),
-            fact: headers.findIndex(h => h?.toLowerCase() === 'факт'),
-            secondShift: headers.findIndex(h => h?.toLowerCase().includes('2-я смена') || h?.toLowerCase().includes('2 смена')),
-            loadPercent: headers.findIndex(h => h?.toLowerCase().includes('% наполнения')),
-            buildYear: headers.findIndex(h => h?.toLowerCase().includes('год постройки')),
-            area: headers.findIndex(h => h?.toLowerCase().includes('площадь здания')),
-            status: headers.findIndex(h => h?.toLowerCase().includes('новостройка'))
-        };
+        const colIndex = { type: headers.findIndex(h => h?.toLowerCase().includes('тип')), district: headers.findIndex(h => h?.toLowerCase().includes('г.о.')), name: headers.findIndex(h => h?.toLowerCase().includes('наименование')), address: headers.findIndex(h => h?.toLowerCase() === 'адрес'), coords: headers.findIndex(h => h?.toLowerCase().includes('координат')), capacity: headers.findIndex(h => h?.toLowerCase() === 'мощность'), fact: headers.findIndex(h => h?.toLowerCase() === 'факт'), secondShift: headers.findIndex(h => h?.toLowerCase().includes('2-я смена')) };
         const result = [];
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
+        for(let i=1;i<lines.length;i++) {
+            const line = lines[i].trim(); if(!line) continue;
             const values = parseCSVLine(line);
-            let district = colIndex.district >= 0 ? (values[colIndex.district] || '').trim() : '';
-            district = district.replace(' г.о.', '').replace(' городской округ', '').replace(' муниципальный округ', '').replace(' район', '');
-            if (!district) continue;
-            const typeRaw = colIndex.type >= 0 ? (values[colIndex.type] || '') : '';
+            let district = (colIndex.district>=0 ? (values[colIndex.district]||'').trim() : '');
+            district = district.replace(' г.о.','').replace(' городской округ','');
+            if(!district) continue;
+            const typeRaw = colIndex.type>=0 ? (values[colIndex.type]||'') : '';
             const isKindergarten = typeRaw.toLowerCase().includes('детский сад');
             const isSchool = typeRaw.toLowerCase().includes('школа');
-            if (!isKindergarten && !isSchool) continue;
+            if(!isKindergarten && !isSchool) continue;
             let coordinates = null;
-            if (colIndex.coords >= 0 && values[colIndex.coords]) {
-                coordinates = extractCoordinates(values[colIndex.coords]);
-            }
-            if (!coordinates) continue;
-            let loadPercent = colIndex.loadPercent >= 0 ? (values[colIndex.loadPercent] || '') : '';
-            if (loadPercent && loadPercent.startsWith('=')) {
-                const capacity = parseFloat(values[colIndex.capacity]?.replace(',', '.'));
-                const fact = parseFloat(values[colIndex.fact]?.replace(',', '.'));
-                if (capacity && capacity > 0 && fact) loadPercent = ((fact / capacity) * 100).toFixed(1);
-                else loadPercent = '';
-            } else if (loadPercent) loadPercent = loadPercent.replace('%', '').trim();
-            
-            let secondShift = colIndex.secondShift >= 0 ? (values[colIndex.secondShift] || '') : '';
-            secondShift = secondShift.replace(/[^0-9]/g, '');
-            
-            result.push({
-                id: `${district}_${i}`,
-                type: isKindergarten ? 'kindergarten' : 'school',
-                district: district,
-                name: colIndex.name >= 0 ? (values[colIndex.name] || '') : '',
-                address: colIndex.address >= 0 ? (values[colIndex.address] || '') : '',
-                buildYear: colIndex.buildYear >= 0 ? (values[colIndex.buildYear] || '') : '',
-                area: colIndex.area >= 0 ? (values[colIndex.area]?.replace(',', '.') || '') : '',
-                capacity: colIndex.capacity >= 0 ? (values[colIndex.capacity]?.replace(',', '.') || '') : '',
-                fact: colIndex.fact >= 0 ? (values[colIndex.fact]?.replace(',', '.') || '') : '',
-                secondShift: secondShift,
-                loadPercent: loadPercent,
-                status: colIndex.status >= 0 ? (values[colIndex.status] || '') : '',
-                lat: coordinates.lat, lng: coordinates.lng
-            });
+            if(colIndex.coords>=0 && values[colIndex.coords]) coordinates = extractCoordinates(values[colIndex.coords]);
+            if(!coordinates) continue;
+            let secondShiftVal = colIndex.secondShift>=0 ? (values[colIndex.secondShift]||'') : '';
+            secondShiftVal = secondShiftVal.replace(/[^0-9]/g,'');
+            result.push({ id:`${district}_${i}`, type: isKindergarten ? 'kindergarten' : 'school', district, name: colIndex.name>=0 ? (values[colIndex.name]||'') : '', address: colIndex.address>=0 ? (values[colIndex.address]||'') : '', capacity: colIndex.capacity>=0 ? (values[colIndex.capacity]?.replace(',','.')||'') : '', fact: colIndex.fact>=0 ? (values[colIndex.fact]?.replace(',','.')||'') : '', secondShift: secondShiftVal, lat: coordinates.lat, lng: coordinates.lng });
         }
         return result;
     }
     
-    function parseCSVLine(line) {
-        const result = [];
-        let inQuote = false, current = '';
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') inQuote = !inQuote;
-            else if (char === ',' && !inQuote) { result.push(current.trim()); current = ''; }
-            else current += char;
-        }
-        result.push(current.trim());
-        return result.map(v => v.replace(/^"|"$/g, ''));
+    function parseCSVLine(line) { let res=[], inQuote=false, cur=''; for(let ch of line) { if(ch==='"') inQuote=!inQuote; else if(ch===',' && !inQuote) { res.push(cur.trim()); cur=''; } else cur+=ch; } res.push(cur.trim()); return res.map(v=>v.replace(/^"|"$/g,'')); }
+    
+    function extractCoordinates(cell) { let m = cell?.match(/(\d+\.?\d*),\s*(\d+\.?\d*)/); if(m){ let lat=parseFloat(m[1]), lng=parseFloat(m[2]); if(lat>=54 && lat<=57 && lng>=35 && lng<=40) return {lat,lng}; } return null; }
+    
+    function initMap() {
+        if(mapInitialized) return;
+        map = new ymaps.Map('map', { center: [55.7, 37.6], zoom: 10, controls: ['zoomControl','fullscreenControl'] });
+        const select = document.getElementById('mapDistrictSelect');
+        DISTRICTS_LIST.forEach(d => { let opt = document.createElement('option'); opt.value=d; opt.textContent=d; select.appendChild(opt); });
+        setupMapEvents();
+        setupGeocoderSearch();
+        loadAllData();
+        mapInitialized = true;
     }
     
-    function extractCoordinates(cell) {
-        if (!cell || typeof cell !== 'string') return null;
-        const match = cell.match(/(\d+\.?\d*),\s*(\d+\.?\d*)/);
-        if (match) {
-            const lat = parseFloat(match[1]), lng = parseFloat(match[2]);
-            if (!isNaN(lat) && !isNaN(lng) && lat >= 54 && lat <= 57 && lng >= 35 && lng <= 40)
-                return { lat, lng };
-        }
-        return null;
-    }
-
-    async function filterObjectsByDistrict(district) {
-        const filtered = allObjects.filter(obj => obj.district === district);
-        await renderObjects(filtered);
-    }
-
-    function filterObjectsBySearch(searchTerm) {
-        if (!searchTerm.trim()) {
-            const filtered = allObjects.filter(obj => obj.district === currentDistrict);
-            renderObjects(filtered);
-            return;
-        }
-        const term = searchTerm.toLowerCase();
-        const filtered = allObjects.filter(obj => obj.district === currentDistrict && 
-            ((obj.name && obj.name.toLowerCase().includes(term)) || (obj.address && obj.address.toLowerCase().includes(term))));
-        renderObjects(filtered);
-    }
-
-    async function renderObjects(objects) {
-        clearMap();
-        if (!objects.length) {
-            updateTotalStats(objects);
-            renderLists(objects, []);
-            return;
-        }
-        const objectsWithCoords = objects.filter(o => o.lat && o.lng);
-        objectsWithCoords.forEach(obj => {
-            const placemark = createPlacemark(obj);
-            placemarks.push(placemark);
-            map.geoObjects.add(placemark);
-        });
-        if (currentCenterPoint) updateAccessibility(currentCenterPoint);
-        else {
-            renderLists(objects, []);
-            updateTotalStats(objects);
-        }
-        const first = objectsWithCoords[0];
-        if (first) map.setCenter([first.lat, first.lng], 11);
-    }
-
-    function createPlacemark(obj) {
-        const color = obj.type === 'school' ? '#3b82f6' : '#22c55e';
-        
-        let extraInfo = '';
-        if (obj.type === 'school' && obj.secondShift && parseInt(obj.secondShift) > 0) {
-            extraInfo += `🕐 2-я смена: ${parseInt(obj.secondShift).toLocaleString()} чел.<br>`;
-        }
-        if (obj.type === 'kindergarten') {
-            const queue = Math.max(0, (parseFloat(obj.fact) || 0) - (parseFloat(obj.capacity) || 0));
-            if (queue > 0) extraInfo += `⏳ Очередность 3-7 лет: ${queue.toLocaleString()} чел.<br>`;
-        }
-        
-        const balloonContent = `
-            <div class="ballon-content">
-                <strong>${obj.name || 'Без названия'}</strong><br>
-                📍 ${obj.address || '—'}<br>
-                🏷️ ${obj.type === 'school' ? 'Школа' : 'Детский сад'}<br>
-                ${obj.buildYear ? `🏛️ Постройка: ${obj.buildYear}<br>` : ''}
-                ${obj.capacity ? `👥 Вместимость: ${parseInt(obj.capacity).toLocaleString()} мест<br>` : ''}
-                ${obj.fact ? `📊 Факт: ${parseInt(obj.fact).toLocaleString()} чел.<br>` : ''}
-                ${extraInfo}
-                ${obj.loadPercent ? `📈 Загрузка: ${obj.loadPercent}%<br>` : ''}
-                <button class="ballon-route-btn" onclick="window.selectObject('${obj.id}')">📍 Построить маршрут</button>
-            </div>
-        `;
-        
-        const placemark = new ymaps.Placemark([obj.lat, obj.lng], {
-            balloonContent: balloonContent,
-            hintContent: obj.name
-        }, { 
-            preset: 'islands#circleIcon', 
-            iconColor: color, 
-            hintOpenTimeout: 300,
-            balloonMaxWidth: 280
-        });
-        
-        placemark.events.add('click', () => {
-            selectObject(obj.id);
-        });
-        
-        return placemark;
-    }
-
-    window.selectObject = function(id) {
-        const obj = allObjects.find(o => o.id === id);
-        if (!obj) return;
-        selectedObjectId = id;
-        
-        if (currentCenterPoint) {
-            buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
-        } else {
-            map.setCenter([obj.lat, obj.lng], 15);
-            currentCenterPoint = [obj.lat, obj.lng];
-            addUserMarker(currentCenterPoint);
-            updateAccessibility(currentCenterPoint);
-            buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
-        }
-        
-        document.querySelectorAll('.object-card').forEach(c => {
-            c.classList.remove('active');
-            if (c.dataset.id === id) c.classList.add('active');
-        });
-        
-        const placemark = placemarks.find(p => {
-            const coords = p.geometry.getCoordinates();
-            return coords[0] === obj.lat && coords[1] === obj.lng;
-        });
-        if (placemark) {
-            placemark.balloon.open();
-        }
-    };
-
-    function buildRoute(start, end) {
-        if (currentRoute) map.geoObjects.remove(currentRoute);
-        const routeMode = currentMode === 'pedestrian' ? 'pedestrian' : 'auto';
-        try {
-            currentRoute = new ymaps.multiRouter.MultiRoute({
-                referencePoints: [start, end],
-                params: { routingMode: routeMode }
-            }, { boundsAutoApply: false, wayPointDraggable: false, strokeColor: '#3b82f6', strokeWidth: 4 });
-            map.geoObjects.add(currentRoute);
-        } catch(e) {}
-    }
-
-    function updateAccessibility(centerCoords) {
-        const currentObjects = allObjects.filter(obj => obj.district === currentDistrict);
-        objectsInRadiusList = currentObjects.filter(obj => {
-            if (!obj.lat) return false;
-            return getDistance(centerCoords, [obj.lat, obj.lng]) <= currentRadius;
-        });
-        const inRadiusIds = new Set(objectsInRadiusList.map(o => o.id));
-        currentObjects.forEach(obj => {
-            const isInRadius = inRadiusIds.has(obj.id);
-            const placemark = placemarks.find(p => {
-                const coords = p.geometry.getCoordinates();
-                return coords[0] === obj.lat && coords[1] === obj.lng;
-            });
-            if (placemark) {
-                const baseColor = obj.type === 'school' ? '#3b82f6' : '#22c55e';
-                placemark.options.set('iconColor', isInRadius ? baseColor : '#94a3b8');
-                placemark.options.set('opacity', isInRadius ? 1 : 0.5);
-            }
-        });
-        
-        updateTotalStats(currentObjects);
-        updateRadiusStats(objectsInRadiusList);
-        
-        renderLists(currentObjects, objectsInRadiusList);
+    function setupMapEvents() {
+        document.getElementById('mapDistrictSelect').addEventListener('change', (e) => { currentDistrictMap = e.target.value; if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap); else clearAllMap(); });
+        document.getElementById('radiusInput').addEventListener('change', (e) => { currentRadiusSchool = parseInt(e.target.value)||800; if(currentCenterPoint) updateAccessibility(currentCenterPoint); });
+        document.querySelectorAll('#mapModal .mode-btn').forEach(btn => { btn.addEventListener('click',()=>{ document.querySelectorAll('#mapModal .mode-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentModeMap=btn.dataset.mode; if(selectedObjectId && currentCenterPoint){ let obj=allObjects.find(o=>o.id===selectedObjectId); if(obj) buildRoute(currentCenterPoint,[obj.lat,obj.lng]); } }); });
+        map.events.add('click', (e) => { const coords = e.get('coords'); currentCenterPoint=coords; updateAccessibility(coords); addUserMarker(coords); if(currentRoute) map.geoObjects.remove(currentRoute); selectedObjectId=null; document.querySelectorAll('#mapModal .object-card').forEach(c=>c.classList.remove('active')); });
+        document.getElementById('resetMapBtn').onclick = () => { currentCenterPoint=null; if(currentRoute) map.geoObjects.remove(currentRoute); if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark); if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap); };
     }
     
-    function updateTotalStats(objects) {
-        const schools = objects.filter(o => o.type === 'school');
-        const kindergartens = objects.filter(o => o.type === 'kindergarten');
-        
-        const schoolCap = schools.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
-        const schoolFact = schools.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
-        const schoolSecondShift = schools.reduce((s, o) => s + (parseFloat(o.secondShift)||0), 0);
-        const schoolLoad = schoolCap > 0 ? Math.round((schoolFact/schoolCap)*100) : 0;
-        document.getElementById('schoolTotalStats').innerHTML = `
-            <span>📐 Мощность: ${schoolCap.toLocaleString()}</span>
-            <span>👥 Факт: ${schoolFact.toLocaleString()}</span>
-            <span>🕐 2-я смена: ${schoolSecondShift.toLocaleString()}</span>
-            <span>📊 Загрузка: <span class="${schoolLoad>100?'load-high':(schoolLoad>90?'load-medium':'load-low')}">${schoolLoad}%</span></span>
-        `;
-        
-        const kgCap = kindergartens.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
-        const kgFact = kindergartens.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
-        const kgQueue = Math.max(0, kgFact - kgCap);
-        const kgLoad = kgCap > 0 ? Math.round((kgFact/kgCap)*100) : 0;
-        document.getElementById('kindergartenTotalStats').innerHTML = `
-            <span>📐 Мощность: ${kgCap.toLocaleString()}</span>
-            <span>👥 Факт: ${kgFact.toLocaleString()}</span>
-            <span>⏳ Очередь 3-7 лет: ${kgQueue.toLocaleString()}</span>
-            <span>📊 Загрузка: <span class="${kgLoad>100?'load-high':(kgLoad>90?'load-medium':'load-low')}">${kgLoad}%</span></span>
-        `;
-    }
+    async function filterObjectsByDistrict(district) { let filtered = allObjects.filter(obj=>obj.district===district); await renderObjects(filtered); }
     
-    function updateRadiusStats(objectsInRadius) {
-        const schoolsInRadius = objectsInRadius.filter(o => o.type === 'school');
-        const kindergartensInRadius = objectsInRadius.filter(o => o.type === 'kindergarten');
-        
-        const schoolCap = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
-        const schoolFact = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
-        const schoolSecondShift = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.secondShift)||0), 0);
-        const schoolLoad = schoolCap > 0 ? Math.round((schoolFact/schoolCap)*100) : 0;
-        
-        const kgCap = kindergartensInRadius.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
-        const kgFact = kindergartensInRadius.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
-        const kgQueue = Math.max(0, kgFact - kgCap);
-        const kgLoad = kgCap > 0 ? Math.round((kgFact/kgCap)*100) : 0;
-        
-        if (objectsInRadius.length > 0) {
+    async function renderObjects(objects) { clearMap(); if(!objects.length) return; objects.forEach(obj=>{ let p = createPlacemark(obj); placemarks.push(p); map.geoObjects.add(p); }); if(currentCenterPoint) updateAccessibility(currentCenterPoint); let first=objects.find(o=>o.lat); if(first) map.setCenter([first.lat,first.lng],11); }
+    
+    function createPlacemark(obj){ let color = obj.type==='school'?'#3b82f6':'#22c55e'; let pm = new ymaps.Placemark([obj.lat,obj.lng],{balloonContent:`<div class="ballon-content"><strong>${obj.name||'Без названия'}</strong><br>📍${obj.address||'—'}<br><button class="ballon-route-btn" onclick="window.selectObjectMap('${obj.id}')">📍 Маршрут</button></div>`},{preset:'islands#circleIcon',iconColor:color}); pm.events.add('click',()=>selectObjectMap(obj.id)); return pm; }
+    
+    window.selectObjectMap = function(id){ let obj=allObjects.find(o=>o.id===id); if(!obj) return; selectedObjectId=id; if(currentCenterPoint) buildRoute(currentCenterPoint,[obj.lat,obj.lng]); else { map.setCenter([obj.lat,obj.lng],15); currentCenterPoint=[obj.lat,obj.lng]; addUserMarker(currentCenterPoint); updateAccessibility(currentCenterPoint); } };
+    
+    function buildRoute(start,end){ if(currentRoute) map.geoObjects.remove(currentRoute); try{ currentRoute = new ymaps.multiRouter.MultiRoute({referencePoints:[start,end], params:{routingMode:currentModeMap==='pedestrian'?'pedestrian':'auto'}},{strokeColor:'#3b82f6'}); map.geoObjects.add(currentRoute); }catch(e){} }
+    
+    function updateAccessibility(center){ let curObjs = allObjects.filter(o=>o.district===currentDistrictMap); objectsInRadiusForSchool = curObjs.filter(o=>o.type==='school' && getDistance(center,[o.lat,o.lng])<=currentRadiusSchool); objectsInRadiusForKindergarten = curObjs.filter(o=>o.type==='kindergarten' && getDistance(center,[o.lat,o.lng])<=800); let schoolIds=new Set(objectsInRadiusForSchool.map(o=>o.id)), kinderIds=new Set(objectsInRadiusForKindergarten.map(o=>o.id)); curObjs.forEach(obj=>{ let pm=placemarks.find(p=>{let c=p.geometry.getCoordinates(); return c[0]===obj.lat && c[1]===obj.lng;}); if(pm){ let isIn = obj.type==='school' ? schoolIds.has(obj.id) : kinderIds.has(obj.id); pm.options.set('iconColor', isIn ? (obj.type==='school'?'#3b82f6':'#22c55e') : '#94a3b8'); pm.options.set('opacity', isIn?1:0.5); } }); updateTotalStats(curObjs); updateRadiusStats(); renderLists(curObjs, schoolIds, kinderIds); }
+    
+    function getDistance(c1,c2){ const R=6371000; let lat1=c1[0]*Math.PI/180, lat2=c2[0]*Math.PI/180; let dLat=(c2[0]-c1[0])*Math.PI/180, dLon=(c2[1]-c1[1])*Math.PI/180; let a=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+    
+    function addUserMarker(coords){ if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark); currentUserPlacemark = new ymaps.Placemark(coords,{},{preset:'islands#circleIcon',iconColor:'#ef4444'}); map.geoObjects.add(currentUserPlacemark); }
+    
+    function clearMap(){ placemarks.forEach(p=>{if(p && map.geoObjects.indexOf(p)!==-1) map.geoObjects.remove(p);}); placemarks=[]; if(currentRoute) map.geoObjects.remove(currentRoute); if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark); }
+    
+    function clearAllMap(){ clearMap(); objectsInRadiusForSchool=[]; objectsInRadiusForKindergarten=[]; currentCenterPoint=null; document.getElementById('schoolsList').innerHTML='<div class="loading">Выберите округ</div>'; document.getElementById('kindergartensList').innerHTML='<div class="loading">Выберите округ</div>'; }
+    
+    function updateTotalStats(objects){ let schools=objects.filter(o=>o.type==='school'), kgs=objects.filter(o=>o.type==='kindergarten'); let schoolCap=schools.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0), schoolFact=schools.reduce((s,o)=>s+(parseFloat(o.fact)||0),0), schoolShift=schools.reduce((s,o)=>s+(parseFloat(o.secondShift)||0),0); let kgCap=kgs.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0), kgFact=kgs.reduce((s,o)=>s+(parseFloat(o.fact)||0),0); document.getElementById('schoolTotalStats').innerHTML=`<span>📐 ${schoolCap.toLocaleString()}</span><span>👥 ${schoolFact.toLocaleString()}</span><span>🕐 ${schoolShift.toLocaleString()}</span>`; document.getElementById('kindergartenTotalStats').innerHTML=`<span>📐 ${kgCap.toLocaleString()}</span><span>👥 ${kgFact.toLocaleString()}</span>`; }
+    
+    function updateRadiusStats() {
+        const schoolsCount = objectsInRadiusForSchool.length;
+        const kindergartensCount = objectsInRadiusForKindergarten.length;
+        const schoolCap = objectsInRadiusForSchool.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0);
+        const schoolFact = objectsInRadiusForSchool.reduce((s,o)=>s+(parseFloat(o.fact)||0),0);
+        const schoolShift = objectsInRadiusForSchool.reduce((s,o)=>s+(parseFloat(o.secondShift)||0),0);
+        const kgCap = objectsInRadiusForKindergarten.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0);
+        const kgFact = objectsInRadiusForKindergarten.reduce((s,o)=>s+(parseFloat(o.fact)||0),0);
+        if (schoolsCount > 0) {
             document.getElementById('schoolRadiusStats').style.display = 'flex';
+            document.getElementById('schoolRadiusStats').innerHTML = `<span>🎯 В радиусе ${currentRadiusSchool}м: ${schoolsCount} школ</span><span>📐 ${schoolCap.toLocaleString()}</span><span>👥 ${schoolFact.toLocaleString()}</span><span>🕐 ${schoolShift.toLocaleString()}</span>`;
+        } else { document.getElementById('schoolRadiusStats').style.display = 'none'; }
+        if (kindergartensCount > 0) {
             document.getElementById('kindergartenRadiusStats').style.display = 'flex';
-            
-            document.getElementById('schoolRadiusStats').innerHTML = `
-                <span>🎯 В радиусе ${currentRadius}м: ${schoolsInRadius.length} школ</span>
-                <span>📐 ${schoolCap.toLocaleString()}</span>
-                <span>👥 ${schoolFact.toLocaleString()}</span>
-                <span>🕐 2 см: ${schoolSecondShift.toLocaleString()}</span>
-                <span>📊 ${schoolLoad}%</span>
-            `;
-            
-            document.getElementById('kindergartenRadiusStats').innerHTML = `
-                <span>🎯 В радиусе ${currentRadius}м: ${kindergartensInRadius.length} садов</span>
-                <span>📐 ${kgCap.toLocaleString()}</span>
-                <span>👥 ${kgFact.toLocaleString()}</span>
-                <span>⏳ Очередь: ${kgQueue.toLocaleString()}</span>
-                <span>📊 ${kgLoad}%</span>
-            `;
-        } else {
-            document.getElementById('schoolRadiusStats').style.display = 'none';
-            document.getElementById('kindergartenRadiusStats').style.display = 'none';
+            document.getElementById('kindergartenRadiusStats').innerHTML = `<span>🎯 В радиусе 800м: ${kindergartensCount} садов</span><span>📐 ${kgCap.toLocaleString()}</span><span>👥 ${kgFact.toLocaleString()}</span>`;
+        } else { document.getElementById('kindergartenRadiusStats').style.display = 'none'; }
+    }
+    
+    function renderLists(objects, schoolIds, kinderIds){ let schools=objects.filter(o=>o.type==='school'), kgs=objects.filter(o=>o.type==='kindergarten'); renderObjectList('schoolsList', schools, schoolIds); renderObjectList('kindergartensList', kgs, kinderIds); }
+    
+    function renderObjectList(containerId, objects, inIds){ let cont=document.getElementById(containerId); if(!objects.length){ cont.innerHTML='<div class="loading">Нет объектов</div>'; return; } cont.innerHTML=''; objects.forEach(obj=>{ let div=document.createElement('div'); div.className=`object-card ${inIds.has(obj.id)?'in-radius':'out-radius'}`; div.dataset.id=obj.id; div.innerHTML=`<div class="object-name"><span class="object-badge ${obj.type==='school'?'badge-school':'badge-kindergarten'}">${obj.type==='school'?'🏫 Школа':'🏠 Детский сад'}</span> ${obj.name||'Без названия'}</div><div class="object-address">📍 ${obj.address||'—'}</div>`; div.onclick=()=>selectObjectMap(obj.id); cont.appendChild(div); }); }
+    
+    function setupGeocoderSearch(){ let inp=document.getElementById('searchInput'), cont=document.getElementById('suggestContainer'); inp.addEventListener('input',(e)=>{ let q=e.target.value.trim(); if(suggestTimeout) clearTimeout(suggestTimeout); if(q.length<3){ cont.style.display='none'; return; } suggestTimeout=setTimeout(()=>fetchSuggestions(q),300); }); document.addEventListener('click',(e)=>{ if(!inp.contains(e.target) && !cont.contains(e.target)) cont.style.display='none'; }); }
+    
+    async function fetchSuggestions(q){ try{ let res=await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=9e0575ab-d520-4bcf-bb0e-4ee68968f45d&geocode=${encodeURIComponent(q)}&results=6&format=json`); let data=await res.json(); let members=data.response.GeoObjectCollection.featureMember; if(!members) return; let suggs=members.map(m=>{ let g=m.GeoObject, name=g.name, desc=g.description||'', full=g.metaDataProperty.GeocoderMetaData.text, coords=g.Point.pos.split(' ').map(Number); return {text:full, displayName:name+(desc?`, ${desc}`:''), coords:[coords[1],coords[0]]}; }); renderSuggestions(suggs); }catch(e){ console.warn(e); } }
+    
+    function renderSuggestions(sugs){ let c=document.getElementById('suggestContainer'); if(!sugs.length){c.style.display='none';return;} c.innerHTML=''; sugs.forEach(s=>{ let div=document.createElement('div'); div.className='suggest-item'; div.innerHTML=`<strong>${s.displayName.substring(0,60)}</strong><br><small>${s.text.substring(0,80)}</small>`; div.onclick=()=>{ currentCenterPoint=s.coords; map.setCenter(s.coords,15); addUserMarker(s.coords); updateAccessibility(s.coords); if(currentRoute) map.geoObjects.remove(currentRoute); selectedObjectId=null; document.getElementById('searchInput').value=s.text; c.style.display='none'; }; c.appendChild(div); }); c.style.display='block'; }
+    
+    // Функция захвата данных с карты в калькулятор
+    function captureDataToCalculator() {
+        if(!currentDistrictMap) { alert("Сначала выберите городской округ на карте!"); return; }
+        if(!currentCenterPoint) { alert("Кликните на карту, чтобы установить центр поиска (радиус)."); return; }
+        let totalSchoolPlan = 0, totalSchoolFact = 0, totalSecondShift = 0;
+        objectsInRadiusForSchool.forEach(s => { totalSchoolPlan += parseFloat(s.capacity)||0; totalSchoolFact += parseFloat(s.fact)||0; totalSecondShift += parseFloat(s.secondShift)||0; });
+        let totalKinderPlan = 0, totalKinderFact = 0, totalQueue = 0;
+        objectsInRadiusForKindergarten.forEach(k => { totalKinderPlan += parseFloat(k.capacity)||0; totalKinderFact += parseFloat(k.fact)||0; let queue = Math.max(0, (parseFloat(k.fact)||0) - (parseFloat(k.capacity)||0)); totalQueue += queue; });
+        schoolPlan.value = totalSchoolPlan;
+        schoolActual.value = totalSchoolFact;
+        kindergartenPlan.value = totalKinderPlan;
+        kindergartenActual.value = totalKinderFact;
+        if(totalSecondShift > 0) { secondShiftToggle.checked = true; secondShiftNumber.value = totalSecondShift; secondShiftNumber.style.display = "inline-block"; }
+        else { secondShiftToggle.checked = false; secondShiftNumber.value = 0; secondShiftNumber.style.display = "none"; }
+        if(totalQueue > 0) { queueToggle.checked = true; queueNumber.value = totalQueue; queueNumber.style.display = "inline-block"; }
+        else { queueToggle.checked = false; queueNumber.value = 0; queueNumber.style.display = "none"; }
+        recalc();
+        alert("✅ Данные перенесены в калькулятор!");
+        document.getElementById('mapModal').classList.remove('active');
+    }
+
+    // ========== СИНХРОНИЗАЦИЯ ВЫБОРА ОКРУГА ==========
+    // Когда пользователь выбирает округ в калькуляторе — сохраняем и синхронизируем с картой
+    districtSelect.addEventListener('change', (e) => {
+        selectedDistrict = e.target.value;
+        // Если карта уже инициализирована, синхронизируем её выбор
+        if(mapInitialized) {
+            const mapDistrictSelect = document.getElementById('mapDistrictSelect');
+            if(mapDistrictSelect) {
+                mapDistrictSelect.value = selectedDistrict;
+                currentDistrictMap = selectedDistrict;
+                if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
+                else clearAllMap();
+            }
         }
-    }
-
-    function getDistance(coord1, coord2) {
-        const R = 6371000;
-        const lat1 = coord1[0] * Math.PI/180, lat2 = coord2[0] * Math.PI/180;
-        const deltaLat = (coord2[0] - coord1[0]) * Math.PI/180;
-        const deltaLon = (coord2[1] - coord1[1]) * Math.PI/180;
-        const a = Math.sin(deltaLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(deltaLon/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-
-    function renderLists(objects, objectsInRadius) {
-        const schools = objects.filter(o => o.type === 'school');
-        const kindergartens = objects.filter(o => o.type === 'kindergarten');
-        const inRadiusIds = new Set(objectsInRadius.map(o => o.id));
-        const sortByRadius = (a,b) => (inRadiusIds.has(b.id) - inRadiusIds.has(a.id));
-        schools.sort(sortByRadius);
-        kindergartens.sort(sortByRadius);
-        renderObjectList('schoolsList', schools, inRadiusIds);
-        renderObjectList('kindergartensList', kindergartens, inRadiusIds);
-    }
-
-    function renderObjectList(containerId, objects, inRadiusIds) {
-        const container = document.getElementById(containerId);
-        if (!objects.length) { container.innerHTML = '<div class="loading">Нет объектов</div>'; return; }
-        container.innerHTML = '';
-        objects.forEach(obj => {
-            const loadPercent = parseFloat(obj.loadPercent);
-            const isInRadius = inRadiusIds.has(obj.id);
-            
-            let extraStat = '';
-            if (obj.type === 'school' && obj.secondShift && parseInt(obj.secondShift) > 0) {
-                extraStat = `<span>🕐 2 см: ${parseInt(obj.secondShift).toLocaleString()}</span>`;
+        recalc();
+    });
+    
+    // Управление модальным окном карты
+    document.getElementById('openMapBtn').onclick = () => {
+        // Перед открытием карты — синхронизируем выбранный округ
+        const currentSelectedDistrict = districtSelect.value;
+        if(mapInitialized && currentSelectedDistrict) {
+            const mapDistrictSelect = document.getElementById('mapDistrictSelect');
+            if(mapDistrictSelect && mapDistrictSelect.value !== currentSelectedDistrict) {
+                mapDistrictSelect.value = currentSelectedDistrict;
+                currentDistrictMap = currentSelectedDistrict;
+                if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
+                else clearAllMap();
             }
-            if (obj.type === 'kindergarten') {
-                const queue = Math.max(0, (parseFloat(obj.fact)||0) - (parseFloat(obj.capacity)||0));
-                if (queue > 0) extraStat = `<span>⏳ Очередь: ${queue.toLocaleString()}</span>`;
-            }
-            
-            const card = document.createElement('div');
-            card.className = `object-card ${isInRadius ? 'in-radius' : 'out-radius'}`;
-            card.dataset.id = obj.id;
-            card.innerHTML = `
-                <div class="object-name"><span class="object-badge ${obj.type==='school'?'badge-school':'badge-kindergarten'}">${obj.type==='school'?'🏫 Школа':'🏠 Детский сад'}</span> ${obj.name||'Без названия'}</div>
-                <div class="object-address">📍 ${obj.address||'—'}</div>
-                <div class="object-stats">
-                    ${obj.buildYear?`🏛️ ${obj.buildYear}`:''} 
-                    ${obj.capacity?`🎓 ${parseInt(obj.capacity).toLocaleString()} мест`:''} 
-                    ${obj.fact?`👥 ${parseInt(obj.fact).toLocaleString()} чел.`:''}
-                    ${extraStat}
-                </div>
-                ${obj.loadPercent?`<div class="load-bar"><div class="load-bar-fill" style="width:${Math.min(loadPercent,200)}%; background:${loadPercent>120?'#ef4444':(loadPercent>100?'#e8a000':'#22c55e')}"></div></div><div class="object-stats">📊 ${obj.loadPercent}%</div>`:''}
-                <div class="route-info"></div>
-            `;
-            card.onclick = () => selectObject(obj.id);
-            container.appendChild(card);
-        });
-    }
-
-    function addUserMarker(coords) {
-        if (currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark);
-        currentUserPlacemark = new ymaps.Placemark(coords, { hintContent: 'Центр поиска' }, { preset: 'islands#circleIcon', iconColor: '#ef4444' });
-        map.geoObjects.add(currentUserPlacemark);
-    }
-
-    function clearMap() {
-        placemarks.forEach(p => { if(p && map.geoObjects.indexOf(p) !== -1) map.geoObjects.remove(p); });
-        placemarks = [];
-        if (currentRoute) { map.geoObjects.remove(currentRoute); currentRoute = null; }
-        if (currentUserPlacemark) { map.geoObjects.remove(currentUserPlacemark); currentUserPlacemark = null; }
-    }
-
-    function clearAll() {
-        clearMap();
-        objectsInRadiusList = [];
-        selectedObjectId = null;
-        document.getElementById('schoolsList').innerHTML = '<div class="loading">Выберите округ</div>';
-        document.getElementById('kindergartensList').innerHTML = '<div class="loading">Выберите округ</div>';
-        document.getElementById('schoolTotalStats').innerHTML = '';
-        document.getElementById('kindergartenTotalStats').innerHTML = '';
-        document.getElementById('schoolRadiusStats').style.display = 'none';
-        document.getElementById('kindergartenRadiusStats').style.display = 'none';
-        currentCenterPoint = null;
-    }
+        }
+        document.getElementById('mapModal').classList.add('active');
+        if(!mapInitialized) initMap();
+    };
+    document.getElementById('closeMapBtn').onclick = () => document.getElementById('mapModal').classList.remove('active');
+    document.getElementById('captureDataBtn').onclick = captureDataToCalculator;
 </script>
 </body>
 </html>
