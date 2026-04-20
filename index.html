@@ -731,8 +731,8 @@
         <div class="normative-card">
             <div class="normative-title">📋 Нормативная потребность по РНГП 713/30</div>
             <table class="normative-table">
-                <tr><td>🏫 Школы (106 мест / 1000 жителей)</td><td id="schoolRequired">0</td></tr>
-                <tr><td>🏠 Детские сады (53 места / 1000 жителей)</td><td id="kindergartenRequired">0</td></tr>
+                <tr><td>🏫 Школы (124 места / 1000 жителей)</td><td id="schoolRequired">0</td></tr>
+                <tr><td>🏠 Детские сады (63 места / 1000 жителей)</td><td id="kindergartenRequired">0</td></tr>
             </table>
             <div class="normative-note">* Расчёт выполнен по нормативам РНГП 713/30</div>
         </div>
@@ -878,8 +878,8 @@
         "Шатура", "Шаховская", "Щёлково", "Электросталь"
     ];
     
-    const SCHOOL_RATE = 0.106;
-    const KINDER_RATE = 0.053;
+    const SCHOOL_RATE = 0.124;
+    const KINDER_RATE = 0.063;
     const PROXY_URL = 'https://gemini-proxy.monaxovnikolai-31d.workers.dev';
     const TYPICAL_SCHOOL_CAPACITIES = [275, 550, 825, 1100, 1375, 1650, 1925, 2200, 2475, 2750, 3025];
     const TYPICAL_KINDER_CAPACITIES = [100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400];
@@ -1108,16 +1108,26 @@
         <table>
             <tr><th>Помещение</th><th>Площадь (м²)</th><th>Примечание</th></tr>
             <tr><td>Основные помещения (учебные/групповые)</td><td>${(capacity * (type === 'school' ? 5 : 4)).toFixed(1)}</td><td>${type === 'school' ? 'Учебные классы' : 'Групповые ячейки'}</td></tr>
-            <tr><td>Вспомогательные помещения</td><td>${(capacity * (type === 'school' ? 2.5 : 1.8)).toFixed(1)}</td><td>Коридоры, санузлы, хранение</td></tr>
-            <tr><td>Спортивный/музыкальный зал</td><td>${type === 'school' ? '288 - 540' : '75 - 100'}</td><td>По нормативам</td></tr>
-            <tr><td>Столовая / пищеблок</td><td>${(capacity * 0.7).toFixed(1)}</td><td>Посадочных мест: ${Math.ceil(capacity / 2)}</td></tr>
-            <tr><td>Медицинский блок</td><td>${type === 'school' ? '95' : '35'}</td><td>Медкабинет, процедурная</td></tr>
-            <tr><td>Библиотека / IT-зона</td><td>${(capacity * 0.4).toFixed(1)}</td><td>${type === 'school' ? 'Книгохранилище + читальный зал' : 'Методический кабинет'}</td></tr>
-            <tr class="total"><td><strong>ИТОГО ОРИЕНТИРОВОЧНО</strong></td><td><strong>${(capacity * (type === 'school' ? 8.5 : 6.5)).toFixed(1)} м²</strong></td><td>Требует уточнения при проектировании</td></tr>
-        </table>
-        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30</div>
-        </body>
-        </html>`;
+            <tr>
+            
+Вспомогательные помещения<\/td><td>${(capacity * (type === 'school' ? 2.5 : 1.8)).toFixed(1)}<\/td><td>Коридоры, санузлы, хранение<\/td><\/tr>
+            <tr>
+            
+Спортивный/музыкальный зал<\/td><td>${type === 'school' ? '288 - 540' : '75 - 100'}<\/td><td>По нормативам<\/td><\/tr>
+            <tr>
+            
+Столовая / пищеблок<\/td><td>${(capacity * 0.7).toFixed(1)}<\/td><td>Посадочных мест: ${Math.ceil(capacity / 2)}<\/td><\/tr>
+            <tr>
+            
+Медицинский блок<\/td><td>${type === 'school' ? '95' : '35'}<\/td><td>Медкабинет, процедурная<\/td><\/tr>
+            <tr>
+            
+Библиотека / IT-зона<\/td><td>${(capacity * 0.4).toFixed(1)}<\/td><td>${type === 'school' ? 'Книгохранилище + читальный зал' : 'Методический кабинет'}<\/td><\/tr>
+            <tr class="total"><td><strong>ИТОГО ОРИЕНТИРОВОЧНО<\/strong><\/td><td><strong>${(capacity * (type === 'school' ? 8.5 : 6.5)).toFixed(1)} м²<\/strong><\/td><td>Требует уточнения при проектировании<\/td><\/tr>
+         <\/table>
+        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30<\/div>
+        <\/body>
+        <\/html>`;
         const blob = new Blob([content], { type: 'application/msword' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -1141,27 +1151,35 @@
             th{background:#f2f2f2;}
             .total{background:#e8f5e9;font-weight:bold;}
             .footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}
-        </style>
-        </head>
+        <\/style>
+        <\/head>
         <body>
-        <h1>🏞️ Схема планировочной организации земельного участка (СПОЗУ)</h1>
-        <h2>${typeName} на ${capacity} мест</h2>
-        <p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea * 10000).toFixed(0)} м²)</strong></p>
-        <h2>🏆 Спортивные площадки</h2>
+        <h1>🏞️ Схема планировочной организации земельного участка (СПОЗУ)<\/h1>
+        <h2>${typeName} на ${capacity} мест<\/h2>
+        <p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea * 10000).toFixed(0)} м²)<\/strong><\/p>
+        <h2>🏆 Спортивные площадки<\/h2>
         <table>
-            <tr><th>Наименование</th><th>Площадь (м²)</th><th>Примечание</th></tr>
-            <tr><td>Спортивное ядро (футбол, бег)</td><td>${type === 'school' ? '2500 - 4000' : '200 - 400'}</td><td>${type === 'school' ? 'Футбольное поле, беговые дорожки' : 'Физкультурная площадка'}</td></tr>
-            <tr><td>Спортивные площадки</td><td>${type === 'school' ? '1200 - 2000' : '100 - 200'}</td><td>Волейбол, баскетбол, гимнастика</td></tr>
-        </table>
-        <h2>🌳 Зоны отдыха и игр</h2>
+            <tr><th>Наименование<\/th><th>Площадь (м²)<\/th><th>Примечание<\/th><\/tr>
+            <tr>
+            
+Спортивное ядро (футбол, бег)<\/td><td>${type === 'school' ? '2500 - 4000' : '200 - 400'}<\/td><td>${type === 'school' ? 'Футбольное поле, беговые дорожки' : 'Физкультурная площадка'}<\/td><\/tr>
+            <tr>
+            
+Спортивные площадки<\/td><td>${type === 'school' ? '1200 - 2000' : '100 - 200'}<\/td><td>Волейбол, баскетбол, гимнастика<\/td><\/tr>
+         <\/table>
+        <h2>🌳 Зоны отдыха и игр<\/h2>
         <table>
-            <tr><th>Наименование</th><th>Площадь (м²)</th><th>Примечание</th></tr>
-            <tr><td>Игровые площадки</td><td>${(capacity * (type === 'school' ? 12 : 8)).toFixed(0)}</td><td>${type === 'school' ? 'Для разных возрастных групп' : 'Групповые площадки с теневыми навесами'}</td></tr>
-            <tr><td>Зелёные насаждения</td><td>${(zuArea * 0.4 * 10000).toFixed(0)}</td><td>Не менее 40% территории</td></tr>
-        </table>
-        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30</div>
-        </body>
-        </html>`;
+            <tr><th>Наименование<\/th><th>Площадь (м²)<\/th><th>Примечание<\/th><\/tr>
+            <tr>
+            
+Игровые площадки<\/td><td>${(capacity * (type === 'school' ? 12 : 8)).toFixed(0)}<\/td><td>${type === 'school' ? 'Для разных возрастных групп' : 'Групповые площадки с теневыми навесами'}<\/td><\/tr>
+            <tr>
+            
+Зелёные насаждения<\/td><td>${(zuArea * 0.4 * 10000).toFixed(0)}<\/td><td>Не менее 40% территории<\/td><\/tr>
+         <\/table>
+        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30<\/div>
+        <\/body>
+        <\/html>`;
         const blob = new Blob([content], { type: 'application/msword' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -1183,65 +1201,65 @@
         proposalSection.classList.remove('hidden');
         let html = '';
         if (schoolsSame && kindersSame) {
-            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Предложения по реализации</strong></td></tr>`;
+            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Предложения по реализации<\/strong><\/td><\/tr>`;
             if (schoolLarge.length > 0) {
                 let schoolTotalZU = 0;
-                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы</strong></td></tr>`;
+                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
                 schoolLarge.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
+                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать<\/a><\/td><\/tr>`;
                 });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест<\/strong><\/td><td><strong>${schoolTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
             }
             if (kinderLarge.length > 0) {
                 let kinderTotalZU = 0;
-                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады</strong></td></tr>`;
+                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
                 kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
+                    html += `<td><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><\/tr>`;
                 });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест<\/strong><\/td><td><strong>${kinderTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
             }
             const totalZU = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО: ${schoolRemain + kindergartenRemain} мест<\/strong><\/td><td><strong>${totalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
         } else {
-            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 1 (крупные объекты)</strong></td></tr>`;
+            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 1 (крупные объекты)<\/strong><\/td><\/tr>`;
             if (schoolLarge.length > 0) {
                 let schoolTotalZU = 0;
-                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы</strong></td></tr>`;
+                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
                 schoolLarge.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
+                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать<\/a><\/td><\/tr>`;
                 });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест<\/strong><\/td><td><strong>${schoolTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
             }
             if (kinderLarge.length > 0) {
                 let kinderTotalZU = 0;
-                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады</strong></td></tr>`;
+                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
                 kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
+                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><\/tr>`;
                 });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест<\/strong><\/td><td><strong>${kinderTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
             }
             const totalZU1 = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 1: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU1.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 1: ${schoolRemain + kindergartenRemain} мест<\/strong><\/td><td><strong>${totalZU1.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
             
-            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 2 (средние объекты)</strong></td></tr>`;
+            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 2 (средние объекты)<\/strong><\/td><\/tr>`;
             if (schoolMedium.length > 0) {
                 let schoolTotalZU = 0;
-                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы</strong></td></tr>`;
+                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
                 schoolMedium.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
+                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать<\/a><\/td><\/tr>`;
                 });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест<\/strong><\/td><td><strong>${schoolTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
             }
             if (kinderMedium.length > 0) {
                 let kinderTotalZU = 0;
-                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады</strong></td></tr>`;
+                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
                 kinderMedium.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
+                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><\/tr>`;
                 });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест<\/strong><\/td><td><strong>${kinderTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
             }
             const totalZU2 = (schoolMedium.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderMedium.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 2: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU2.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 2: ${schoolRemain + kindergartenRemain} мест<\/strong><\/td><td><strong>${totalZU2.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
         }
         proposalTableBody.innerHTML = html;
     }
@@ -1267,19 +1285,17 @@
         let schoolRemain = Math.max(0, schoolNeedAdjusted - schoolSurplus);
         let kinderRemain = Math.max(0, kinderNeedAdjusted - kinderSurplus);
         
-        let schoolReserveSeats = Math.max(0, schoolNeedRaw - schoolNeedAdjusted);
-        let kinderReserveSeats = Math.max(0, kinderNeedRaw - kinderNeedAdjusted);
+        let schoolReserveSeats = Math.max(0, schoolNeedRaw - schoolRemain);
+        let kinderReserveSeats = Math.max(0, kinderNeedRaw - kinderRemain);
         
         let schoolReserveArea = getSchoolZUArea(schoolReserveSeats);
         let kinderReserveArea = getKindergartenZUArea(kinderReserveSeats);
         
         let schoolHtml = `<strong>📊 Исходная потребность по РНГП: ${schoolNeedRaw} мест</strong><br>`;
-        schoolHtml += `<strong>📉 Скорректированная потребность (×0,85 + профицит): ${schoolRemain} мест</strong><br>`;
+        schoolHtml += `<strong>📉 Потребность с учётом дем-фактора (0,85): ${schoolNeedAdjusted} мест</strong><br>`;
+        schoolHtml += `<strong>📌 Профицит (можно разместить в существующих объектах): ${schoolSurplus} мест</strong><br>`;
+        schoolHtml += `<strong>✅ Скорректированная потребность (после профицита): ${schoolRemain} мест</strong><br>`;
         schoolHtml += `<hr style="margin: 8px 0;">`;
-        
-        if (schoolSurplus > 0) {
-            schoolHtml += `<span style="color: #27ae60;">✅ В существующую школу можно разместить до ${schoolSurplus} детей (чистый профицит)</span><br>`;
-        }
         
         if (schoolRemain > 0) {
             schoolHtml += `<br><div class="solution-detail"><strong>🏗️ Строительство школы застройщиком на ${schoolRemain} мест</strong><br>`;
@@ -1291,25 +1307,23 @@
         if (schoolReserveSeats > 0) {
             schoolHtml += `<br><div class="solution-detail" style="background: #fef3c7;">`;
             schoolHtml += `<strong>🏞️ Резерв ЗУ и расселение ветхового жилья:</strong><br>`;
-            schoolHtml += `📐 Количество мест под резерв: ${schoolReserveSeats} мест<br>`;
+            schoolHtml += `📐 Резерв формируется от разницы: исходная потребность (${schoolNeedRaw}) - скорректированная потребность (${schoolRemain}) = ${schoolReserveSeats} мест<br>`;
             schoolHtml += `📏 Требуемая площадь резерва: ${schoolReserveArea.toFixed(4)} га (${(schoolReserveArea * 10000).toFixed(0)} м²)<br>`;
             if (schoolReserveArea < 1) {
                 schoolHtml += `⚠️ Менее 1 га — требуется учесть землю в строительстве объекта / расселение`;
             }
             schoolHtml += `</div>`;
         } else {
-            schoolHtml += `<br><div class="solution-detail" style="background: #e0f2fe;">✅ Резерв ЗУ и расселение не требуются (исходная потребность = скорректированной)</div>`;
+            schoolHtml += `<br><div class="solution-detail" style="background: #e0f2fe;">✅ Резерв ЗУ и расселение не требуются</div>`;
         }
         
         schoolSolutionText.innerHTML = schoolHtml;
         
         let kinderHtml = `<strong>📊 Исходная потребность по РНГП: ${kinderNeedRaw} мест</strong><br>`;
-        kinderHtml += `<strong>📉 Скорректированная потребность (×0,85 + профицит): ${kinderRemain} мест</strong><br>`;
+        kinderHtml += `<strong>📉 Потребность с учётом дем-фактора (0,85): ${kinderNeedAdjusted} мест</strong><br>`;
+        kinderHtml += `<strong>📌 Профицит (можно разместить в существующих объектах): ${kinderSurplus} мест</strong><br>`;
+        kinderHtml += `<strong>✅ Скорректированная потребность (после профицита): ${kinderRemain} мест</strong><br>`;
         kinderHtml += `<hr style="margin: 8px 0;">`;
-        
-        if (kinderSurplus > 0) {
-            kinderHtml += `<span style="color: #27ae60;">✅ В существующий сад можно разместить до ${kinderSurplus} детей (чистый профицит)</span><br>`;
-        }
         
         if (kinderRemain > 0) {
             kinderHtml += `<br><div class="solution-detail"><strong>🏗️ Строительство сада застройщиком на ${kinderRemain} мест</strong><br>`;
@@ -1321,14 +1335,14 @@
         if (kinderReserveSeats > 0) {
             kinderHtml += `<br><div class="solution-detail" style="background: #fef3c7;">`;
             kinderHtml += `<strong>🏞️ Резерв ЗУ и расселение ветхового жилья:</strong><br>`;
-            kinderHtml += `📐 Количество мест под резерв: ${kinderReserveSeats} мест<br>`;
+            kinderHtml += `📐 Резерв формируется от разницы: исходная потребность (${kinderNeedRaw}) - скорректированная потребность (${kinderRemain}) = ${kinderReserveSeats} мест<br>`;
             kinderHtml += `📏 Требуемая площадь резерва: ${kinderReserveArea.toFixed(4)} га (${(kinderReserveArea * 10000).toFixed(0)} м²)<br>`;
             if (kinderReserveArea < 1) {
                 kinderHtml += `⚠️ Менее 1 га — требуется учесть землю в строительстве объекта / расселение`;
             }
             kinderHtml += `</div>`;
         } else {
-            kinderHtml += `<br><div class="solution-detail" style="background: #e0f2fe;">✅ Резерв ЗУ и расселение не требуются (исходная потребность = скорректированной)</div>`;
+            kinderHtml += `<br><div class="solution-detail" style="background: #e0f2fe;">✅ Резерв ЗУ и расселение не требуются</div>`;
         }
         
         kindergartenSolutionText.innerHTML = kinderHtml;
@@ -1405,7 +1419,6 @@
     toggleSecondShiftField();
     toggleQueueField();
 
-    // КАРТА
     let map = null;
     let allObjects = [];
     let currentDistrictMap = '';
