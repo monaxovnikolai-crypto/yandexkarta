@@ -731,9 +731,9 @@
         <div class="normative-card">
             <div class="normative-title">📋 Нормативная потребность по РНГП 713/30</div>
             <table class="normative-table">
-                <tr><td>🏫 Школы (108 места / 1000 жителей)</td><td id="schoolRequired">0</td></tr>
-                <tr><td>🏠 Детские сады (52 места / 1000 жителей)</td><td id="kindergartenRequired">0</td></tr>
-            </table>
+                <tr><td>🏫 Школы (108 места / 1000 жителей)</td><td id="schoolRequired">0</td> </tr>
+                <tr><td>🏠 Детские сады (52 места / 1000 жителей)</td><td id="kindergartenRequired">0</td> </tr>
+             </table>
             <div class="normative-note">* Расчёт выполнен по нормативам РНГП 713/30</div>
         </div>
 
@@ -798,11 +798,11 @@
                 <tr style="background: #fef3c7;"><td colspan="3"><strong>🏫 Школы</strong></td></tr>
                 <tr><td>Профицит мест (можно принять дополнительно)</td><td id="schoolCanTake">0</td><td>детей</td></tr>
                 <tr style="background: #e8f5e9;"><td><strong>📉 Дем-фактор (0,85 от потребности)</strong></td><td id="demFactorSchool">0</td><td>мест</td></tr>
-                <tr style="border-bottom: 2px solid #fde047;"><td><strong>Остаток потребности (школы) с учётом дем-фактора и профицита</strong></td><td id="schoolRemainAfterOverload">0</td><td>мест</td></tr>
+                <tr style="border-bottom: 2px solid #fde047;"><td><strong>Остаток потребности (школы) с учётом дем-фактора и К_загрузки</strong></td><td id="schoolRemainAfterOverload">0</td><td>мест</td></tr>
                 <tr style="background: #fef3c7;"><td colspan="3"><strong>🏠 Детские сады</strong></td></tr>
                 <tr><td>Профицит мест (можно принять дополнительно)</td><td id="kindergartenCanTake">0</td><td>детей</td></tr>
                 <tr style="background: #e8f5e9;"><td><strong>📉 Дем-фактор (0,85 от потребности)</strong></td><td id="demFactorKindergarten">0</td><td>мест</td></tr>
-                <tr><td><strong>Остаток потребности (сады) с учётом дем-фактора и профицита</strong></td><td id="kindergartenRemainAfterOverload">0</td><td>мест</td></tr>
+                <tr><td><strong>Остаток потребности (сады) с учётом дем-фактора и К_загрузки</strong></td><td id="kindergartenRemainAfterOverload">0</td><td>мест</td></tr>
             </table>
         </div>
 
@@ -829,7 +829,7 @@
         <div id="proposalSection" class="proposal-card hidden">
             <div class="proposal-title">📋 Предложения по реализации</div>
             <table class="proposal-table" id="proposalTable">
-                <thead><tr><th>Мощность</th><th>S земельного участка</th><th>Набор помещений</th><th>Набор площадок</th></tr></thead>
+                <thead><tr><th>Мощность</th><th>S земельного участка</th><th>Набор помещений</th><th>Набор площадок</th> </tr></thead>
                 <tbody id="proposalTableBody"><tr><td colspan="4" style="text-align: center;">Нет данных для отображения</td></tr></tbody>
             </table>
         </div>
@@ -880,6 +880,7 @@
     
     const SCHOOL_RATE = 0.108;
     const KINDER_RATE = 0.052;
+    const DEM_FACTOR = 0.85;
     const PROXY_URL = 'https://gemini-proxy.monaxovnikolai-31d.workers.dev';
     const TYPICAL_SCHOOL_CAPACITIES = [275, 550, 825, 1100, 1375, 1650, 1925, 2200, 2475, 2750, 3025];
     const TYPICAL_KINDER_CAPACITIES = [100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400];
@@ -967,11 +968,19 @@
         const schoolNeedRaw = Math.round(population * SCHOOL_RATE);
         const kinderNeedRaw = Math.round(population * KINDER_RATE);
         
-        const demFactorSchool = Math.round(schoolNeedRaw * 0.85);
-        const demFactorKindergarten = Math.round(kinderNeedRaw * 0.85);
+        // НОВАЯ ФОРМУЛА: К_загрузки = (Потребность - Профицит) / Потребность
+        let kLoadSchool = (schoolNeedRaw - schoolCanTake) / schoolNeedRaw;
+        if (kLoadSchool < 0) kLoadSchool = 0;
+        let kLoadKindergarten = (kinderNeedRaw - kindergartenCanTake) / kinderNeedRaw;
+        if (kLoadKindergarten < 0) kLoadKindergarten = 0;
         
-        const schoolRemain = Math.max(0, demFactorSchool - schoolCanTake);
-        const kindergartenRemain = Math.max(0, demFactorKindergarten - kindergartenCanTake);
+        // Скорректированная потребность = Потребность × К_демо (0.85) × К_загрузки
+        const schoolRemain = Math.round(schoolNeedRaw * DEM_FACTOR * kLoadSchool);
+        const kindergartenRemain = Math.round(kinderNeedRaw * DEM_FACTOR * kLoadKindergarten);
+        
+        // Дем-фактор для отображения в таблице
+        const demFactorSchool = Math.round(schoolNeedRaw * DEM_FACTOR);
+        const demFactorKindergarten = Math.round(kinderNeedRaw * DEM_FACTOR);
         
         document.getElementById('demFactorSchool').innerText = demFactorSchool.toLocaleString();
         document.getElementById('demFactorKindergarten').innerText = demFactorKindergarten.toLocaleString();
@@ -1107,7 +1116,9 @@
         <p><strong>Типовой расчёт помещений для ${typeName === 'Школа' ? 'школы' : 'детского сада'} на ${capacity} мест.</strong></p>
         <table>
             <tr><th>Помещение</th><th>Площадь (м²)</th><th>Примечание</th></tr>
-            <tr><td>Основные помещения (учебные/групповые)</td><td>${(capacity * (type === 'school' ? 5 : 4)).toFixed(1)}</td><td>${type === 'school' ? 'Учебные классы' : 'Групповые ячейки'}</td></tr>
+            <tr>
+            
+Основные помещения (учебные/групповые)<\/td><td>${(capacity * (type === 'school' ? 5 : 4)).toFixed(1)}<\/td><td>${type === 'school' ? 'Учебные классы' : 'Групповые ячейки'}<\/td><\/tr>
             <tr>
             
 Вспомогательные помещения<\/td><td>${(capacity * (type === 'school' ? 2.5 : 1.8)).toFixed(1)}<\/td><td>Коридоры, санузлы, хранение<\/td><\/tr>
@@ -1168,7 +1179,7 @@
 Спортивные площадки<\/td><td>${type === 'school' ? '1200 - 2000' : '100 - 200'}<\/td><td>Волейбол, баскетбол, гимнастика<\/td><\/tr>
          <\/table>
         <h2>🌳 Зоны отдыха и игр<\/h2>
-        <table>
+        表
             <tr><th>Наименование<\/th><th>Площадь (м²)<\/th><th>Примечание<\/th><\/tr>
             <tr>
             
@@ -1214,7 +1225,7 @@
                 let kinderTotalZU = 0;
                 html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
                 kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<td><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><\/tr>`;
+                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><\/tr>`;
                 });
                 html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест<\/strong><\/td><td><strong>${kinderTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
             }
@@ -1270,10 +1281,6 @@
         let schoolNeedRaw = Math.round(population * SCHOOL_RATE);
         let kinderNeedRaw = Math.round(population * KINDER_RATE);
         
-        const correction = 0.85;
-        let schoolNeedAdjusted = Math.round(schoolNeedRaw * correction);
-        let kinderNeedAdjusted = Math.round(kinderNeedRaw * correction);
-        
         const schoolPlanVal = parseFloat(schoolPlan.value) || 0;
         const schoolActualVal = parseFloat(schoolActual.value) || 0;
         const kinderPlanVal = parseFloat(kindergartenPlan.value) || 0;
@@ -1282,19 +1289,28 @@
         let schoolSurplus = Math.max(0, schoolPlanVal - schoolActualVal);
         let kinderSurplus = Math.max(0, kinderPlanVal - kinderActualVal);
         
-        let schoolRemain = Math.max(0, schoolNeedAdjusted - schoolSurplus);
-        let kinderRemain = Math.max(0, kinderNeedAdjusted - kinderSurplus);
+        // НОВАЯ ФОРМУЛА: К_загрузки = (Потребность - Профицит) / Потребность
+        let kLoadSchool = (schoolNeedRaw - schoolSurplus) / schoolNeedRaw;
+        if (kLoadSchool < 0) kLoadSchool = 0;
+        let kLoadKindergarten = (kinderNeedRaw - kinderSurplus) / kinderNeedRaw;
+        if (kLoadKindergarten < 0) kLoadKindergarten = 0;
         
-        let schoolReserveSeats = Math.max(0, schoolNeedRaw - schoolRemain);
-        let kinderReserveSeats = Math.max(0, kinderNeedRaw - kinderRemain);
+        // Скорректированная потребность = Потребность × К_демо (0.85) × К_загрузки
+        let schoolRemain = Math.round(schoolNeedRaw * DEM_FACTOR * kLoadSchool);
+        let kinderRemain = Math.round(kinderNeedRaw * DEM_FACTOR * kLoadKindergarten);
         
-        let schoolReserveArea = getSchoolZUArea(schoolReserveSeats);
-        let kinderReserveArea = getKindergartenZUArea(kinderReserveSeats);
+        // НОВЫЙ РАСЧЁТ РЕЗЕРВА ЗУ: ЗУ(исходная) - ЗУ(скорректированная)
+        let schoolReserveArea = Math.max(0, getSchoolZUArea(schoolNeedRaw) - getSchoolZUArea(schoolRemain));
+        let kinderReserveArea = Math.max(0, getKindergartenZUArea(kinderNeedRaw) - getKindergartenZUArea(kinderRemain));
+        
+        let schoolNeedAdjusted = Math.round(schoolNeedRaw * DEM_FACTOR);
+        let kinderNeedAdjusted = Math.round(kinderNeedRaw * DEM_FACTOR);
         
         let schoolHtml = `<strong>📊 Исходная потребность по РНГП: ${schoolNeedRaw} мест</strong><br>`;
         schoolHtml += `<strong>📉 Потребность с учётом дем-фактора (0,85): ${schoolNeedAdjusted} мест</strong><br>`;
         schoolHtml += `<strong>📌 Профицит (можно разместить в существующих объектах): ${schoolSurplus} мест</strong><br>`;
-        schoolHtml += `<strong>✅ Скорректированная потребность (после профицита): ${schoolRemain} мест</strong><br>`;
+        schoolHtml += `<strong>📊 Коэффициент загрузки К_загрузки: ${kLoadSchool.toFixed(3)}</strong><br>`;
+        schoolHtml += `<strong>✅ Скорректированная потребность (после К_загрузки): ${schoolRemain} мест</strong><br>`;
         schoolHtml += `<hr style="margin: 8px 0;">`;
         
         if (schoolRemain > 0) {
@@ -1304,13 +1320,13 @@
             schoolHtml += `<br><div class="solution-detail">✅ Вся потребность покрывается существующими объектами (финансирование ${schoolSurplus} мест), строительство не требуется</div>`;
         }
         
-        if (schoolReserveSeats > 0) {
+        if (schoolReserveArea > 0) {
             schoolHtml += `<br><div class="solution-detail" style="background: #fef3c7;">`;
             schoolHtml += `<strong>🏞️ Резерв ЗУ и расселение ветхового жилья:</strong><br>`;
-            schoolHtml += `📐 Резерв формируется от разницы: исходная потребность (${schoolNeedRaw}) - скорректированная потребность (${schoolRemain}) = ${schoolReserveSeats} мест<br>`;
+            schoolHtml += `📐 Резерв формируется как разница: ЗУ(исходная потребность) - ЗУ(скорректированная потребность)<br>`;
             schoolHtml += `📏 Требуемая площадь резерва: ${schoolReserveArea.toFixed(4)} га (${(schoolReserveArea * 10000).toFixed(0)} м²)<br>`;
-            if (schoolReserveArea < 1) {
-                schoolHtml += `⚠️ Менее 1 га — требуется учесть землю в строительстве объекта / расселение`;
+            if (schoolReserveArea < 0.5) {
+                schoolHtml += `⚠️ Менее 0.5 га — требуется учесть землю в строительстве объекта / расселение`;
             }
             schoolHtml += `</div>`;
         } else {
@@ -1322,7 +1338,8 @@
         let kinderHtml = `<strong>📊 Исходная потребность по РНГП: ${kinderNeedRaw} мест</strong><br>`;
         kinderHtml += `<strong>📉 Потребность с учётом дем-фактора (0,85): ${kinderNeedAdjusted} мест</strong><br>`;
         kinderHtml += `<strong>📌 Профицит (можно разместить в существующих объектах): ${kinderSurplus} мест</strong><br>`;
-        kinderHtml += `<strong>✅ Скорректированная потребность (после профицита): ${kinderRemain} мест</strong><br>`;
+        kinderHtml += `<strong>📊 Коэффициент загрузки К_загрузки: ${kLoadKindergarten.toFixed(3)}</strong><br>`;
+        kinderHtml += `<strong>✅ Скорректированная потребность (после К_загрузки): ${kinderRemain} мест</strong><br>`;
         kinderHtml += `<hr style="margin: 8px 0;">`;
         
         if (kinderRemain > 0) {
@@ -1332,13 +1349,13 @@
             kinderHtml += `<br><div class="solution-detail">✅ Вся потребность покрывается существующими объектами (финансирование ${kinderSurplus} мест), строительство не требуется</div>`;
         }
         
-        if (kinderReserveSeats > 0) {
+        if (kinderReserveArea > 0) {
             kinderHtml += `<br><div class="solution-detail" style="background: #fef3c7;">`;
             kinderHtml += `<strong>🏞️ Резерв ЗУ и расселение ветхового жилья:</strong><br>`;
-            kinderHtml += `📐 Резерв формируется от разницы: исходная потребность (${kinderNeedRaw}) - скорректированная потребность (${kinderRemain}) = ${kinderReserveSeats} мест<br>`;
+            kinderHtml += `📐 Резерв формируется как разница: ЗУ(исходная потребность) - ЗУ(скорректированная потребность)<br>`;
             kinderHtml += `📏 Требуемая площадь резерва: ${kinderReserveArea.toFixed(4)} га (${(kinderReserveArea * 10000).toFixed(0)} м²)<br>`;
-            if (kinderReserveArea < 1) {
-                kinderHtml += `⚠️ Менее 1 га — требуется учесть землю в строительстве объекта / расселение`;
+            if (kinderReserveArea < 0.5) {
+                kinderHtml += `⚠️ Менее 0.5 га — требуется учесть землю в строительстве объекта / расселение`;
             }
             kinderHtml += `</div>`;
         } else {
@@ -1387,7 +1404,7 @@
         const kinderCovered = Math.min(kinderCanTake, kinderNeed);
         const schoolRemain = Math.max(0, schoolNeed - schoolCovered);
         const kinderRemain = Math.max(0, kinderNeed - kinderCovered);
-        const prompt = `Ты эксперт по градостроительству. Отвечай ТОЛЬКО по-русски. 4-5 предложений.\n\nПравила:\n- Если застройщик строит объект полностью на требуемую мощность — земля НЕ резервируется.\n- Если застройщик часть детей размещает в существующих объектах (финансирование) — тогда нужен резерв земли под этих детей. Если площадь резерва менее 1 га — требуется учесть землю в строительстве объекта или расселение.\n- Сады: если нет возможности разместить детей в существующих садах, строим ПО ПРОЕКТНОЙ МОЩНОСТИ.\n- Школы: вторая смена — плохо, загрузка до 120% — норма.\n- Сады: загрузка до 140% — норма, очередь более 50 детей — плохо.\n\nДанные для нового ЖК:\n- Нужно построить: школа ${schoolNeed} мест, сад ${kinderNeed} мест.\n- Существующая школа: мощность ${schoolPlanVal}, факт ${schoolActualVal} (загрузка ${schoolLoad.toFixed(0)}%), вторая смена ${hasSecond ? "есть" : "нет"}. Можно принять дополнительно ${Math.max(0, schoolCanTake)} детей.\n- Существующий сад: мощность ${kinderPlanVal}, факт ${kinderActualVal} (загрузка ${kinderLoad.toFixed(0)}%), очередь ${hasQueue ? queueCount : 0} детей. Можно принять дополнительно ${Math.max(0, kinderCanTake)} детей.\n- Остаток после существующих: школа ${schoolRemain} мест, сад ${kinderRemain} мест.\n- Резерв земли нужен: школа ${schoolCovered > 0 ? "ДА (на финансируемых детей)" : "НЕТ"}, сад ${kinderCovered > 0 ? "ДА (на финансируемых детей)" : "НЕТ"}.\n\nОцени ситуацию и дай чёткую рекомендацию: что строить, что финансировать, нужен ли резерв земли. Для садов укажи, строится ли объект по проектной мощности.`;
+        const prompt = `Ты эксперт по градостроительству. Отвечай ТОЛЬКО по-русски. 4-5 предложений.\n\nПравила:\n- Если застройщик строит объект полностью на требуемую мощность — земля НЕ резервируется.\n- Если застройщик часть детей размещает в существующих объектах (финансирование) — тогда нужен резерв земли под этих детей. Если площадь резерва менее 0.5 га — требуется учесть землю в строительстве объекта или расселение.\n- Сады: если нет возможности разместить детей в существующих садах, строим ПО ПРОЕКТНОЙ МОЩНОСТИ.\n- Школы: вторая смена — плохо, загрузка до 120% — норма.\n- Сады: загрузка до 140% — норма, очередь более 50 детей — плохо.\n\nДанные для нового ЖК:\n- Нужно построить: школа ${schoolNeed} мест, сад ${kinderNeed} мест.\n- Существующая школа: мощность ${schoolPlanVal}, факт ${schoolActualVal} (загрузка ${schoolLoad.toFixed(0)}%), вторая смена ${hasSecond ? "есть" : "нет"}. Можно принять дополнительно ${Math.max(0, schoolCanTake)} детей.\n- Существующий сад: мощность ${kinderPlanVal}, факт ${kinderActualVal} (загрузка ${kinderLoad.toFixed(0)}%), очередь ${hasQueue ? queueCount : 0} детей. Можно принять дополнительно ${Math.max(0, kinderCanTake)} детей.\n- Остаток после существующих: школа ${schoolRemain} мест, сад ${kinderRemain} мест.\n- Резерв земли нужен: школа ${schoolCovered > 0 ? "ДА (на финансируемых детей)" : "НЕТ"}, сад ${kinderCovered > 0 ? "ДА (на финансируемых детей)" : "НЕТ"}.\n\nОцени ситуацию и дай чёткую рекомендацию: что строить, что финансировать, нужен ли резерв земли. Для садов укажи, строится ли объект по проектной мощности.`;
         aiText.innerHTML = "⏳ Анализирую данные...";
         aiResponse.style.display = "block";
         try {
