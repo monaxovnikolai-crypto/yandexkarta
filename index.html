@@ -5,657 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>РНГП 713/30 — Калькулятор + Карта</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #eef2f5;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 750px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 28px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1e3c2c 0%, #2c3e50 100%);
-            color: white;
-            padding: 18px 24px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .header p {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            margin-top: 6px;
-        }
-
-        .content {
-            padding: 24px;
-        }
-
-        .card {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 24px;
-            border: 1px solid #e4e7ec;
-        }
-
-        .card-title {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 8px;
-            color: #1f2f3a;
-            border-left: 4px solid #2c7a4d;
-            padding-left: 12px;
-        }
-
-        .card-subnote {
-            font-size: 0.65rem;
-            color: #5b6e8c;
-            margin-bottom: 20px;
-            padding-left: 16px;
-        }
-
-        .input-group {
-            margin-bottom: 16px;
-        }
-
-        .input-group label {
-            font-size: 0.75rem;
-            font-weight: 500;
-            display: block;
-            margin-bottom: 6px;
-            color: #2c3e50;
-        }
-
-        .input-group select,
-        .input-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            font-size: 15px;
-            background: white;
-            font-family: inherit;
-            transition: 0.2s;
-        }
-
-        .input-group select:focus,
-        .input-group input:focus {
-            border-color: #27ae60;
-            outline: none;
-        }
-
-        .hint {
-            font-size: 0.7rem;
-            color: #5b6e8c;
-            margin-top: 6px;
-        }
-
-        .normative-card {
-            background: #f5f9ff;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #dce5f0;
-            margin-bottom: 24px;
-        }
-
-        .normative-title {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #2c3e50;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        .normative-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .normative-table tr {
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .normative-table tr:last-child {
-            border-bottom: none;
-        }
-
-        .normative-table td {
-            padding: 12px 8px;
-            font-size: 0.9rem;
-        }
-
-        .normative-table td:first-child {
-            color: #475569;
-            font-weight: 500;
-            text-align: left;
-        }
-
-        .normative-table td:last-child {
-            text-align: right;
-            font-weight: 700;
-            color: #1f4f2d;
-            font-size: 1.4rem;
-        }
-
-        .normative-note {
-            font-size: 0.65rem;
-            color: #5b6e8c;
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-        }
-
-        .overload-card {
-            background: #fefce8;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #fde047;
-            margin-bottom: 24px;
-        }
-
-        .overload-title {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #854d0e;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        .overload-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .overload-table tr {
-            border-bottom: 1px solid #fde047;
-        }
-
-        .overload-table tr:last-child {
-            border-bottom: none;
-        }
-
-        .overload-table td {
-            padding: 10px 8px;
-            font-size: 0.85rem;
-        }
-
-        .overload-table td:first-child {
-            color: #713f12;
-            font-weight: 500;
-            text-align: left;
-        }
-
-        .overload-table td:last-child {
-            text-align: right;
-            font-weight: 700;
-            color: #854d0e;
-            font-size: 1.1rem;
-        }
-
-        .split-row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .split-col {
-            flex: 1;
-            min-width: 250px;
-            background: #fefefe;
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid #ecf3fa;
-        }
-
-        .split-col h4 {
-            font-size: 0.9rem;
-            margin-bottom: 16px;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toggle-block {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 52px;
-            height: 28px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.3s;
-            border-radius: 28px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 24px;
-            width: 24px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-
-        .toggle-switch input:checked + .toggle-slider {
-            background-color: #27ae60;
-        }
-
-        .toggle-switch input:checked + .toggle-slider:before {
-            transform: translateX(24px);
-        }
-
-        .number-field {
-            width: 100px;
-            padding: 8px 10px;
-            border: 2px solid #ddd;
-            border-radius: 12px;
-            font-size: 14px;
-        }
-
-        .btn {
-            padding: 14px 20px;
-            border: none;
-            border-radius: 16px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-            transition: 0.2s;
-            width: 100%;
-            margin-top: 8px;
-            text-align: center;
-            display: inline-block;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #219a52;
-        }
-
-        .btn-secondary {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #2980b9;
-        }
-
-        .solutions-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 16px;
-            margin-bottom: 24px;
-        }
-
-        .solution-block {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 16px;
-            border-left: 4px solid #3b82f6;
-        }
-
-        .solution-title {
-            font-weight: 700;
-            font-size: 1rem;
-            margin-bottom: 12px;
-        }
-
-        .solution-text {
-            font-size: 0.85rem;
-            color: #1e293b;
-            line-height: 1.4;
-        }
-
-        .solution-detail {
-            margin-top: 8px;
-            padding: 8px;
-            background: #e8f5e9;
-            border-radius: 8px;
-            font-size: 0.8rem;
-        }
-
-        .ai-card {
-            background: white;
-            border-radius: 24px;
-            padding: 20px;
-            text-align: center;
-            border: 3px solid #3b82f6;
-            animation: borderGlow 2s infinite ease-in-out;
-            margin-top: 24px;
-        }
-
-        @keyframes borderGlow {
-            0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
-            50% { border-color: #a855f7; box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.1); }
-            100% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
-        }
-
-        .ai-button {
-            background: linear-gradient(125deg, #3b82f6, #8b5cf6);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 60px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 1rem;
-            width: 100%;
-            transition: 0.2s;
-        }
-
-        .ai-button:hover {
-            transform: scale(1.01);
-            opacity: 0.95;
-        }
-
-        .ai-response {
-            background: #f0f9ff;
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 16px;
-            border-left: 4px solid #3b82f6;
-            text-align: left;
-            display: none;
-        }
-
-        .vpn-note {
-            font-size: 0.7rem;
-            color: #ef4444;
-            margin-top: 10px;
-            padding-top: 8px;
-            border-top: 1px solid #cbd5e1;
-        }
-
-        .proposal-card {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #e4e7ec;
-            margin-bottom: 24px;
-            overflow-x: auto;
-        }
-
-        .proposal-title {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 16px;
-            color: #1f2f3a;
-            border-left: 4px solid #2c7a4d;
-            padding-left: 12px;
-        }
-
-        .proposal-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-
-        .proposal-table th {
-            background: #f5f5f5;
-            padding: 10px 8px;
-            font-weight: 600;
-            text-align: left;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .proposal-table td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .proposal-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .download-link {
-            color: #27ae60;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .download-link:hover {
-            text-decoration: underline;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .map-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(2px);
-        }
-        .map-modal.active {
-            display: flex;
-        }
-        .map-wrapper {
-            width: 95vw;
-            height: 90vh;
-            background: white;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        .close-map-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 8px 16px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1001;
-            font-size: 13px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .capture-data-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1001;
-            background: linear-gradient(135deg, #27ae60, #2c7a4d);
-            color: white;
-            border: none;
-            border-radius: 40px;
-            padding: 12px 24px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #eef2f5; padding: 20px; }
+        .container { max-width: 750px; margin: 0 auto; background: white; border-radius: 28px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c2c 0%, #2c3e50 100%); color: white; padding: 18px 24px; text-align: center; }
+        .header h1 { font-size: 1.5rem; font-weight: 600; }
+        .header p { font-size: 0.75rem; opacity: 0.8; margin-top: 6px; }
+        .content { padding: 24px; }
+        .card { background: #ffffff; border-radius: 20px; padding: 20px; margin-bottom: 24px; border: 1px solid #e4e7ec; }
+        .card-title { font-weight: 600; font-size: 1rem; margin-bottom: 8px; color: #1f2f3a; border-left: 4px solid #2c7a4d; padding-left: 12px; }
+        .card-subnote { font-size: 0.65rem; color: #5b6e8c; margin-bottom: 20px; padding-left: 16px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { font-size: 0.75rem; font-weight: 500; display: block; margin-bottom: 6px; color: #2c3e50; }
+        .input-group select, .input-group input { width: 100%; padding: 12px 14px; border: 2px solid #ddd; border-radius: 12px; font-size: 15px; background: white; font-family: inherit; transition: 0.2s; }
+        .input-group select:focus, .input-group input:focus { border-color: #27ae60; outline: none; }
+        .hint { font-size: 0.7rem; color: #5b6e8c; margin-top: 6px; }
+        .normative-card { background: #f5f9ff; border-radius: 20px; padding: 20px; border: 1px solid #dce5f0; margin-bottom: 24px; }
+        .normative-title { font-weight: 600; font-size: 0.85rem; color: #2c3e50; margin-bottom: 16px; text-align: center; }
+        .normative-table { width: 100%; border-collapse: collapse; }
+        .normative-table tr { border-bottom: 1px solid #e2e8f0; }
+        .normative-table tr:last-child { border-bottom: none; }
+        .normative-table td { padding: 12px 8px; font-size: 0.9rem; }
+        .normative-table td:first-child { color: #475569; font-weight: 500; text-align: left; }
+        .normative-table td:last-child { text-align: right; font-weight: 700; color: #1f4f2d; font-size: 1.4rem; }
+        .normative-note { font-size: 0.65rem; color: #5b6e8c; margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center; }
+        .overload-card { background: #fefce8; border-radius: 20px; padding: 20px; border: 1px solid #fde047; margin-bottom: 24px; }
+        .overload-title { font-weight: 600; font-size: 0.85rem; color: #854d0e; margin-bottom: 16px; text-align: center; }
+        .overload-table { width: 100%; border-collapse: collapse; }
+        .overload-table tr { border-bottom: 1px solid #fde047; }
+        .overload-table tr:last-child { border-bottom: none; }
+        .overload-table td { padding: 10px 8px; font-size: 0.85rem; }
+        .overload-table td:first-child { color: #713f12; font-weight: 500; text-align: left; }
+        .overload-table td:last-child { text-align: right; font-weight: 700; color: #854d0e; font-size: 1.1rem; }
+        .split-row { display: flex; gap: 20px; flex-wrap: wrap; }
+        .split-col { flex: 1; min-width: 250px; background: #fefefe; border-radius: 16px; padding: 16px; border: 1px solid #ecf3fa; }
+        .split-col h4 { font-size: 0.9rem; margin-bottom: 16px; color: #2c3e50; display: flex; align-items: center; gap: 8px; }
+        .toggle-block { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+        .toggle-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: 0.3s; border-radius: 28px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: 0.3s; border-radius: 50%; }
+        .toggle-switch input:checked + .toggle-slider { background-color: #27ae60; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
+        .number-field { width: 100px; padding: 8px 10px; border: 2px solid #ddd; border-radius: 12px; font-size: 14px; }
+        .btn { padding: 14px 20px; border: none; border-radius: 16px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; transition: 0.2s; width: 100%; margin-top: 8px; text-align: center; display: inline-block; text-decoration: none; }
+        .btn-primary { background: #27ae60; color: white; }
+        .btn-primary:hover { background: #219a52; }
+        .btn-secondary { background: #3498db; color: white; }
+        .btn-secondary:hover { background: #2980b9; }
+        .solutions-container { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; margin-bottom: 24px; }
+        .solution-block { background: #f8fafc; border-radius: 16px; padding: 16px; border-left: 4px solid #3b82f6; }
+        .solution-title { font-weight: 700; font-size: 1rem; margin-bottom: 12px; }
+        .solution-text { font-size: 0.85rem; color: #1e293b; line-height: 1.4; }
+        .solution-detail { margin-top: 8px; padding: 8px; background: #e8f5e9; border-radius: 8px; font-size: 0.8rem; }
+        .ai-card { background: white; border-radius: 24px; padding: 20px; text-align: center; border: 3px solid #3b82f6; animation: borderGlow 2s infinite ease-in-out; margin-top: 24px; }
+        @keyframes borderGlow { 0% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59,130,246,0.2); } 50% { border-color: #a855f7; box-shadow: 0 0 0 6px rgba(168,85,247,0.1); } 100% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59,130,246,0.2); } }
+        .ai-button { background: linear-gradient(125deg, #3b82f6, #8b5cf6); color: white; border: none; padding: 14px 28px; border-radius: 60px; font-weight: 700; cursor: pointer; font-size: 1rem; width: 100%; transition: 0.2s; }
+        .ai-button:hover { transform: scale(1.01); opacity: 0.95; }
+        .ai-response { background: #f0f9ff; border-radius: 16px; padding: 16px; margin-top: 16px; border-left: 4px solid #3b82f6; text-align: left; display: none; }
+        .vpn-note { font-size: 0.7rem; color: #ef4444; margin-top: 10px; padding-top: 8px; border-top: 1px solid #cbd5e1; }
+        .proposal-card { background: #ffffff; border-radius: 20px; padding: 20px; border: 1px solid #e4e7ec; margin-bottom: 24px; overflow-x: auto; }
+        .proposal-title { font-weight: 600; font-size: 1rem; margin-bottom: 16px; color: #1f2f3a; border-left: 4px solid #2c7a4d; padding-left: 12px; }
+        .proposal-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .proposal-table th { background: #f5f5f5; padding: 10px 8px; font-weight: 600; text-align: left; border-bottom: 2px solid #e2e8f0; }
+        .proposal-table td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; }
+        .proposal-table tr:last-child td { border-bottom: none; }
+        .download-link { color: #27ae60; text-decoration: none; font-weight: 500; cursor: pointer; }
+        .download-link:hover { text-decoration: underline; }
+        .hidden { display: none; }
+        .map-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .map-modal.active { display: flex; }
+        .map-wrapper { width: 95vw; height: 90vh; background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3); display: flex; flex-direction: column; position: relative; }
+        .close-map-btn-outside { position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; border: none; border-radius: 40px; padding: 10px 20px; font-weight: bold; cursor: pointer; z-index: 2002; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: 0.2s; }
+        .close-map-btn-outside:hover { background: #dc2626; transform: scale(1.02); }
+        .capture-data-btn { position: absolute; bottom: 20px; right: 20px; z-index: 1001; background: linear-gradient(135deg, #27ae60, #2c7a4d); color: white; border: none; border-radius: 40px; padding: 12px 24px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .capture-data-btn:hover { transform: scale(1.02); }
-        
         .map-app { display: flex; height: 100%; flex-direction: column; }
-        .top-panel {
-            background: white;
-            padding: 10px 12px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-            z-index: 10;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: #f8fafc;
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-            flex: 1;
-            min-width: 130px;
-            position: relative;
-        }
+        .top-panel { background: white; padding: 10px 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-bottom: 1px solid #e2e8f0; }
+        .filter-group { display: flex; align-items: center; gap: 6px; background: #f8fafc; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0; flex: 1; min-width: 130px; position: relative; }
         .filter-group label { font-size: 12px; font-weight: 500; color: #475569; }
-        .map-district-select, .search-input {
-            padding: 6px 8px;
-            border: none;
-            border-radius: 16px;
-            font-size: 13px;
-            background: transparent;
-            flex: 1;
-        }
+        .map-district-select, .search-input { padding: 6px 8px; border: none; border-radius: 16px; font-size: 13px; background: transparent; flex: 1; }
         .map-district-select:focus, .search-input:focus { outline: none; }
-        .suggest-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            z-index: 1000;
-            max-height: 260px;
-            overflow-y: auto;
-            margin-top: 4px;
-            border: 1px solid #e2e8f0;
-        }
-        .suggest-item {
-            padding: 10px 14px;
-            font-size: 13px;
-            cursor: pointer;
-            border-bottom: 1px solid #f1f5f9;
-        }
+        .suggest-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); z-index: 1000; max-height: 260px; overflow-y: auto; margin-top: 4px; border: 1px solid #e2e8f0; }
+        .suggest-item { padding: 10px 14px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f1f5f9; }
         .suggest-item:hover { background: #eff6ff; }
-        .radius-control {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: #f8fafc;
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-        }
+        .radius-control { display: flex; align-items: center; gap: 6px; background: #f8fafc; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0; }
         .radius-control label { font-size: 12px; font-weight: 500; }
         .radius-input { width: 80px; padding: 4px 6px; border-radius: 10px; text-align: center; font-size: 12px; border: 1px solid #cbd5e1; }
         .radius-hint { font-size: 10px; color: #3b82f6; margin-left: 4px; }
-        .mode-toggle {
-            display: flex;
-            gap: 3px;
-            background: #f1f5f9;
-            border-radius: 20px;
-            padding: 2px;
-        }
-        .mode-btn {
-            padding: 5px 12px;
-            border: none;
-            border-radius: 18px;
-            font-size: 12px;
-            font-weight: 500;
-            background: transparent;
-            cursor: pointer;
-        }
-        .mode-btn.active { background: #3b82f6; color: white; }
-        .reset-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 5px 14px;
-            cursor: pointer;
-        }
+        .mode-toggle.material-toggle { display: flex; align-items: center; gap: 8px; background: transparent; padding: 0; }
+        .material-btn { position: relative; padding: 10px 24px; border: none; border-radius: 40px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; background: transparent; color: #64748b; overflow: hidden; }
+        .material-btn.active { background: #3b82f6; color: white; box-shadow: 0 2px 6px rgba(59,130,246,0.3); }
+        .material-btn .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-animation 0.5s linear; background-color: rgba(255,255,255,0.4); pointer-events: none; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+        .reset-btn { background: #ef4444; color: white; border: none; border-radius: 20px; padding: 5px 14px; cursor: pointer; }
         .main-content { display: flex; flex: 1; overflow: hidden; position: relative; }
-        .sidebar-left, .sidebar-right {
-            width: 320px;
-            background: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            z-index: 20;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
+        .sidebar-left, .sidebar-right { width: 320px; background: #f8fafc; display: flex; flex-direction: column; overflow-y: auto; z-index: 20; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
         .sidebar-left { border-right: 1px solid #e2e8f0; }
         .sidebar-right { border-left: 1px solid #e2e8f0; }
-        .section-header {
-            padding: 12px 14px;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            position: sticky;
-            top: 0;
-            z-index: 5;
-        }
+        .section-header { padding: 12px 14px; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 5; }
         .section-header h3 { font-size: 15px; font-weight: 600; }
-        .stats-row { 
-            font-size: 11px; 
-            color: #475569; 
-            margin-top: 8px; 
-            display: flex; 
-            gap: 16px; 
-            flex-wrap: wrap; 
-            background: #f1f5f9; 
-            padding: 8px 12px; 
-            border-radius: 12px;
-        }
+        .stats-row { font-size: 11px; color: #475569; margin-top: 8px; display: flex; gap: 16px; flex-wrap: wrap; background: #f1f5f9; padding: 8px 12px; border-radius: 12px; }
         .radius-stats-row { background: #e0f2fe; margin-top: 8px; display: none; }
         .load-low-dark { background: #1e3a8a; color: white; padding: 2px 8px; border-radius: 20px; }
         .load-medium-light { background: #7dd3fc; color: #0c4a6e; padding: 2px 8px; border-radius: 20px; }
@@ -663,45 +113,21 @@
         .load-over-green { background: #22c55e; color: #14532d; padding: 2px 8px; border-radius: 20px; }
         .load-critical-red { background: #ef4444; color: white; padding: 2px 8px; border-radius: 20px; }
         .objects-list { flex: 1; padding: 8px; overflow-y: auto; }
-        .object-card {
-            background: white;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 8px;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+        .object-card { background: white; border-radius: 10px; padding: 10px; margin-bottom: 8px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
         .object-card:hover { border-color: #3b82f6; }
         .object-card.active { border-left: 4px solid #3b82f6; background: #eff6ff; }
         .object-card.in-radius { opacity: 1; }
         .object-card.out-radius { opacity: 0.45; background: #f1f5f9; }
         .object-name { font-weight: 600; font-size: 13px; }
         .object-address { font-size: 11px; color: #64748b; }
-        .object-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 16px;
-            font-size: 10px;
-            font-weight: 600;
-            margin-right: 6px;
-        }
+        .object-badge { display: inline-block; padding: 2px 8px; border-radius: 16px; font-size: 10px; font-weight: 600; margin-right: 6px; }
         .badge-school { background: #dbeafe; color: #1e40af; }
         .badge-kindergarten { background: #dcfce7; color: #166534; }
         .map-container { flex: 1; position: relative; }
         #map { width: 100%; height: 100%; }
         .loading { padding: 20px; text-align: center; color: #64748b; font-size: 12px; }
         .ballon-content { font-size: 13px; }
-        .ballon-route-btn {
-            margin-top: 10px;
-            padding: 6px 12px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-        }
+        .ballon-route-btn { margin-top: 10px; padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
@@ -710,7 +136,6 @@
         <h1>🏗️ РНГП 713/30</h1>
         <p>Расчёт нормативной потребности в школах и детских садах</p>
     </div>
-
     <div class="content">
         <div class="card">
             <div class="card-title">📐 Способ расчёта</div>
@@ -727,134 +152,107 @@
                 <div class="hint" id="hintText"></div>
             </div>
         </div>
-
         <div class="normative-card">
             <div class="normative-title">📋 Нормативная потребность по РНГП 713/30</div>
             <table class="normative-table">
-                <tr><td>🏫 Школы (108 места / 1000 жителей)</td><td id="schoolRequired">0</td> </tr>
-                <tr><td>🏠 Детские сады (52 места / 1000 жителей)</td><td id="kindergartenRequired">0</td> </tr>
-             </table>
+                <tr><th>Школы (108 места / 1000 жителей)</th><td id="schoolRequired">0</td></tr>
+                <tr><th>Детские сады (52 места / 1000 жителей)</th><td id="kindergartenRequired">0</td></tr>
+            </table>
             <div class="normative-note">* Расчёт выполнен по нормативам РНГП 713/30</div>
         </div>
-
         <div class="card">
             <div class="card-title">🏙️ Городской округ</div>
             <div class="input-group">
-                <select id="districtSelect">
-                    <option value="">-- Выберите округ --</option>
-                </select>
+                <select id="districtSelect"><option value="">-- Выберите округ --</option></select>
             </div>
             <button id="openMapBtn" class="btn btn-secondary" style="margin-top: 16px;">🗺️ Перейти к карте</button>
         </div>
-
         <div class="card">
             <div class="card-title">🏫 Школы и детские сады</div>
             <div class="card-subnote">Указываются объекты по доступности в соответствии с РНГП 713/30</div>
             <div class="split-row">
                 <div class="split-col">
                     <h4>🏫 Школы</h4>
-                    <div class="input-group">
-                        <label>Мощность (план), чел</label>
-                        <input type="number" id="schoolPlan" placeholder="План" step="1">
-                    </div>
-                    <div class="input-group">
-                        <label>Факт (чел)</label>
-                        <input type="number" id="schoolActual" placeholder="Факт" step="1">
-                    </div>
+                    <div class="input-group"><label>Мощность (план), чел</label><input type="number" id="schoolPlan" placeholder="План" step="1"></div>
+                    <div class="input-group"><label>Факт (чел)</label><input type="number" id="schoolActual" placeholder="Факт" step="1"></div>
                     <div class="toggle-block">
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="secondShiftToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
+                        <label class="toggle-switch"><input type="checkbox" id="secondShiftToggle"><span class="toggle-slider"></span></label>
                         <span class="toggle-label">🕐 Вторая смена</span>
                         <input type="number" id="secondShiftNumber" class="number-field" placeholder="Кол-во чел" step="1" value="0" style="display:none;">
                     </div>
                 </div>
                 <div class="split-col">
                     <h4>🏠 Детские сады</h4>
-                    <div class="input-group">
-                        <label>Мощность (план), чел</label>
-                        <input type="number" id="kindergartenPlan" placeholder="План" step="1">
-                    </div>
-                    <div class="input-group">
-                        <label>Факт (чел)</label>
-                        <input type="number" id="kindergartenActual" placeholder="Факт" step="1">
-                    </div>
+                    <div class="input-group"><label>Мощность (план), чел</label><input type="number" id="kindergartenPlan" placeholder="План" step="1"></div>
+                    <div class="input-group"><label>Факт (чел)</label><input type="number" id="kindergartenActual" placeholder="Факт" step="1"></div>
                     <div class="toggle-block">
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="queueToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
+                        <label class="toggle-switch"><input type="checkbox" id="queueToggle"><span class="toggle-slider"></span></label>
                         <span class="toggle-label">👶 Очередность 3–7 лет</span>
                         <input type="number" id="queueNumber" class="number-field" placeholder="Детей в очереди" step="1" value="0" style="display:none;">
                     </div>
                 </div>
             </div>
         </div>
-
         <div id="overloadSection" class="overload-card hidden">
             <div class="overload-title">📊 Расчёт с учётом профицита мест</div>
             <table class="overload-table">
-                <tr style="background: #fef3c7;"><td colspan="3"><strong>🏫 Школы</strong></td></tr>
+                <tr style="background:#fef3c7;"><td colspan="3"><strong>🏫 Школы</strong></td></tr>
                 <tr><td>Профицит мест (можно принять дополнительно)</td><td id="schoolCanTake">0</td><td>детей</td></tr>
-                <tr style="background: #e8f5e9;"><td><strong>📉 Дем-фактор (0,85 от потребности)</strong></td><td id="demFactorSchool">0</td><td>мест</td></tr>
-                <tr style="border-bottom: 2px solid #fde047;"><td><strong>Остаток потребности (школы) с учётом дем-фактора и К_загрузки</strong></td><td id="schoolRemainAfterOverload">0</td><td>мест</td></tr>
-                <tr style="background: #fef3c7;"><td colspan="3"><strong>🏠 Детские сады</strong></td></tr>
+                <tr style="background:#e8f5e9;"><td><strong>📉 Дем-фактор (0,85 от потребности)</strong></td><td id="demFactorSchool">0</td><td>мест</td></tr>
+                <tr style="border-bottom:2px solid #fde047;"><td><strong>Остаток потребности (школы) с учётом дем-фактора и К_загрузки</strong></td><td id="schoolRemainAfterOverload">0</td><td>мест</td></tr>
+                <tr style="background:#fef3c7;"><td colspan="3"><strong>🏠 Детские сады</strong></td></tr>
                 <tr><td>Профицит мест (можно принять дополнительно)</td><td id="kindergartenCanTake">0</td><td>детей</td></tr>
-                <tr style="background: #e8f5e9;"><td><strong>📉 Дем-фактор (0,85 от потребности)</strong></td><td id="demFactorKindergarten">0</td><td>мест</td></tr>
+                <tr style="background:#e8f5e9;"><td><strong>📉 Дем-фактор (0,85 от потребности)</strong></td><td id="demFactorKindergarten">0</td><td>мест</td></tr>
                 <tr><td><strong>Остаток потребности (сады) с учётом дем-фактора и К_загрузки</strong></td><td id="kindergartenRemainAfterOverload">0</td><td>мест</td></tr>
             </table>
         </div>
-
         <div id="duplicateSection" class="normative-card hidden">
             <div class="normative-title">📋 Скорректированная потребность</div>
             <table class="normative-table">
-                <tr><td>🏫 Школы (с учётом размещения детей в существующие объекты)</td><td id="schoolFinal">0</td></tr>
-                <tr><td>🏠 Детские сады (с учётом размещения детей в существующие объекты)</td><td id="kindergartenFinal">0</td></tr>
+                <tr><th>Школы (с учётом размещения детей в существующие объекты)</th><td id="schoolFinal">0</td></tr>
+                <tr><th>Детские сады (с учётом размещения детей в существующие объекты)</th><td id="kindergartenFinal">0</td></tr>
             </table>
         </div>
-
         <button id="generateSolutionsBtn" class="btn btn-primary">📋 Сформировать решения</button>
-
-        <div id="solutionsContainer" class="solutions-container" style="display: none;">
+        <div id="solutionsContainer" class="solutions-container" style="display:none;">
             <div class="solution-block"><div class="solution-title">🏫 Решение по школам</div><div class="solution-text" id="schoolSolutionText">Введите данные для расчёта</div></div>
             <div class="solution-block"><div class="solution-title">🏠 Решение по детским садам</div><div class="solution-text" id="kindergartenSolutionText">Введите данные для расчёта</div></div>
         </div>
-
         <div class="ai-card">
             <button id="aiOpinionBtn" class="ai-button">🧠 Мнение ИИ</button>
             <div id="aiResponse" class="ai-response"><div id="aiText"></div><div class="vpn-note">⚠️ Мнение ИИ доступно только при включенном VPN</div></div>
         </div>
-
         <div id="proposalSection" class="proposal-card hidden">
             <div class="proposal-title">📋 Предложения по реализации</div>
             <table class="proposal-table" id="proposalTable">
                 <thead><tr><th>Мощность</th><th>S земельного участка</th><th>Набор помещений</th><th>Набор площадок</th></tr></thead>
-                <tbody id="proposalTableBody"><tr><td colspan="4" style="text-align: center;">Нет данных для отображения</td></tr></tbody>
+                <tbody id="proposalTableBody"><tr><td colspan="4" style="text-align:center;">Нет данных для отображения</td></tr></tbody>
             </table>
         </div>
     </div>
 </div>
-
 <div id="mapModal" class="map-modal">
+    <button id="closeMapBtn" class="close-map-btn-outside">✕ Закрыть карту</button>
     <div class="map-wrapper">
-        <button id="closeMapBtn" class="close-map-btn">✕ Закрыть карту</button>
         <div class="map-app">
             <div class="top-panel">
                 <div class="filter-group"><label>🏛️</label><select id="mapDistrictSelect" class="map-district-select"><option value="">Округ</option></select></div>
-                <div class="filter-group" style="position: relative;"><label>🔍</label><input type="text" id="searchInput" class="search-input" placeholder="Поиск адреса..."><div id="suggestContainer" class="suggest-dropdown" style="display: none;"></div></div>
+                <div class="filter-group" style="position:relative;"><label>🔍</label><input type="text" id="searchInput" class="search-input" placeholder="Поиск адреса..."><div id="suggestContainer" class="suggest-dropdown" style="display:none;"></div></div>
                 <div class="radius-control"><label>🚗 Зона доступности</label><input type="number" id="radiusInput" class="radius-input" value="5000" step="100" min="100" max="20000"><span>м</span><span class="radius-hint"> по прямой</span></div>
-                <div class="mode-toggle"><button class="mode-btn active" data-mode="pedestrian">🚶</button><button class="mode-btn" data-mode="auto">🚗</button></div>
+                <div class="mode-toggle material-toggle">
+                    <button class="material-btn mode-btn active" data-mode="pedestrian" id="materialPedestrianBtn">🚶 Пешком</button>
+                    <button class="material-btn mode-btn" data-mode="auto" id="materialAutoBtn">🚗 Машина</button>
+                </div>
                 <button class="reset-btn" id="resetMapBtn">🔄 Сброс</button>
             </div>
             <div class="main-content">
                 <div class="sidebar-left" id="sidebarLeft">
-                    <div class="section-header"><h3>🏫 Школы</h3><div class="stats-row" id="schoolTotalStats"></div><div class="stats-row radius-stats-row" id="schoolRadiusStats" style="display: none;"></div></div>
+                    <div class="section-header"><h3>🏫 Школы</h3><div class="stats-row" id="schoolTotalStats"></div><div class="stats-row radius-stats-row" id="schoolRadiusStats" style="display:none;"></div></div>
                     <div id="schoolsList" class="objects-list"><div class="loading">Выберите округ</div></div>
                 </div>
                 <div class="map-container"><div id="map"></div></div>
                 <div class="sidebar-right" id="sidebarRight">
-                    <div class="section-header"><h3>🏠 Детские сады</h3><div class="stats-row" id="kindergartenTotalStats"></div><div class="stats-row radius-stats-row" id="kindergartenRadiusStats" style="display: none;"></div></div>
+                    <div class="section-header"><h3>🏠 Детские сады</h3><div class="stats-row" id="kindergartenTotalStats"></div><div class="stats-row radius-stats-row" id="kindergartenRadiusStats" style="display:none;"></div></div>
                     <div id="kindergartensList" class="objects-list"><div class="loading">Выберите округ</div></div>
                 </div>
             </div>
@@ -862,1490 +260,88 @@
         <button id="captureDataBtn" class="capture-data-btn">📥 Записать данные в калькулятор</button>
     </div>
 </div>
-
 <script src="https://api-maps.yandex.ru/2.1/?apikey=9e0575ab-d520-4bcf-bb0e-4ee68968f45d&lang=ru_RU"></script>
 <script>
-    const DISTRICTS_LIST = [
-        "Балашиха", "Богородский", "Бронницы", "Волоколамский", "Воскресенск",
-        "Дмитровский", "Долгопрудный", "Домодедово", "Дубна", "Егорьевск",
-        "Жуковский", "Зарайск", "Истра", "Кашира", "Клин", "Коломна", "Королёв",
-        "Котельники", "Красногорск", "Ленинский", "Лобня", "Лосино-Петровский",
-        "Лотошино", "Луховицы", "Лыткарино", "Люберцы", "Можайский", "Мытищи",
-        "Наро-Фоминский", "Одинцовский", "Орехово-Зуевский", "Павлово-Посадский",
-        "Подольск", "Пушкинский", "Раменский", "Реутов", "Рузский",
-        "Сергиево-Посадский", "Серебряные Пруды", "Серпухов", "Солнечногорск",
-        "Ступино", "Талдомский", "Фрязино", "Химки", "Черноголовка", "Чехов",
-        "Шатура", "Шаховская", "Щёлково", "Электросталь"
-    ];
-    
-    const SCHOOL_RATE = 0.108;
-    const KINDER_RATE = 0.052;
-    const DEM_FACTOR = 0.85;
+    const DISTRICTS_LIST = ["Балашиха","Богородский","Бронницы","Волоколамский","Воскресенск","Дмитровский","Долгопрудный","Домодедово","Дубна","Егорьевск","Жуковский","Зарайск","Истра","Кашира","Клин","Коломна","Королёв","Котельники","Красногорск","Ленинский","Лобня","Лосино-Петровский","Лотошино","Луховицы","Лыткарино","Люберцы","Можайский","Мытищи","Наро-Фоминский","Одинцовский","Орехово-Зуевский","Павлово-Посадский","Подольск","Пушкинский","Раменский","Реутов","Рузский","Сергиево-Посадский","Серебряные Пруды","Серпухов","Солнечногорск","Ступино","Талдомский","Фрязино","Химки","Черноголовка","Чехов","Шатура","Шаховская","Щёлково","Электросталь"];
+    const SCHOOL_RATE = 0.108, KINDER_RATE = 0.052, DEM_FACTOR = 0.85;
     const PROXY_URL = 'https://gemini-proxy.monaxovnikolai-31d.workers.dev';
-    const TYPICAL_SCHOOL_CAPACITIES = [275, 550, 825, 1100, 1375, 1650, 1925, 2200, 2475, 2750, 3025];
-    const TYPICAL_KINDER_CAPACITIES = [100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400];
+    const TYPICAL_SCHOOL_CAPACITIES = [275,550,825,1100,1375,1650,1925,2200,2475,2750,3025];
+    const TYPICAL_KINDER_CAPACITIES = [100,125,150,175,200,225,250,275,300,325,350,375,400];
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZxvRRBwuNk8YOD6LIxBlFQOY8Geb3_E3ALIftje-BkKD5Ajm8MT7Xx8aot1ufx2C9oP4Ri1G92L8R/pub?output=csv';
-
-    const calcType = document.getElementById('calcType');
-    const mainValue = document.getElementById('mainValue');
-    const inputLabel = document.getElementById('inputLabel');
-    const hintText = document.getElementById('hintText');
-    const schoolRequiredSpan = document.getElementById('schoolRequired');
-    const kindergartenRequiredSpan = document.getElementById('kindergartenRequired');
-    const districtSelect = document.getElementById('districtSelect');
-    const schoolPlan = document.getElementById('schoolPlan');
-    const schoolActual = document.getElementById('schoolActual');
-    const kindergartenPlan = document.getElementById('kindergartenPlan');
-    const kindergartenActual = document.getElementById('kindergartenActual');
-    const secondShiftToggle = document.getElementById('secondShiftToggle');
-    const secondShiftNumber = document.getElementById('secondShiftNumber');
-    const queueToggle = document.getElementById('queueToggle');
-    const queueNumber = document.getElementById('queueNumber');
-    const overloadSection = document.getElementById('overloadSection');
-    const duplicateSection = document.getElementById('duplicateSection');
-    const proposalSection = document.getElementById('proposalSection');
-    const proposalTableBody = document.getElementById('proposalTableBody');
-    const schoolCanTakeSpan = document.getElementById('schoolCanTake');
-    const kindergartenCanTakeSpan = document.getElementById('kindergartenCanTake');
-    const schoolRemainAfterOverloadSpan = document.getElementById('schoolRemainAfterOverload');
-    const kindergartenRemainAfterOverloadSpan = document.getElementById('kindergartenRemainAfterOverload');
-    const schoolFinalSpan = document.getElementById('schoolFinal');
-    const kindergartenFinalSpan = document.getElementById('kindergartenFinal');
-    const generateSolutionsBtn = document.getElementById('generateSolutionsBtn');
-    const solutionsContainer = document.getElementById('solutionsContainer');
-    const schoolSolutionText = document.getElementById('schoolSolutionText');
-    const kindergartenSolutionText = document.getElementById('kindergartenSolutionText');
-    const aiOpinionBtn = document.getElementById('aiOpinionBtn');
-    const aiResponse = document.getElementById('aiResponse');
-    const aiText = document.getElementById('aiText');
-
-    DISTRICTS_LIST.forEach(district => {
-        const option = document.createElement('option');
-        option.value = district;
-        option.textContent = district;
-        districtSelect.appendChild(option);
-    });
-
-    function getPopulation() {
-        let val = parseFloat(mainValue.value) || 0;
-        return calcType.value === 'area' ? Math.floor(val / 28) : Math.floor(val);
-    }
-
-    function updateHint() {
-        let val = parseFloat(mainValue.value) || 0;
-        if (calcType.value === 'area') {
-            hintText.innerText = `👥 Соответствует населению: ${Math.floor(val / 28)} чел.`;
-            inputLabel.innerText = 'Площадь жилья (м²)';
-        } else {
-            hintText.innerText = `🏘️ Соответствует площади жилья: ${Math.floor(val * 28)} м²`;
-            inputLabel.innerText = 'Численность населения (чел)';
-        }
-        recalc();
-    }
-
-    function recalc() {
-        const population = getPopulation();
-        const schoolNeed = Math.round(population * SCHOOL_RATE);
-        const kinderNeed = Math.round(population * KINDER_RATE);
-        schoolRequiredSpan.innerText = schoolNeed.toLocaleString();
-        kindergartenRequiredSpan.innerText = kinderNeed.toLocaleString();
-        calculateOverload();
-    }
-
-    function calculateOverload() {
-        const planSchool = parseFloat(schoolPlan.value) || 0;
-        const actualSchool = parseFloat(schoolActual.value) || 0;
-        const planKindergarten = parseFloat(kindergartenPlan.value) || 0;
-        const actualKindergarten = parseFloat(kindergartenActual.value) || 0;
-        
-        let schoolCanTake = Math.max(0, planSchool - actualSchool);
-        let kindergartenCanTake = Math.max(0, planKindergarten - actualKindergarten);
-        
-        schoolCanTakeSpan.innerText = schoolCanTake.toLocaleString();
-        kindergartenCanTakeSpan.innerText = kindergartenCanTake.toLocaleString();
-        
-        const population = getPopulation();
-        const schoolNeedRaw = Math.round(population * SCHOOL_RATE);
-        const kinderNeedRaw = Math.round(population * KINDER_RATE);
-        
-        let kLoadSchool = (schoolNeedRaw - schoolCanTake) / schoolNeedRaw;
-        if (kLoadSchool < 0) kLoadSchool = 0;
-        let kLoadKindergarten = (kinderNeedRaw - kindergartenCanTake) / kinderNeedRaw;
-        if (kLoadKindergarten < 0) kLoadKindergarten = 0;
-        
-        const schoolRemain = Math.round(schoolNeedRaw * DEM_FACTOR * kLoadSchool);
-        const kindergartenRemain = Math.round(kinderNeedRaw * DEM_FACTOR * kLoadKindergarten);
-        
-        const demFactorSchool = Math.round(schoolNeedRaw * DEM_FACTOR);
-        const demFactorKindergarten = Math.round(kinderNeedRaw * DEM_FACTOR);
-        
-        document.getElementById('demFactorSchool').innerText = demFactorSchool.toLocaleString();
-        document.getElementById('demFactorKindergarten').innerText = demFactorKindergarten.toLocaleString();
-        schoolRemainAfterOverloadSpan.innerText = schoolRemain.toLocaleString();
-        kindergartenRemainAfterOverloadSpan.innerText = kindergartenRemain.toLocaleString();
-        schoolFinalSpan.innerText = schoolRemain.toLocaleString();
-        kindergartenFinalSpan.innerText = kindergartenRemain.toLocaleString();
-        
-        if (planSchool > 0 || planKindergarten > 0 || schoolNeedRaw > 0 || kinderNeedRaw > 0) {
-            overloadSection.classList.remove('hidden');
-            duplicateSection.classList.remove('hidden');
-        }
-    }
-
+    const calcType = document.getElementById('calcType'), mainValue = document.getElementById('mainValue'), inputLabel = document.getElementById('inputLabel'), hintText = document.getElementById('hintText');
+    const schoolRequiredSpan = document.getElementById('schoolRequired'), kindergartenRequiredSpan = document.getElementById('kindergartenRequired'), districtSelect = document.getElementById('districtSelect');
+    const schoolPlan = document.getElementById('schoolPlan'), schoolActual = document.getElementById('schoolActual'), kindergartenPlan = document.getElementById('kindergartenPlan'), kindergartenActual = document.getElementById('kindergartenActual');
+    const secondShiftToggle = document.getElementById('secondShiftToggle'), secondShiftNumber = document.getElementById('secondShiftNumber'), queueToggle = document.getElementById('queueToggle'), queueNumber = document.getElementById('queueNumber');
+    const overloadSection = document.getElementById('overloadSection'), duplicateSection = document.getElementById('duplicateSection'), proposalSection = document.getElementById('proposalSection'), proposalTableBody = document.getElementById('proposalTableBody');
+    const schoolCanTakeSpan = document.getElementById('schoolCanTake'), kindergartenCanTakeSpan = document.getElementById('kindergartenCanTake');
+    const schoolRemainAfterOverloadSpan = document.getElementById('schoolRemainAfterOverload'), kindergartenRemainAfterOverloadSpan = document.getElementById('kindergartenRemainAfterOverload');
+    const schoolFinalSpan = document.getElementById('schoolFinal'), kindergartenFinalSpan = document.getElementById('kindergartenFinal');
+    const generateSolutionsBtn = document.getElementById('generateSolutionsBtn'), solutionsContainer = document.getElementById('solutionsContainer'), schoolSolutionText = document.getElementById('schoolSolutionText'), kindergartenSolutionText = document.getElementById('kindergartenSolutionText');
+    const aiOpinionBtn = document.getElementById('aiOpinionBtn'), aiResponse = document.getElementById('aiResponse'), aiText = document.getElementById('aiText');
+    DISTRICTS_LIST.forEach(d => { let o = document.createElement('option'); o.value = d; o.textContent = d; districtSelect.appendChild(o); });
+    function getPopulation() { let v = parseFloat(mainValue.value) || 0; return calcType.value === 'area' ? Math.floor(v / 28) : Math.floor(v); }
+    function updateHint() { let v = parseFloat(mainValue.value) || 0; if (calcType.value === 'area') { hintText.innerText = `👥 Соответствует населению: ${Math.floor(v/28)} чел.`; inputLabel.innerText = 'Площадь жилья (м²)'; } else { hintText.innerText = `🏘️ Соответствует площади жилья: ${Math.floor(v*28)} м²`; inputLabel.innerText = 'Численность населения (чел)'; } recalc(); }
+    function recalc() { const p = getPopulation(); schoolRequiredSpan.innerText = Math.round(p * SCHOOL_RATE).toLocaleString(); kindergartenRequiredSpan.innerText = Math.round(p * KINDER_RATE).toLocaleString(); calculateOverload(); }
+    function calculateOverload() { let ps = parseFloat(schoolPlan.value)||0, as = parseFloat(schoolActual.value)||0, pk = parseFloat(kindergartenPlan.value)||0, ak = parseFloat(kindergartenActual.value)||0; let sTake = Math.max(0, ps-as), kTake = Math.max(0, pk-ak); schoolCanTakeSpan.innerText = sTake.toLocaleString(); kindergartenCanTakeSpan.innerText = kTake.toLocaleString(); let pop = getPopulation(), sRaw = Math.round(pop * SCHOOL_RATE), kRaw = Math.round(pop * KINDER_RATE); let kLoadS = Math.max(0, (sRaw - sTake) / sRaw), kLoadK = Math.max(0, (kRaw - kTake) / kRaw); let sRem = Math.round(sRaw * DEM_FACTOR * kLoadS), kRem = Math.round(kRaw * DEM_FACTOR * kLoadK); document.getElementById('demFactorSchool').innerText = Math.round(sRaw * DEM_FACTOR).toLocaleString(); document.getElementById('demFactorKindergarten').innerText = Math.round(kRaw * DEM_FACTOR).toLocaleString(); schoolRemainAfterOverloadSpan.innerText = sRem.toLocaleString(); kindergartenRemainAfterOverloadSpan.innerText = kRem.toLocaleString(); schoolFinalSpan.innerText = sRem.toLocaleString(); kindergartenFinalSpan.innerText = kRem.toLocaleString(); if (ps>0 || pk>0 || sRaw>0 || kRaw>0) { overloadSection.classList.remove('hidden'); duplicateSection.classList.remove('hidden'); } }
     function toggleSecondShiftField() { secondShiftNumber.style.display = secondShiftToggle.checked ? "inline-block" : "none"; }
     function toggleQueueField() { queueNumber.style.display = queueToggle.checked ? "inline-block" : "none"; }
-
-    function getSchoolZUArea(capacity) {
-        let norm;
-        if (capacity <= 175) norm = 80;
-        else if (capacity <= 350) norm = 55;
-        else if (capacity <= 500) norm = 45;
-        else if (capacity <= 700) norm = 40;
-        else if (capacity <= 1000) norm = 31;
-        else if (capacity <= 1500) norm = 24;
-        else norm = 22;
-        return (capacity * norm) / 10000;
-    }
-    
-    function getKindergartenZUArea(capacity) {
-        let norm;
-        if (capacity <= 100) norm = 44;
-        else if (capacity <= 500) norm = 38;
-        else norm = 30;
-        return (capacity * norm) / 10000;
-    }
-    
-    // ========== ФУНКЦИИ ДЛЯ ПОЛНОГО РАСЧЁТА ПОМЕЩЕНИЙ ==========
-    function getClassesFromChildren(children) {
-        return Math.ceil(children / 25);
-    }
-    
-    function getSchoolRooms(capacity, children1_4, children5_11) {
-        const classes1_4 = getClassesFromChildren(children1_4);
-        const classes5_11 = getClassesFromChildren(children5_11);
-        
-        let оснКабинетыНач = classes1_4;
-        let площадьОснКабНач = 64.5;
-        let кабинетМузыкиНач = 1;
-        let площадьМузыкиНач = 64.5;
-        let спортзалНач = 1;
-        let площадьСпортзалаНач = 24 * 12;
-        
-        let кабФизики = capacity < 725 ? 1 : (capacity < 1275 ? 2 : (capacity < 1825 ? 3 : (capacity < 2375 ? 4 : (capacity < 2925 ? 5 : 6))));
-        let кабБиологии = кабФизики;
-        let кабХимии = кабФизики;
-        let кабИноЯз = capacity < 450 ? 2 : (capacity < 725 ? 4 : (capacity < 1550 ? 4 : (capacity < 2100 ? 8 : (capacity < 2750 ? 12 : 14))));
-        let кабИнформатики = capacity < 725 ? 2 : (capacity < 1275 ? 2 : (capacity < 1825 ? 4 : (capacity < 2375 ? 6 : (capacity < 2925 ? 8 : 10))));
-        let мастерские = capacity < 2350 ? 1 : 2;
-        let кабинетМузыкиОсн = capacity >= 700 ? 1 : 0;
-        
-        let площадьСпецКаб = 64.5;
-        let площадьИнформатики = 13 * 4.5;
-        let площадьМастерской = 13 * 9;
-        let площадьКулинарии = 13 * 6;
-        let площадьТкани = 13 * 6;
-        
-        let оснКабинетыОсн = Math.max(0, classes5_11 - (кабФизики + кабБиологии + кабХимии + кабИноЯз + кабИнформатики + мастерские*3 + кабинетМузыкиОсн));
-        let площадьОснКабОсн = 64.5;
-        
-        let лаборантские = Math.round(кабФизики/2) + Math.round(кабБиологии/2) + кабХимии;
-        let площадьЛаборантской = 18;
-        let инструментальная = мастерские;
-        let площадьИнструментальной = 15;
-        
-        let спортзал1 = capacity < 350 ? "24x12" : "30x18";
-        let площадьСпортзала1 = спортзал1 === "24x12" ? 288 : 540;
-        let спортзал2 = capacity < 1275 ? 0 : (capacity < 1550 ? "24x12" : (capacity < 2100 ? "24x12" : "30x18"));
-        let площадьСпортзала2 = спортзал2 === "24x12" ? 288 : (спортзал2 === "30x18" ? 540 : 0);
-        
-        let обеденныйЗал = Math.ceil(capacity / 2);
-        let площадьОбеденногоЗала = обеденныйЗал * 0.7;
-        let актовыйЗал = Math.ceil((children1_4 + children5_11) / 2);
-        let площадьАктовогоЗала = актовыйЗал * 0.65 + 70 + 20 + 10 + 10;
-        
-        let библиотекаМест = Math.ceil(capacity * 0.1);
-        let itЗонаМест = Math.ceil(библиотекаМест * 0.3);
-        let площадьБиблиотеки = capacity < 725 ? 
-            (библиотекаМест * 0.7 * 2.4 + 64.5 + (библиотекаМест * 0.3 * 4.5)) : 
-            ((библиотекаМест - 50) * 2.4 + 64.5 + (25 * 4.5) + (25 * 3.5));
-        
-        let медблок = 95;
-        
-        let общаяПлощадь = 
-            (оснКабинетыНач * площадьОснКабНач) +
-            (кабинетМузыкиНач * площадьМузыкиНач) +
-            площадьСпортзалаНач +
-            (оснКабинетыОсн * площадьОснКабОсн) +
-            (кабФизики + кабБиологии + кабХимии + кабИноЯз) * площадьСпецКаб +
-            кабИнформатики * площадьИнформатики +
-            мастерские * площадьМастерской +
-            мастерские * площадьКулинарии +
-            мастерские * площадьТкани +
-            (кабинетМузыкиОсн * площадьМузыкиНач) +
-            лаборантские * площадьЛаборантской +
-            инструментальная * площадьИнструментальной +
-            площадьСпортзала1 + площадьСпортзала2 +
-            площадьОбеденногоЗала + площадьАктовогоЗала + площадьБиблиотеки + медблок;
-        
-        return {
-            total: общаяПлощадь,
-            details: {
-                оснКабинетыНач, кабинетМузыкиНач, спортзалНач,
-                оснКабинетыОсн,
-                кабФизики, кабБиологии, кабХимии, кабИноЯз, кабИнформатики,
-                мастерские, кабинетМузыкиОсн,
-                лаборантские, инструментальная,
-                спортзал1, спортзал2,
-                обеденныйЗал, актовыйЗал, библиотекаМест, itЗонаМест, медблок
-            }
-        };
-    }
-    
-    function renderSchoolRoomsHTML(capacity, children1_4, children5_11) {
-        const rooms = getSchoolRooms(capacity, children1_4, children5_11);
-        const d = rooms.details;
-        let html = `<h2>🏫 Школа на ${capacity} мест</h2>`;
-        html += `<h3>📚 Начальная школа (1–4 классы)</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr>`;
-        html += `<tr><td>Основные кабинеты</td><td>${d.оснКабинетыНач}</td><td>${(d.оснКабинетыНач * 64.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Кабинет музыки</td><td>${d.кабинетМузыкиНач}</td><td>${(d.кабинетМузыкиНач * 64.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Спортивный зал (24×12)</td><td>${d.спортзалНач}</td><td>288.0</td></tr>`;
-        html += `<\/table>`;
-        
-        html += `<h3>📚 Основная и старшая школа (5–11 классы)</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr>`;
-        html += `<tr><td>Основные кабинеты</td><td>${d.оснКабинетыОсн}</td><td>${(d.оснКабинетыОсн * 64.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Кабинет физики</td><td>${d.кабФизики}</td><td>${(d.кабФизики * 64.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Кабинет биологии</td><td>${d.кабБиологии}</td><td>${(d.кабБиологии * 64.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Кабинет химии</td><td>${d.кабХимии}</td><td>${(d.кабХимии * 64.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Кабинет иностранного языка</td><td>${d.кабИноЯз}</td><td>${(d.кабИноЯз * 64.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Кабинет информатики</td><td>${d.кабИнформатики}</td><td>${(d.кабИнформатики * 58.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Мастерские (металл/дерево)</td><td>${d.мастерские}</td><td>${(d.мастерские * 117).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Кабинет кулинарии</td><td>${d.мастерские}</td><td>${(d.мастерские * 78).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Кабинет обработки ткани</td><td>${d.мастерские}</td><td>${(d.мастерские * 78).toFixed(1)}</td></tr>`;
-        if (d.кабинетМузыкиОсн > 0) html += `<tr><td>Кабинет музыки (старшие классы)</td><td>${d.кабинетМузыкиОсн}</td><td>${(d.кабинетМузыкиОсн * 64.5).toFixed(1)}</td></tr>`;
-        html += `<\/table>`;
-        
-        html += `<h3>🏆 Спортивный блок</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr>`;
-        html += `<tr><td>Спортивный зал (основной)</td><td>1</td><td>${d.спортзал1 === "24x12" ? 288 : 540}</td></tr>`;
-        if (d.спортзал2 > 0) html += `<tr><td>Спортивный зал (второй)</td><td>1</td><td>288.0</td></tr>`;
-        html += `<\/table>`;
-        
-        html += `<h3>🔬 Лаборантские и вспомогательные</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr>`;
-        html += `<tr><td>Лаборантские</td><td>${d.лаборантские}</td><td>${(d.лаборантские * 18).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Инструментальная</td><td>${d.инструментальная}</td><td>${(d.инструментальная * 15).toFixed(1)}</td></tr>`;
-        html += `<\/table>`;
-        
-        html += `<h3>🏛️ Общешкольные помещения</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr>`;
-        html += `<tr><td>Обеденный зал</td><td>${d.обеденныйЗал} посадочных мест</td><td>${(d.обеденныйЗал * 0.7).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Актовый зал</td><td>${d.актовыйЗал} посадочных мест</td><td>${(d.актовыйЗал * 0.65 + 70 + 20 + 10 + 10).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Библиотека (10% от мощности)</td><td>${d.библиотекаМест} мест<br>IT-зона не менее ${d.itЗонаМест} мест</td><td>${capacity < 725 ? (d.библиотекаМест*0.7*2.4+64.5+(d.библиотекаМест*0.3*4.5)).toFixed(1) : ((d.библиотекаМест-50)*2.4+64.5+112.5+87.5).toFixed(1)}</td></tr>`;
-        html += `<tr><td>Медицинский блок</td><td>комплекс</td><td>95.0</td></tr>`;
-        html += `<\/table>`;
-        html += `<p><strong>📐 ИТОГОВАЯ ПЛОЩАДЬ ПОМЕЩЕНИЙ: ${rooms.total.toFixed(1)} м²</strong></p>`;
-        return html;
-    }
-    
-    function getKindergartenRooms(childrenUnder3, groupsUnder3, childrenOver3, groupsOver3, totalCapacity) {
-        let игроваяПлощадьUnder = 0, игроваяПлощадьOver = 0;
-        if (childrenUnder3 > 0) {
-            игроваяПлощадьUnder = (childrenUnder3 * 2.5) + (groupsUnder3 * 2);
-        }
-        if (childrenOver3 > 0) {
-            игроваяПлощадьOver = (childrenOver3 * 2.0) + (groupsOver3 * 2);
-        }
-        
-        let спальняПлощадьUnder = 0, спальняПлощадьOver = 0;
-        if (childrenUnder3 > 0) {
-            спальняПлощадьUnder = childrenUnder3 * 1.8;
-        }
-        if (childrenOver3 > 0) {
-            спальняПлощадьOver = childrenOver3 * 2.0;
-        }
-        
-        let музыкальныйЗал = totalCapacity < 121 ? 0 : (totalCapacity < 251 ? 50 : 100);
-        let спортивныйЗал = totalCapacity < 121 ? 0 : (totalCapacity < 250 ? 75 : 100);
-        let спортивноМузыкальный = totalCapacity < 121 ? 75 : 0;
-        
-        let общаяПлощадь = игроваяПлощадьUnder + игроваяПлощадьOver + спальняПлощадьUnder + спальняПлощадьOver + музыкальныйЗал + спортивныйЗал + спортивноМузыкальный;
-        
-        return {
-            total: общаяПлощадь,
-            details: {
-                groupsUnder3, childrenUnder3,
-                groupsOver3, childrenOver3,
-                игроваяПлощадьUnder, игроваяПлощадьOver,
-                спальняПлощадьUnder, спальняПлощадьOver,
-                музыкальныйЗал, спортивныйЗал, спортивноМузыкальный
-            }
-        };
-    }
-    
-    function renderKindergartenRoomsHTML(childrenUnder3, groupsUnder3, childrenOver3, groupsOver3, totalCapacity) {
-        const rooms = getKindergartenRooms(childrenUnder3, groupsUnder3, childrenOver3, groupsOver3, totalCapacity);
-        const d = rooms.details;
-        
-        let html = `<h2>🏫 Детский сад на ${totalCapacity} мест</h2>`;
-        
-        html += `<h3>👶 Групповые помещения (до 3 лет)</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Норматив</th><th>Площадь (м²)</th></tr>`;
-        if (childrenUnder3 > 0) {
-            html += `<tr><td>Игровые комнаты</td><td>${groupsUnder3}</td><td>2,5 м²/реб + 2 м² на группу</td><td>${d.игроваяПлощадьUnder.toFixed(1)}</td></tr>`;
-            html += `<tr><td>Спальни</td><td>${groupsUnder3}</td><td>1,8 м²/реб</td><td>${d.спальняПлощадьUnder.toFixed(1)}</td></tr>`;
-        } else {
-            html += `<tr><td colspan="4">Нет детей до 3 лет</td></tr>`;
-        }
-        html += `<\/table>`;
-        
-        html += `<h3>👧 Групповые помещения (от 3 до 7 лет)</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Норматив</th><th>Площадь (м²)</th></tr>`;
-        if (childrenOver3 > 0) {
-            html += `<tr><td>Игровые комнаты</td><td>${groupsOver3}</td><td>2,0 м²/реб + 2 м² на группу</td><td>${d.игроваяПлощадьOver.toFixed(1)}</td></tr>`;
-            html += `<tr><td>Спальни</td><td>${groupsOver3}</td><td>2,0 м²/реб</td><td>${d.спальняПлощадьOver.toFixed(1)}</td></tr>`;
-        } else {
-            html += `<tr><td colspan="4">Нет детей от 3 до 7 лет</td></tr>`;
-        }
-        html += `<\/table>`;
-        
-        html += `<h3>🏃 Спортивно-музыкальные помещения</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Площадь (м²)</th></tr>`;
-        if (d.музыкальныйЗал > 0) html += `<tr><td>Музыкальный зал</td><td>${d.музыкальныйЗал}</td></tr>`;
-        if (d.спортивныйЗал > 0) html += `<tr><td>Спортивный зал</td><td>${d.спортивныйЗал}</td></tr>`;
-        if (d.спортивноМузыкальный > 0) html += `<tr><td>Спортивно-музыкальный зал</td><td>${d.спортивноМузыкальный}</td></tr>`;
-        if (d.музыкальныйЗал === 0 && d.спортивныйЗал === 0 && d.спортивноМузыкальный === 0) {
-            html += `<tr><td colspan="2">Не предусмотрены (мощность менее 120 мест)</td></tr>`;
-        }
-        html += `<\/table>`;
-        html += `<p><strong>📐 ИТОГОВАЯ ПЛОЩАДЬ ПОМЕЩЕНИЙ: ${rooms.total.toFixed(1)} м²</strong></p>`;
-        return html;
-    }
-    
-    // ========== ФУНКЦИИ ДЛЯ ПОЛНОГО РАСЧЁТА ПЛОЩАДОК И ЗУ ==========
-    const sportAreas = [
-        { id: "track_circular", name: "Круговая беговая дорожка", params: "200 м", area: 1468.5 },
-        { id: "track_straight", name: "Прямая беговая дорожка", params: "120 м", area: 825.6 },
-        { id: "basketball", name: "Баскетбольная площадка", params: "32×19 м", area: 608 },
-        { id: "volleyball", name: "Волейбольная площадка", params: "24×15 м", area: 360 },
-        { id: "football", name: "Футбольное поле", params: "60×40 м", area: 2400 },
-        { id: "obstacle", name: "Полоса препятствий", params: "9×50 м", area: 450 },
-        { id: "develop_1_4", name: "Спортивно-развивающая площадка (1-4 кл)", params: "15×15 м", area: 225 },
-        { id: "develop_5_11", name: "Спортивно-развивающая площадка (5-11 кл)", params: "15×15 м", area: 225 },
-        { id: "long_jump", name: "Площадка для прыжков в длину", params: "стандартная", area: 210 },
-        { id: "high_jump", name: "Площадка для прыжков в высоту", params: "стандартная", area: 400 }
-    ];
-    
-    function calculatePlaygrounds(parallel1_4Val, parallel5_9Val) {
-        return {
-            play1: parallel1_4Val * 180,
-            play2_4: 3 * parallel1_4Val * 100,
-            play5_9: 5 * parallel5_9Val * 25
-        };
-    }
-    
-    function getSchoolAreas(capacity, parallel1_4, parallel5_9, footballAvailable) {
-        const playgrounds = calculatePlaygrounds(parallel1_4, parallel5_9);
-        let sportArea = sportAreas.reduce((sum, a) => {
-            if (a.id === 'football' && footballAvailable) return sum;
-            return sum + a.area;
-        }, 0);
-        return {
-            sport: sportArea,
-            play: playgrounds.play1 + playgrounds.play2_4 + playgrounds.play5_9,
-            playgrounds: playgrounds
-        };
-    }
-    
-    function renderSchoolSPOZUHTML(capacity, parallel1_4, parallel5_9, footballAvailable) {
-        const areas = getSchoolAreas(capacity, parallel1_4, parallel5_9, footballAvailable);
-        const zuArea = getSchoolZUArea(capacity);
-        
-        let html = `<h2>🏞️ Схема планировочной организации земельного участка (СПОЗУ)</h2>`;
-        html += `<h3>🏫 Школа на ${capacity} мест</h3>`;
-        html += `<p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea * 10000).toFixed(0)} м²)</strong></p>`;
-        
-        html += `<h3>🏆 Спортивный блок</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr>`;
-        sportAreas.forEach(area => {
-            const isExcluded = area.id === 'football' && footballAvailable;
-            html += `<tr${isExcluded ? ' style="background:#ffebee;"' : ''}><td>${area.name}${isExcluded ? ' (исключена из расчёта)' : ''}</td><td>${area.params}</td><td>${area.area.toFixed(1)}</td></tr>`;
-        });
-        html += `<tr style="background:#e8f5e9;"><td colspan="2"><strong>ИТОГО спортивный блок</strong></td><td><strong>${areas.sport.toFixed(1)}</strong></td></tr>`;
-        html += `<\/table>`;
-        
-        html += `<h3>🌳 Зона отдыха</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr>`;
-        html += `<tr><td>Площадки подвижных игр 1-х классов</td><td>180 м² на 1 класс</td><td>${areas.playgrounds.play1.toFixed(1)}</td></tr>`;
-        html += `<tr><td>Площадки подвижных игр 2-4-х классов</td><td>100 м² на класс</td><td>${areas.playgrounds.play2_4.toFixed(1)}</td></tr>`;
-        html += `<tr><td>Площадки подвижных игр 5-9-х классов</td><td>25 м² на класс</td><td>${areas.playgrounds.play5_9.toFixed(1)}</td></tr>`;
-        html += `<tr style="background:#e8f5e9;"><td colspan="2"><strong>ИТОГО зона отдыха</strong></td><td><strong>${areas.play.toFixed(1)}</strong></td></tr>`;
-        html += `<\/table>`;
-        html += `<p><strong>📊 ОБЩАЯ ПЛОЩАДЬ ПЛОЩАДОК: ${(areas.sport + areas.play).toFixed(1)} м² (${((areas.sport + areas.play)/10000).toFixed(3)} га)</strong></p>`;
-        html += `<p><strong>🏞️ ЗЕМЕЛЬНЫЙ УЧАСТОК (включая здания, подъезды, озеленение): ${zuArea.toFixed(2)} га</strong></p>`;
-        return html;
-    }
-    
-    function getKindergartenAreas(capacity, groupsUnder3, childrenUnder3, groupsOver3, childrenOver3) {
-        const under3Area = childrenUnder3 * 7;
-        const over3Area = childrenOver3 * 9;
-        const playArea = under3Area + over3Area;
-        let sportArea1 = 0, sportArea2 = 0;
-        if (capacity < 150) {
-            sportArea1 = 200;
-        } else {
-            sportArea1 = 200;
-            sportArea2 = 120;
-        }
-        return { playArea: playArea, sportArea1: sportArea1, sportArea2: sportArea2, totalSportArea: sportArea1 + sportArea2 };
-    }
-    
-    function renderKindergartenSPOZUHTML(capacity, groupsUnder3, childrenUnder3, groupsOver3, childrenOver3) {
-        const areas = getKindergartenAreas(capacity, groupsUnder3, childrenUnder3, groupsOver3, childrenOver3);
-        const zuArea = getKindergartenZUArea(capacity);
-        
-        let html = `<h2>🏞️ Схема планировочной организации земельного участка (СПОЗУ)</h2>`;
-        html += `<h3>🏫 Детский сад на ${capacity} мест</h3>`;
-        html += `<p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea * 10000).toFixed(0)} м²)</strong></p>`;
-        
-        html += `<h3>🏞️ Групповые площадки</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Возраст</th><th>Кол-во групп</th><th>Кол-во детей</th><th>Площадь (м²)</th></tr>`;
-        html += `<tr><td>До 3 лет</td><td>${groupsUnder3}</td><td>${childrenUnder3}</td><td>${(childrenUnder3 * 7).toFixed(1)}</td></tr>`;
-        html += `<tr><td>От 3 до 7 лет</td><td>${groupsOver3}</td><td>${childrenOver3}</td><td>${(childrenOver3 * 9).toFixed(1)}</td></tr>`;
-        html += `<tr style="background:#e8f5e9;"><td colspan="3"><strong>ИТОГО групповые площадки</strong></td><td><strong>${areas.playArea.toFixed(1)}</strong></td></tr>`;
-        html += `<\/table>`;
-        
-        html += `<h3>🏃 Физкультурно-спортивные площадки</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
-        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Площадь (м²)</th></tr>`;
-        if (areas.sportArea1 > 0) html += `<tr><td>Физкультурно-спортивная площадка</td><td>${areas.sportArea1.toFixed(1)}</td></tr>`;
-        if (areas.sportArea2 > 0) html += `<tr><td>Физкультурно-спортивная площадка (дополнительная)</td><td>${areas.sportArea2.toFixed(1)}</td></tr>`;
-        html += `<tr style="background:#e8f5e9;"><td><strong>ИТОГО физкультурно-спортивные площадки</strong></td><td><strong>${areas.totalSportArea.toFixed(1)}</strong></td></tr>`;
-        html += `<\/table>`;
-        html += `<p><strong>📊 ОБЩАЯ ПЛОЩАДЬ ПЛОЩАДОК: ${(areas.playArea + areas.totalSportArea).toFixed(1)} м² (${((areas.playArea + areas.totalSportArea)/10000).toFixed(3)} га)</strong></p>`;
-        html += `<p><strong>🏞️ ЗЕМЕЛЬНЫЙ УЧАСТОК (включая здания, подъезды, озеленение): ${zuArea.toFixed(2)} га</strong></p>`;
-        return html;
-    }
-    
-    // ========== ОСНОВНЫЕ ФУНКЦИИ СКАЧИВАНИЯ ==========
-    window.downloadRooms = function(capacity, type) {
-        let htmlContent = '';
-        if (type === 'school') {
-            const children1_4 = Math.round(capacity * 0.35);
-            const children5_11 = capacity - children1_4;
-            htmlContent = renderSchoolRoomsHTML(capacity, children1_4, children5_11);
-        } else {
-            const childrenUnder3 = Math.round(capacity * 0.3);
-            const childrenOver3 = capacity - childrenUnder3;
-            const groupsUnder3 = Math.ceil(childrenUnder3 / 20);
-            const groupsOver3 = Math.ceil(childrenOver3 / 25);
-            htmlContent = renderKindergartenRoomsHTML(childrenUnder3, groupsUnder3, childrenOver3, groupsOver3, capacity);
-        }
-        
-        const fullHtml = `<!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"><title>${type === 'school' ? 'Школа' : 'Детский сад'} на ${capacity} мест - Помещения</title>
-        <style>
-            body{font-family:Arial,sans-serif;padding:40px;max-width:1200px;margin:0 auto;}
-            h1{color:#27ae60;border-bottom:2px solid #27ae60;padding-bottom:10px;}
-            h2{color:#2c3e50;margin-top:25px;}
-            h3{color:#34495e;margin-top:20px;}
-            table{border-collapse:collapse;width:100%;margin:15px 0;}
-            th,td{border:1px solid #ddd;padding:10px;text-align:left;}
-            th{background:#34495e;color:white;}
-            .total{background:#e8f5e9;font-weight:bold;}
-            .footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}
-        </style>
-        </head>
-        <body>
-        <h1>🏛️ Детальный расчёт помещений</h1>
-        ${htmlContent}
-        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30</div>
-        </body>
-        </html>`;
-        
-        const blob = new Blob([fullHtml], { type: 'application/msword' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `помещения_${type === 'school' ? 'школа' : 'сад'}_${capacity}_мест.doc`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-    };
-    
-    window.downloadSPOZU = function(capacity, type) {
-        let htmlContent = '';
-        if (type === 'school') {
-            const parallel1_4 = Math.ceil(Math.round(capacity * 0.35) / 25);
-            const parallel5_9 = Math.ceil(Math.round(capacity * 0.65) / 25);
-            htmlContent = renderSchoolSPOZUHTML(capacity, parallel1_4, parallel5_9, false);
-        } else {
-            const childrenUnder3 = Math.round(capacity * 0.3);
-            const childrenOver3 = capacity - childrenUnder3;
-            const groupsUnder3 = Math.ceil(childrenUnder3 / 20);
-            const groupsOver3 = Math.ceil(childrenOver3 / 25);
-            htmlContent = renderKindergartenSPOZUHTML(capacity, groupsUnder3, childrenUnder3, groupsOver3, childrenOver3);
-        }
-        
-        const fullHtml = `<!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"><title>${type === 'school' ? 'Школа' : 'Детский сад'} на ${capacity} мест - СПОЗУ</title>
-        <style>
-            body{font-family:Arial,sans-serif;padding:40px;max-width:1200px;margin:0 auto;}
-            h1{color:#27ae60;border-bottom:2px solid #27ae60;padding-bottom:10px;}
-            h2{color:#2c3e50;margin-top:25px;}
-            h3{color:#34495e;margin-top:20px;}
-            table{border-collapse:collapse;width:100%;margin:15px 0;}
-            th,td{border:1px solid #ddd;padding:10px;text-align:left;}
-            th{background:#34495e;color:white;}
-            .footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}
-        </style>
-        </head>
-        <body>
-        <h1>🏞️ Схема планировочной организации земельного участка</h1>
-        ${htmlContent}
-        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30</div>
-        </body>
-        </html>`;
-        
-        const blob = new Blob([fullHtml], { type: 'application/msword' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `СПОЗУ_${type === 'school' ? 'школа' : 'сад'}_${capacity}_мест.doc`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-    };
-    
-    function splitLargeObjects(remaining, type) {
-        if (remaining <= 0) return [];
-        const capacities = type === 'school' ? TYPICAL_SCHOOL_CAPACITIES : TYPICAL_KINDER_CAPACITIES;
-        const minCapacity = capacities[0];
-        const maxCapacity = type === 'school' ? 2000 : 400;
-        const validCapacities = capacities.filter(c => c <= maxCapacity).sort((a, b) => b - a);
-        if (remaining < minCapacity) return [minCapacity];
-        if (remaining <= maxCapacity) {
-            for (let cap of capacities) if (cap >= remaining) return [cap];
-            return [minCapacity];
-        }
-        const result = [];
-        let remainingLocal = remaining;
-        for (let cap of validCapacities) {
-            while (remainingLocal >= cap) { result.push(cap); remainingLocal -= cap; }
-        }
-        if (remainingLocal > 0) {
-            if (remainingLocal < minCapacity) {
-                if (result.length > 0) {
-                    const combined = result[result.length-1] + remainingLocal;
-                    let combinedNearest = minCapacity;
-                    for (let cap of capacities) if (cap >= combined) { combinedNearest = cap; break; }
-                    if (combinedNearest <= combined + (type === 'school' ? 100 : 25)) {
-                        result[result.length-1] = combinedNearest;
-                        return result;
-                    }
-                }
-                result.push(minCapacity);
-            } else {
-                for (let cap of capacities) if (cap >= remainingLocal) { result.push(cap); break; }
-            }
-        }
-        return result;
-    }
-    
-    function splitMediumObjects(remaining, type) {
-        if (remaining <= 0) return [];
-        const capacities = type === 'school' ? TYPICAL_SCHOOL_CAPACITIES : TYPICAL_KINDER_CAPACITIES;
-        const minCapacity = capacities[0];
-        const maxCapacity = type === 'school' ? 2000 : 400;
-        const validCapacities = capacities.filter(c => c <= maxCapacity);
-        if (remaining < minCapacity) return [minCapacity];
-        if (remaining <= maxCapacity) {
-            for (let cap of capacities) if (cap >= remaining) return [cap];
-            return [minCapacity];
-        }
-        const targetMedium = type === 'school' ? 1100 : 200;
-        let objectCount = Math.ceil(remaining / targetMedium);
-        let avgPerObject = remaining / objectCount;
-        const result = [];
-        let remainingLocal = remaining;
-        for (let i = 0; i < objectCount - 1; i++) {
-            let bestCap = minCapacity;
-            let minDiff = Infinity;
-            for (let cap of validCapacities) {
-                if (cap <= remainingLocal && Math.abs(cap - avgPerObject) < minDiff) {
-                    minDiff = Math.abs(cap - avgPerObject);
-                    bestCap = cap;
-                }
-            }
-            result.push(bestCap);
-            remainingLocal -= bestCap;
-        }
-        if (remainingLocal < minCapacity) result.push(minCapacity);
-        else if (remainingLocal <= maxCapacity) {
-            for (let cap of capacities) if (cap >= remainingLocal) { result.push(cap); break; }
-        } else result.push(...splitLargeObjects(remainingLocal, type));
-        return result;
-    }
-    
-    function arraysEqual(a, b) {
-        if (a.length !== b.length) return false;
-        for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
-        return true;
-    }
-    
-    function updateProposalTable() {
-        const schoolRemain = parseInt(schoolFinalSpan.innerText.replace(/\D/g, '')) || 0;
-        const kindergartenRemain = parseInt(kindergartenFinalSpan.innerText.replace(/\D/g, '')) || 0;
-        const schoolLarge = splitLargeObjects(schoolRemain, 'school');
-        const schoolMedium = splitMediumObjects(schoolRemain, 'school');
-        const kinderLarge = splitLargeObjects(kindergartenRemain, 'kindergarten');
-        const kinderMedium = splitMediumObjects(kindergartenRemain, 'kindergarten');
-        const schoolsSame = arraysEqual(schoolLarge, schoolMedium);
-        const kindersSame = arraysEqual(kinderLarge, kinderMedium);
-        if (schoolRemain === 0 && kindergartenRemain === 0) { proposalSection.classList.add('hidden'); return; }
-        proposalSection.classList.remove('hidden');
-        let html = '';
-        if (schoolsSame && kindersSame) {
-            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Предложения по реализации<\/strong><\/td><\/tr>`;
-            if (schoolLarge.length > 0) {
-                let schoolTotalZU = 0;
-                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
-                schoolLarge.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
-                });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-            }
-            if (kinderLarge.length > 0) {
-                let kinderTotalZU = 0;
-                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
-                kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
-                });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-            }
-            const totalZU = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-        } else {
-            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 1 (крупные объекты)<\/strong><\/td><\/tr>`;
-            if (schoolLarge.length > 0) {
-                let schoolTotalZU = 0;
-                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
-                schoolLarge.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
-                });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-            }
-            if (kinderLarge.length > 0) {
-                let kinderTotalZU = 0;
-                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
-                kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
-                });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-            }
-            const totalZU1 = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 1: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU1.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-            
-            html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 2 (средние объекты)<\/strong><\/td><\/tr>`;
-            if (schoolMedium.length > 0) {
-                let schoolTotalZU = 0;
-                html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
-                schoolMedium.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
-                });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-            }
-            if (kinderMedium.length > 0) {
-                let kinderTotalZU = 0;
-                html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
-                kinderMedium.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
-                });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-            }
-            const totalZU2 = (schoolMedium.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderMedium.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 2: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU2.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
-        }
-        proposalTableBody.innerHTML = html;
-    }
-    
-    function generateSolutions() {
-        const population = getPopulation();
-        
-        let schoolNeedRaw = Math.round(population * SCHOOL_RATE);
-        let kinderNeedRaw = Math.round(population * KINDER_RATE);
-        
-        const schoolPlanVal = parseFloat(schoolPlan.value) || 0;
-        const schoolActualVal = parseFloat(schoolActual.value) || 0;
-        const kinderPlanVal = parseFloat(kindergartenPlan.value) || 0;
-        const kinderActualVal = parseFloat(kindergartenActual.value) || 0;
-        
-        let schoolSurplus = Math.max(0, schoolPlanVal - schoolActualVal);
-        let kinderSurplus = Math.max(0, kinderPlanVal - kinderActualVal);
-        
-        let kLoadSchool = (schoolNeedRaw - schoolSurplus) / schoolNeedRaw;
-        if (kLoadSchool < 0) kLoadSchool = 0;
-        let kLoadKindergarten = (kinderNeedRaw - kinderSurplus) / kinderNeedRaw;
-        if (kLoadKindergarten < 0) kLoadKindergarten = 0;
-        
-        let schoolRemain = Math.round(schoolNeedRaw * DEM_FACTOR * kLoadSchool);
-        let kinderRemain = Math.round(kinderNeedRaw * DEM_FACTOR * kLoadKindergarten);
-        
-        let schoolReserveArea = Math.max(0, getSchoolZUArea(schoolNeedRaw) - getSchoolZUArea(schoolRemain));
-        let kinderReserveArea = Math.max(0, getKindergartenZUArea(kinderNeedRaw) - getKindergartenZUArea(kinderRemain));
-        
-        let schoolNeedAdjusted = Math.round(schoolNeedRaw * DEM_FACTOR);
-        let kinderNeedAdjusted = Math.round(kinderNeedRaw * DEM_FACTOR);
-        
-        let schoolHtml = `<strong>📊 Исходная потребность по РНГП: ${schoolNeedRaw} мест</strong><br>`;
-        schoolHtml += `<strong>📉 Потребность с учётом дем-фактора (0,85): ${schoolNeedAdjusted} мест</strong><br>`;
-        schoolHtml += `<strong>📊 Коэффициент загрузки К_загрузки: ${kLoadSchool.toFixed(3)}</strong><br>`;
-        schoolHtml += `<strong>✅ Скорректированная потребность (после К_загрузки): ${schoolRemain} мест</strong><br>`;
-        schoolHtml += `<hr style="margin: 8px 0;">`;
-        
-        if (schoolRemain > 0) {
-            schoolHtml += `<br><div class="solution-detail"><strong>🏗️ Строительство школы застройщиком на ${schoolRemain} мест</strong><br>`;
-            schoolHtml += `📊 Финансирование разницы по РНГП: ${schoolSurplus} мест (размещение в существующих объектах)</div>`;
-        } else {
-            schoolHtml += `<br><div class="solution-detail">✅ Вся потребность покрывается существующими объектами (финансирование ${schoolSurplus} мест), строительство не требуется</div>`;
-        }
-        
-        if (schoolReserveArea > 0) {
-            schoolHtml += `<br><div class="solution-detail" style="background: #fef3c7;">`;
-            schoolHtml += `<strong>🏞️ Резерв ЗУ и расселение ветхового жилья:</strong><br>`;
-            schoolHtml += `📐 Резерв формируется как разница: ЗУ(исходная потребность) - ЗУ(скорректированная потребность)<br>`;
-            schoolHtml += `📏 Требуемая площадь резерва: ${schoolReserveArea.toFixed(4)} га (${(schoolReserveArea * 10000).toFixed(0)} м²)<br>`;
-            if (schoolReserveArea < 0.5) {
-                schoolHtml += `⚠️ Менее 0.5 га — требуется учесть землю в строительстве объекта / расселение`;
-            }
-            schoolHtml += `</div>`;
-        } else {
-            schoolHtml += `<br><div class="solution-detail" style="background: #e0f2fe;">✅ Резерв ЗУ и расселение не требуются</div>`;
-        }
-        
-        schoolSolutionText.innerHTML = schoolHtml;
-        
-        let kinderHtml = `<strong>📊 Исходная потребность по РНГП: ${kinderNeedRaw} мест</strong><br>`;
-        kinderHtml += `<strong>📉 Потребность с учётом дем-фактора (0,85): ${kinderNeedAdjusted} мест</strong><br>`;
-        kinderHtml += `<strong>📊 Коэффициент загрузки К_загрузки: ${kLoadKindergarten.toFixed(3)}</strong><br>`;
-        kinderHtml += `<strong>✅ Скорректированная потребность (после К_загрузки): ${kinderRemain} мест</strong><br>`;
-        kinderHtml += `<hr style="margin: 8px 0;">`;
-        
-        if (kinderRemain > 0) {
-            kinderHtml += `<br><div class="solution-detail"><strong>🏗️ Строительство сада застройщиком на ${kinderRemain} мест</strong><br>`;
-            kinderHtml += `📊 Финансирование разницы по РНГП: ${kinderSurplus} мест (размещение в существующих объектах)</div>`;
-        } else {
-            kinderHtml += `<br><div class="solution-detail">✅ Вся потребность покрывается существующими объектами (финансирование ${kinderSurplus} мест), строительство не требуется</div>`;
-        }
-        
-        if (kinderReserveArea > 0) {
-            kinderHtml += `<br><div class="solution-detail" style="background: #fef3c7;">`;
-            kinderHtml += `<strong>🏞️ Резерв ЗУ и расселение ветхового жилья:</strong><br>`;
-            kinderHtml += `📐 Резерв формируется как разница: ЗУ(исходная потребность) - ЗУ(скорректированная потребность)<br>`;
-            kinderHtml += `📏 Требуемая площадь резерва: ${kinderReserveArea.toFixed(4)} га (${(kinderReserveArea * 10000).toFixed(0)} м²)<br>`;
-            if (kinderReserveArea < 0.5) {
-                kinderHtml += `⚠️ Менее 0.5 га — требуется учесть землю в строительстве объекта / расселение`;
-            }
-            kinderHtml += `</div>`;
-        } else {
-            kinderHtml += `<br><div class="solution-detail" style="background: #e0f2fe;">✅ Резерв ЗУ и расселение не требуются</div>`;
-        }
-        
-        kindergartenSolutionText.innerHTML = kinderHtml;
-        solutionsContainer.style.display = 'flex';
-        updateProposalTable();
-    }
-    
+    function getSchoolZUArea(c) { let n; if(c<=175) n=80; else if(c<=350) n=55; else if(c<=500) n=45; else if(c<=700) n=40; else if(c<=1000) n=31; else if(c<=1500) n=24; else n=22; return (c*n)/10000; }
+    function getKindergartenZUArea(c) { let n; if(c<=100) n=44; else if(c<=500) n=38; else n=30; return (c*n)/10000; }
+    function getClassesFromChildren(children) { return Math.ceil(children/25); }
+    function getSchoolRooms(cap, c1_4, c5_11) { let cl1_4 = getClassesFromChildren(c1_4), cl5_11 = getClassesFromChildren(c5_11); let оснКабНач = cl1_4; let кабФизики = cap<725?1:(cap<1275?2:(cap<1825?3:(cap<2375?4:(cap<2925?5:6)))); let кабБиологии = кабФизики, кабХимии = кабФизики; let кабИноЯз = cap<450?2:(cap<725?4:(cap<1550?4:(cap<2100?8:(cap<2750?12:14)))); let кабИнформатики = cap<725?2:(cap<1275?2:(cap<1825?4:(cap<2375?6:(cap<2925?8:10)))); let мастерские = cap<2350?1:2; let кабинетМузыкиОсн = cap>=700?1:0; let оснКабОсн = Math.max(0, cl5_11 - (кабФизики+кабБиологии+кабХимии+кабИноЯз+кабИнформатики+мастерские*3+кабинетМузыкиОсн)); let лаборантские = Math.round(кабФизики/2)+Math.round(кабБиологии/2)+кабХимии; let инструментальная = мастерские; let спортзал1 = cap<350?"24x12":"30x18"; let спортзал2 = cap<1275?0:(cap<1550?"24x12":(cap<2100?"24x12":"30x18")); let обеденныйЗал = Math.ceil(cap/2); let актовыйЗал = Math.ceil((c1_4+c5_11)/2); let библиотекаМест = Math.ceil(cap*0.1); let itЗонаМест = Math.ceil(библиотекаМест*0.3); let общаяПлощадь = (cl1_4*64.5) + 64.5 + 288 + (оснКабОсн*64.5) + (кабФизики+кабБиологии+кабХимии+кабИноЯз)*64.5 + кабИнформатики*58.5 + мастерские*117 + мастерские*78 + мастерские*78 + (кабинетМузыкиОсн*64.5) + лаборантские*18 + инструментальная*15 + (спортзал1==="24x12"?288:540) + (спортзал2==="24x12"?288:(спортзал2==="30x18"?540:0)) + обеденныйЗал*0.7 + (актовыйЗал*0.65+70+20+10+10) + (cap<725?(библиотекаМест*0.7*2.4+64.5+библиотекаМест*0.3*4.5):((библиотекаМест-50)*2.4+64.5+112.5+87.5)) + 95; return { total: общаяПлощадь, details: { оснКабинетыНач:cl1_4, кабинетМузыкиНач:1, спортзалНач:1, оснКабинетыОсн:оснКабОсн, кабФизики, кабБиологии, кабХимии, кабИноЯз, кабИнформатики, мастерские, кабинетМузыкиОсн, лаборантские, инструментальная, спортзал1, спортзал2, обеденныйЗал, актовыйЗал, библиотекаМест, itЗонаМест, медблок:95 } }; }
+    function renderSchoolRoomsHTML(cap, c1_4, c5_11) { let r = getSchoolRooms(cap, c1_4, c5_11), d = r.details; let html = `<h2>🏫 Школа на ${cap} мест</h2><h3>📚 Начальная школа (1–4 классы)</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr><tr><td>Основные кабинеты</td><td>${d.оснКабинетыНач}</td><td>${(d.оснКабинетыНач*64.5).toFixed(1)}</td></tr><tr><td>Кабинет музыки</td><td>${d.кабинетМузыкиНач}</td><td>${(d.кабинетМузыкиНач*64.5).toFixed(1)}</td></tr><tr><td>Спортивный зал (24×12)</td><td>${d.спортзалНач}</td><td>288.0</td></tr></table><h3>📚 Основная и старшая школа (5–11 классы)</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr><tr><td>Основные кабинеты</td><td>${d.оснКабинетыОсн}</td><td>${(d.оснКабинетыОсн*64.5).toFixed(1)}</td></tr><tr><td>Кабинет физики</td><td>${d.кабФизики}</td><td>${(d.кабФизики*64.5).toFixed(1)}</td></tr><tr><td>Кабинет биологии</td><td>${d.кабБиологии}</td><td>${(d.кабБиологии*64.5).toFixed(1)}</td></tr><tr><td>Кабинет химии</td><td>${d.кабХимии}</td><td>${(d.кабХимии*64.5).toFixed(1)}</td></tr><tr><td>Кабинет иностранного языка</td><td>${d.кабИноЯз}</td><td>${(d.кабИноЯз*64.5).toFixed(1)}</td></tr><tr><td>Кабинет информатики</td><td>${d.кабИнформатики}</td><td>${(d.кабИнформатики*58.5).toFixed(1)}</td></tr><tr><td>Мастерские (металл/дерево)</td><td>${d.мастерские}</td><td>${(d.мастерские*117).toFixed(1)}</td></tr><tr><td>Кабинет кулинарии</td><td>${d.мастерские}</td><td>${(d.мастерские*78).toFixed(1)}</td></tr><tr><td>Кабинет обработки ткани</td><td>${d.мастерские}</td><td>${(d.мастерские*78).toFixed(1)}</td></tr>${d.кабинетМузыкиОсн>0?`<tr><td>Кабинет музыки (старшие классы)</td><td>${d.кабинетМузыкиОсн}</td><td>${(d.кабинетМузыкиОсн*64.5).toFixed(1)}</td></tr>`:''}</table><h3>🏆 Спортивный блок</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr><tr><td>Спортивный зал (основной)</td><td>1</td><td>${d.спортзал1==="24x12"?288:540}</td></tr>${d.спортзал2>0?`<tr><td>Спортивный зал (второй)</td><td>1</td><td>288.0</td></tr>`:''}</table><h3>🔬 Лаборантские и вспомогательные</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr><tr><td>Лаборантские</td><td>${d.лаборантские}</td><td>${(d.лаборантские*18).toFixed(1)}</td></tr><tr><td>Инструментальная</td><td>${d.инструментальная}</td><td>${(d.инструментальная*15).toFixed(1)}</td></tr></table><h3>🏛️ Общешкольные помещения</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr><tr><td>Обеденный зал</td><td>${d.обеденныйЗал} посадочных мест</td><td>${(d.обеденныйЗал*0.7).toFixed(1)}</td></tr><tr><td>Актовый зал</td><td>${d.актовыйЗал} посадочных мест</td><td>${(d.актовыйЗал*0.65+70+20+10+10).toFixed(1)}</td></tr><tr><td>Библиотека (10% от мощности)</td><td>${d.библиотекаМест} мест<br>IT-зона не менее ${d.itЗонаМест} мест</td><td>${cap<725?(d.библиотекаМест*0.7*2.4+64.5+d.библиотекаМест*0.3*4.5).toFixed(1):((d.библиотекаМест-50)*2.4+64.5+112.5+87.5).toFixed(1)}</td></tr><tr><td>Медицинский блок</td><td>комплекс</td><td>95.0</td></tr></table><p><strong>📐 ИТОГОВАЯ ПЛОЩАДЬ ПОМЕЩЕНИЙ: ${r.total.toFixed(1)} м²</strong></p>`; return html; }
+    function getKindergartenRooms(cU3, gU3, cO3, gO3, totalCap) { let игрU = cU3>0?(cU3*2.5)+(gU3*2):0, игрO = cO3>0?(cO3*2.0)+(gO3*2):0, спалU = cU3>0?cU3*1.8:0, спалO = cO3>0?cO3*2.0:0, музЗал = totalCap<121?0:(totalCap<251?50:100), спортЗал = totalCap<121?0:(totalCap<250?75:100), спортМуз = totalCap<121?75:0, общ = игрU+игрO+спалU+спалO+музЗал+спортЗал+спортМуз; return { total: общ, details: { groupsUnder3:gU3, childrenUnder3:cU3, groupsOver3:gO3, childrenOver3:cO3, игроваяПлощадьUnder:игрU, игроваяПлощадьOver:игрO, спальняПлощадьUnder:спалU, спальняПлощадьOver:спалO, музыкальныйЗал:музЗал, спортивныйЗал:спортЗал, спортивноМузыкальный:спортМуз } }; }
+    function renderKindergartenRoomsHTML(cU3, gU3, cO3, gO3, totalCap) { let r = getKindergartenRooms(cU3, gU3, cO3, gO3, totalCap), d = r.details; let html = `<h2>🏫 Детский сад на ${totalCap} мест</h2><h3>👶 Групповые помещения (до 3 лет)</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Норматив</th><th>Площадь (м²)</th></tr>`; if(cU3>0) { html += `<tr><td>Игровые комнаты</td><td>${gU3}</td><td>2,5 м²/реб + 2 м² на группу</td><td>${d.игроваяПлощадьUnder.toFixed(1)}</td></tr><tr><td>Спальни</td><td>${gU3}</td><td>1,8 м²/реб</td><td>${d.спальняПлощадьUnder.toFixed(1)}</td></tr>`; } else { html += `<tr><td colspan="4">Нет детей до 3 лет</td></tr>`; } html += `</table><h3>👧 Групповые помещения (от 3 до 7 лет)</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Норматив</th><th>Площадь (м²)</th></tr>`; if(cO3>0) { html += `<tr><td>Игровые комнаты</td><td>${gO3}</td><td>2,0 м²/реб + 2 м² на группу</td><td>${d.игроваяПлощадьOver.toFixed(1)}</td></tr><tr><td>Спальни</td><td>${gO3}</td><td>2,0 м²/реб</td><td>${d.спальняПлощадьOver.toFixed(1)}</td></tr>`; } else { html += `<tr><td colspan="4">Нет детей от 3 до 7 лет</td></tr>`; } html += `</table><h3>🏃 Спортивно-музыкальные помещения</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Площадь (м²)</th></tr>`; if(d.музыкальныйЗал>0) html += `<tr><td>Музыкальный зал</td><td>${d.музыкальныйЗал}</td></tr>`; if(d.спортивныйЗал>0) html += `<tr><td>Спортивный зал</td><td>${d.спортивныйЗал}</td></tr>`; if(d.спортивноМузыкальный>0) html += `<tr><td>Спортивно-музыкальный зал</td><td>${d.спортивноМузыкальный}</td></tr>`; if(d.музыкальныйЗал===0 && d.спортивныйЗал===0 && d.спортивноМузыкальный===0) html += `<tr><td colspan="2">Не предусмотрены (мощность менее 120 мест)</td></tr>`; html += `</table><p><strong>📐 ИТОГОВАЯ ПЛОЩАДЬ ПОМЕЩЕНИЙ: ${r.total.toFixed(1)} м²</strong></p>`; return html; }
+    window.downloadRooms = function(capacity, type) { let htmlContent = ''; if(type==='school') { let c1_4 = Math.round(capacity*0.35), c5_11 = capacity - c1_4; htmlContent = renderSchoolRoomsHTML(capacity, c1_4, c5_11); } else { let cU3 = Math.round(capacity*0.3), cO3 = capacity - cU3, gU3 = Math.ceil(cU3/20), gO3 = Math.ceil(cO3/25); htmlContent = renderKindergartenRoomsHTML(cU3, gU3, cO3, gO3, capacity); } let fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${type==='school'?'Школа':'Детский сад'} на ${capacity} мест - Помещения</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:1200px;margin:0 auto;}h1{color:#27ae60;border-bottom:2px solid #27ae60;padding-bottom:10px;}h2{color:#2c3e50;margin-top:25px;}h3{color:#34495e;margin-top:20px;}table{border-collapse:collapse;width:100%;margin:15px 0;}th,td{border:1px solid #ddd;padding:10px;text-align:left;}th{background:#34495e;color:white;}.footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}</style></head><body><h1>🏛️ Детальный расчёт помещений</h1>${htmlContent}<div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30</div></body></html>`; let blob = new Blob([fullHtml], {type:'application/msword'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `помещения_${type==='school'?'школа':'сад'}_${capacity}_мест.doc`; a.click(); URL.revokeObjectURL(a.href); };
+    window.downloadSPOZU = function(capacity, type) { let htmlContent = ''; if(type==='school') { let p1_4 = Math.ceil(Math.round(capacity*0.35)/25), p5_9 = Math.ceil(Math.round(capacity*0.65)/25); let sportAreasLocal = [{id:"track_circular",name:"Круговая беговая дорожка",params:"200 м",area:1468.5},{id:"track_straight",name:"Прямая беговая дорожка",params:"120 м",area:825.6},{id:"basketball",name:"Баскетбольная площадка",params:"32×19 м",area:608},{id:"volleyball",name:"Волейбольная площадка",params:"24×15 м",area:360},{id:"football",name:"Футбольное поле",params:"60×40 м",area:2400},{id:"obstacle",name:"Полоса препятствий",params:"9×50 м",area:450},{id:"develop_1_4",name:"Спортивно-развивающая площадка (1-4 кл)",params:"15×15 м",area:225},{id:"develop_5_11",name:"Спортивно-развивающая площадка (5-11 кл)",params:"15×15 м",area:225},{id:"long_jump",name:"Площадка для прыжков в длину",params:"стандартная",area:210},{id:"high_jump",name:"Площадка для прыжков в высоту",params:"стандартная",area:400}]; let sportArea = sportAreasLocal.reduce((s,a)=>s+a.area,0); let play1 = p1_4*180, play2_4 = 3*p1_4*100, play5_9 = 5*p5_9*25, play = play1+play2_4+play5_9, zuArea = getSchoolZUArea(capacity); htmlContent = `<h2>🏞️ Схема планировочной организации земельного участка (СПОЗУ)</h2><h3>🏫 Школа на ${capacity} мест</h3><p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea*10000).toFixed(0)} м²)</strong></p><h3>🏆 Спортивный блок</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr>`; sportAreasLocal.forEach(a=>{ htmlContent += `<tr><td>${a.name}</td><td>${a.params}</td><td>${a.area.toFixed(1)}</td></tr>`; }); htmlContent += `<tr style="background:#e8f5e9;"><td colspan="2"><strong>ИТОГО спортивный блок</strong></td><td><strong>${sportArea.toFixed(1)}</strong></td></tr></table><h3>🌳 Зона отдыха</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr><tr><td>Площадки подвижных игр 1-х классов</td><td>180 м² на 1 класс</td><td>${play1.toFixed(1)}</td></tr><tr><td>Площадки подвижных игр 2-4-х классов</td><td>100 м² на класс</td><td>${play2_4.toFixed(1)}</td></tr><tr><td>Площадки подвижных игр 5-9-х классов</td><td>25 м² на класс</td><td>${play5_9.toFixed(1)}</td></tr><tr style="background:#e8f5e9;"><td colspan="2"><strong>ИТОГО зона отдыха</strong></td><td><strong>${play.toFixed(1)}</strong></td></tr></table><p><strong>📊 ОБЩАЯ ПЛОЩАДЬ ПЛОЩАДОК: ${(sportArea+play).toFixed(1)} м² (${((sportArea+play)/10000).toFixed(3)} га)</strong></p><p><strong>🏞️ ЗЕМЕЛЬНЫЙ УЧАСТОК (включая здания, подъезды, озеленение): ${zuArea.toFixed(2)} га</strong></p>`; } else { let cU3 = Math.round(capacity*0.3), cO3 = capacity - cU3, gU3 = Math.ceil(cU3/20), gO3 = Math.ceil(cO3/25); let under3Area = cU3*7, over3Area = cO3*9, playArea = under3Area+over3Area, sportArea1 = capacity<150?200:200, sportArea2 = capacity<150?0:120, totalSport = sportArea1+sportArea2, zuArea = getKindergartenZUArea(capacity); htmlContent = `<h2>🏞️ Схема планировочной организации земельного участка (СПОЗУ)</h2><h3>🏫 Детский сад на ${capacity} мест</h3><p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea*10000).toFixed(0)} м²)</strong></p><h3>🏞️ Групповые площадки</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Возраст</th><th>Кол-во групп</th><th>Кол-во детей</th><th>Площадь (м²)</th></tr><tr><td>До 3 лет</td><td>${gU3}</td><td>${cU3}</td><td>${(cU3*7).toFixed(1)}</td></tr><tr><td>От 3 до 7 лет</td><td>${gO3}</td><td>${cO3}</td><td>${(cO3*9).toFixed(1)}</td></tr><tr style="background:#e8f5e9;"><td colspan="3"><strong>ИТОГО групповые площадки</strong></td><td><strong>${playArea.toFixed(1)}</strong></td></tr></table><h3>🏃 Физкультурно-спортивные площадки</h3><table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;"><tr style="background:#34495e;color:white;"><th>Наименование</th><th>Площадь (м²)</th></tr><tr><td>Физкультурно-спортивная площадка</td><td>${sportArea1.toFixed(1)}</td></tr>${sportArea2>0?`<tr><td>Физкультурно-спортивная площадка (дополнительная)</td><td>${sportArea2.toFixed(1)}</td></tr>`:''}<tr style="background:#e8f5e9;"><td><strong>ИТОГО физкультурно-спортивные площадки</strong></td><td><strong>${totalSport.toFixed(1)}</strong></td></tr></table><p><strong>📊 ОБЩАЯ ПЛОЩАДЬ ПЛОЩАДОК: ${(playArea+totalSport).toFixed(1)} м² (${((playArea+totalSport)/10000).toFixed(3)} га)</strong></p><p><strong>🏞️ ЗЕМЕЛЬНЫЙ УЧАСТОК (включая здания, подъезды, озеленение): ${zuArea.toFixed(2)} га</strong></p>`; } let fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${type==='school'?'Школа':'Детский сад'} на ${capacity} мест - СПОЗУ</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:1200px;margin:0 auto;}h1{color:#27ae60;border-bottom:2px solid #27ae60;padding-bottom:10px;}h2{color:#2c3e50;margin-top:25px;}h3{color:#34495e;margin-top:20px;}table{border-collapse:collapse;width:100%;margin:15px 0;}th,td{border:1px solid #ddd;padding:10px;text-align:left;}th{background:#34495e;color:white;}.footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}</style></head><body><h1>🏞️ Схема планировочной организации земельного участка</h1>${htmlContent}<div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30</div></body></html>`; let blob = new Blob([fullHtml], {type:'application/msword'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `СПОЗУ_${type==='school'?'школа':'сад'}_${capacity}_мест.doc`; a.click(); URL.revokeObjectURL(a.href); };
+    function splitLargeObjects(r,t) { if(r<=0) return []; let caps = t==='school'?TYPICAL_SCHOOL_CAPACITIES:TYPICAL_KINDER_CAPACITIES, minCap = caps[0], maxCap = t==='school'?2000:400, valid = caps.filter(c=>c<=maxCap).sort((a,b)=>b-a); if(r<minCap) return [minCap]; if(r<=maxCap) { for(let c of caps) if(c>=r) return [c]; return [minCap]; } let res=[], rem=r; for(let c of valid) { while(rem>=c) { res.push(c); rem-=c; } } if(rem>0) { if(rem<minCap) { if(res.length>0) { let comb = res[res.length-1]+rem; let nearest = minCap; for(let c of caps) if(c>=comb) { nearest=c; break; } if(nearest<=comb+(t==='school'?100:25)) { res[res.length-1]=nearest; return res; } } res.push(minCap); } else { for(let c of caps) if(c>=rem) { res.push(c); break; } } } return res; }
+    function splitMediumObjects(r,t) { if(r<=0) return []; let caps = t==='school'?TYPICAL_SCHOOL_CAPACITIES:TYPICAL_KINDER_CAPACITIES, minCap = caps[0], maxCap = t==='school'?2000:400, valid = caps.filter(c=>c<=maxCap); if(r<minCap) return [minCap]; if(r<=maxCap) { for(let c of caps) if(c>=r) return [c]; return [minCap]; } let target = t==='school'?1100:200, cnt = Math.ceil(r/target), avg = r/cnt, res=[], rem=r; for(let i=0;i<cnt-1;i++) { let best=minCap, diff=Infinity; for(let c of valid) { if(c<=rem && Math.abs(c-avg)<diff) { diff=Math.abs(c-avg); best=c; } } res.push(best); rem-=best; } if(rem<minCap) res.push(minCap); else if(rem<=maxCap) { for(let c of caps) if(c>=rem) { res.push(c); break; } } else res.push(...splitLargeObjects(rem,t)); return res; }
+    function arraysEqual(a,b) { if(a.length!==b.length) return false; for(let i=0;i<a.length;i++) if(a[i]!==b[i]) return false; return true; }
+    function updateProposalTable() { let sRem = parseInt(schoolFinalSpan.innerText.replace(/\D/g,''))||0, kRem = parseInt(kindergartenFinalSpan.innerText.replace(/\D/g,''))||0, sLg = splitLargeObjects(sRem,'school'), sMd = splitMediumObjects(sRem,'school'), kLg = splitLargeObjects(kRem,'kindergarten'), kMd = splitMediumObjects(kRem,'kindergarten'), sSame = arraysEqual(sLg,sMd), kSame = arraysEqual(kLg,kMd); if(sRem===0 && kRem===0) { proposalSection.classList.add('hidden'); return; } proposalSection.classList.remove('hidden'); let html = ''; if(sSame && kSame) { html += `<tr style="background:#dce5f0;"><td colspan="4"><strong>📌 Предложения по реализации<\/strong><\/td><\/tr>`; if(sLg.length>0) { let totalZU=0; html += `<tr style="background:#e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`; sLg.forEach(c=>{ let zu=getSchoolZUArea(c); totalZU+=zu; html += `<tr><td>${c} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${c},'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${c},'school')">📄 Скачать</a></td></tr>`; }); html += `<tr style="background:#e8f5e9;"><td><strong>ИТОГО школы: ${sRem} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`; } if(kLg.length>0) { let totalZU=0; html += `<tr style="background:#fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`; kLg.forEach(c=>{ let zu=getKindergartenZUArea(c); totalZU+=zu; html += `<tr><td>${c} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${c},'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${c},'kindergarten')">📄 Скачать</a></td></tr>`; }); html += `<tr style="background:#fff3e0;"><td><strong>ИТОГО сады: ${kRem} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`; } let totalZU = (sLg.reduce((s,c)=>s+getSchoolZUArea(c),0)+kLg.reduce((s,c)=>s+getKindergartenZUArea(c),0)); html += `<tr style="background:#dce5f0;"><td><strong>ВСЕГО: ${sRem+kRem} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`; } else { html += `<tr style="background:#dce5f0;"><td colspan="4"><strong>📌 Вариант 1 (крупные объекты)<\/strong><\/td><\/tr>`; if(sLg.length>0) { let totalZU=0; html += `<tr style="background:#e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`; sLg.forEach(c=>{ let zu=getSchoolZUArea(c); totalZU+=zu; html += `<tr><td>${c} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${c},'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${c},'school')">📄 Скачать</a></td></tr>`; }); html += `<tr style="background:#e8f5e9;"><td><strong>ИТОГО школы: ${sRem} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`; } if(kLg.length>0) { let totalZU=0; html += `<tr style="background:#fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`; kLg.forEach(c=>{ let zu=getKindergartenZUArea(c); totalZU+=zu; html += `<tr><td>${c} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${c},'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${c},'kindergarten')">📄 Скачать</a></td></tr>`; }); html += `<tr style="background:#fff3e0;"><td><strong>ИТОГО сады: ${kRem} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`; } let totalZU1 = (sLg.reduce((s,c)=>s+getSchoolZUArea(c),0)+kLg.reduce((s,c)=>s+getKindergartenZUArea(c),0)); html += `<tr style="background:#dce5f0;"><td><strong>ВСЕГО вариант 1: ${sRem+kRem} мест</strong></td><td><strong>${totalZU1.toFixed(2)} га</strong></td><td colspan="2"></td></tr><tr style="background:#dce5f0;"><td colspan="4"><strong>📌 Вариант 2 (средние объекты)<\/strong><\/td><\/tr>`; if(sMd.length>0) { let totalZU=0; html += `<tr style="background:#e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`; sMd.forEach(c=>{ let zu=getSchoolZUArea(c); totalZU+=zu; html += `<tr><td>${c} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${c},'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${c},'school')">📄 Скачать</a></td></tr>`; }); html += `<tr style="background:#e8f5e9;"><td><strong>ИТОГО школы: ${sRem} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`; } if(kMd.length>0) { let totalZU=0; html += `<tr style="background:#fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`; kMd.forEach(c=>{ let zu=getKindergartenZUArea(c); totalZU+=zu; html += `<tr><td>${c} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${c},'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${c},'kindergarten')">📄 Скачать</a></td></tr>`; }); html += `<tr style="background:#fff3e0;"><td><strong>ИТОГО сады: ${kRem} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`; } let totalZU2 = (sMd.reduce((s,c)=>s+getSchoolZUArea(c),0)+kMd.reduce((s,c)=>s+getKindergartenZUArea(c),0)); html += `<tr style="background:#dce5f0;"><td><strong>ВСЕГО вариант 2: ${sRem+kRem} мест</strong></td><td><strong>${totalZU2.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`; } proposalTableBody.innerHTML = html; }
+    function generateSolutions() { let pop = getPopulation(), sRaw = Math.round(pop*SCHOOL_RATE), kRaw = Math.round(pop*KINDER_RATE), sPlan = parseFloat(schoolPlan.value)||0, sAct = parseFloat(schoolActual.value)||0, kPlan = parseFloat(kindergartenPlan.value)||0, kAct = parseFloat(kindergartenActual.value)||0, sSurp = Math.max(0,sPlan-sAct), kSurp = Math.max(0,kPlan-kAct), kLoadS = Math.max(0,(sRaw-sSurp)/sRaw), kLoadK = Math.max(0,(kRaw-kSurp)/kRaw), sRem = Math.round(sRaw*DEM_FACTOR*kLoadS), kRem = Math.round(kRaw*DEM_FACTOR*kLoadK), sReserve = Math.max(0, getSchoolZUArea(sRaw)-getSchoolZUArea(sRem)), kReserve = Math.max(0, getKindergartenZUArea(kRaw)-getKindergartenZUArea(kRem)), sAdj = Math.round(sRaw*DEM_FACTOR), kAdj = Math.round(kRaw*DEM_FACTOR); let sHtml = `<strong>📊 Исходная потребность по РНГП: ${sRaw} мест</strong><br><strong>📉 Потребность с учётом дем-фактора (0,85): ${sAdj} мест</strong><br><strong>📊 Коэффициент загрузки К_загрузки: ${kLoadS.toFixed(3)}</strong><br><strong>✅ Скорректированная потребность (после К_загрузки): ${sRem} мест</strong><br><hr style="margin:8px 0;">`; if(sRem>0) sHtml += `<br><div class="solution-detail"><strong>🏗️ Строительство школы застройщиком на ${sRem} мест</strong><br>📊 Финансирование разницы по РНГП: ${sSurp} мест (размещение в существующих объектах)</div>`; else sHtml += `<br><div class="solution-detail">✅ Вся потребность покрывается существующими объектами (финансирование ${sSurp} мест), строительство не требуется</div>`; if(sReserve>0) { sHtml += `<br><div class="solution-detail" style="background:#fef3c7;"><strong>🏞️ Резерв ЗУ и расселение ветхового жилья:</strong><br>📐 Резерв формируется как разница: ЗУ(исходная потребность) - ЗУ(скорректированная потребность)<br>📏 Требуемая площадь резерва: ${sReserve.toFixed(4)} га (${(sReserve*10000).toFixed(0)} м²)<br>`; if(sReserve<0.5) sHtml += `⚠️ Менее 0.5 га — требуется учесть землю в строительстве объекта / расселение`; sHtml += `</div>`; } else sHtml += `<br><div class="solution-detail" style="background:#e0f2fe;">✅ Резерв ЗУ и расселение не требуются</div>`; schoolSolutionText.innerHTML = sHtml; let kHtml = `<strong>📊 Исходная потребность по РНГП: ${kRaw} мест</strong><br><strong>📉 Потребность с учётом дем-фактора (0,85): ${kAdj} мест</strong><br><strong>📊 Коэффициент загрузки К_загрузки: ${kLoadK.toFixed(3)}</strong><br><strong>✅ Скорректированная потребность (после К_загрузки): ${kRem} мест</strong><br><hr style="margin:8px 0;">`; if(kRem>0) kHtml += `<br><div class="solution-detail"><strong>🏗️ Строительство сада застройщиком на ${kRem} мест</strong><br>📊 Финансирование разницы по РНГП: ${kSurp} мест (размещение в существующих объектах)</div>`; else kHtml += `<br><div class="solution-detail">✅ Вся потребность покрывается существующими объектами (финансирование ${kSurp} мест), строительство не требуется</div>`; if(kReserve>0) { kHtml += `<br><div class="solution-detail" style="background:#fef3c7;"><strong>🏞️ Резерв ЗУ и расселение ветхового жилья:</strong><br>📐 Резерв формируется как разница: ЗУ(исходная потребность) - ЗУ(скорректированная потребность)<br>📏 Требуемая площадь резерва: ${kReserve.toFixed(4)} га (${(kReserve*10000).toFixed(0)} м²)<br>`; if(kReserve<0.5) kHtml += `⚠️ Менее 0.5 га — требуется учесть землю в строительстве объекта / расселение`; kHtml += `</div>`; } else kHtml += `<br><div class="solution-detail" style="background:#e0f2fe;">✅ Резерв ЗУ и расселение не требуются</div>`; kindergartenSolutionText.innerHTML = kHtml; solutionsContainer.style.display = 'flex'; updateProposalTable(); }
     generateSolutionsBtn.addEventListener('click', generateSolutions);
-    
-    async function getAIOpinion() {
-        const population = getPopulation();
-        const schoolNeed = Math.round(population * SCHOOL_RATE);
-        const kinderNeed = Math.round(population * KINDER_RATE);
-        const schoolPlanVal = parseFloat(schoolPlan.value) || 0;
-        const schoolActualVal = parseFloat(schoolActual.value) || 0;
-        const kinderPlanVal = parseFloat(kindergartenPlan.value) || 0;
-        const kinderActualVal = parseFloat(kindergartenActual.value) || 0;
-        const hasSecond = secondShiftToggle.checked;
-        const hasQueue = queueToggle.checked;
-        const queueCount = parseFloat(queueNumber.value) || 0;
-        const schoolLoad = schoolPlanVal > 0 ? (schoolActualVal / schoolPlanVal) * 100 : 0;
-        const kinderLoad = kinderPlanVal > 0 ? (kinderActualVal / kinderPlanVal) * 100 : 0;
-        let schoolCanTake = 0;
-        if (schoolPlanVal > 0 && !hasSecond) {
-            let maxGoodLoad = 120;
-            let currentLoadPercent = (schoolActualVal / schoolPlanVal) * 100;
-            if (currentLoadPercent < maxGoodLoad) {
-                schoolCanTake = Math.floor(schoolPlanVal * (maxGoodLoad / 100) - schoolActualVal);
-                if (schoolCanTake < 0) schoolCanTake = 0;
-            }
-        }
-        let kinderCanTake = 0;
-        if (kinderPlanVal > 0 && !hasQueue) {
-            let maxGoodLoad = 140;
-            let currentLoadPercent = (kinderActualVal / kinderPlanVal) * 100;
-            if (currentLoadPercent < maxGoodLoad) {
-                kinderCanTake = Math.floor(kinderPlanVal * (maxGoodLoad / 100) - kinderActualVal);
-                if (kinderCanTake < 0) kinderCanTake = 0;
-            }
-        }
-        const schoolCovered = Math.min(schoolCanTake, schoolNeed);
-        const kinderCovered = Math.min(kinderCanTake, kinderNeed);
-        const schoolRemain = Math.max(0, schoolNeed - schoolCovered);
-        const kinderRemain = Math.max(0, kinderNeed - kinderCovered);
-        const prompt = `Ты эксперт по градостроительству. Отвечай ТОЛЬКО по-русски. 4-5 предложений.\n\nПравила:\n- Если застройщик строит объект полностью на требуемую мощность — земля НЕ резервируется.\n- Если застройщик часть детей размещает в существующих объектах (финансирование) — тогда нужен резерв земли под этих детей. Если площадь резерва менее 0.5 га — требуется учесть землю в строительстве объекта или расселение.\n- Сады: если нет возможности разместить детей в существующих садах, строим ПО ПРОЕКТНОЙ МОЩНОСТИ.\n- Школы: вторая смена — плохо, загрузка до 120% — норма.\n- Сады: загрузка до 140% — норма, очередь более 50 детей — плохо.\n\nДанные для нового ЖК:\n- Нужно построить: школа ${schoolNeed} мест, сад ${kinderNeed} мест.\n- Существующая школа: мощность ${schoolPlanVal}, факт ${schoolActualVal} (загрузка ${schoolLoad.toFixed(0)}%), вторая смена ${hasSecond ? "есть" : "нет"}. Можно принять дополнительно ${Math.max(0, schoolCanTake)} детей.\n- Существующий сад: мощность ${kinderPlanVal}, факт ${kinderActualVal} (загрузка ${kinderLoad.toFixed(0)}%), очередь ${hasQueue ? queueCount : 0} детей. Можно принять дополнительно ${Math.max(0, kinderCanTake)} детей.\n- Остаток после существующих: школа ${schoolRemain} мест, сад ${kinderRemain} мест.\n- Резерв земли нужен: школа ${schoolCovered > 0 ? "ДА (на финансируемых детей)" : "НЕТ"}, сад ${kinderCovered > 0 ? "ДА (на финансируемых детей)" : "НЕТ"}.\n\nОцени ситуацию и дай чёткую рекомендацию: что строить, что финансировать, нужен ли резерв земли. Для садов укажи, строится ли объект по проектной мощности.`;
-        aiText.innerHTML = "⏳ Анализирую данные...";
-        aiResponse.style.display = "block";
-        try {
-            const response = await fetch(PROXY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: prompt }) });
-            const data = await response.json();
-            aiText.innerHTML = data.reply || data.error || `❌ Не удалось получить ответ от ИИ.`;
-        } catch (err) { aiText.innerHTML = `❌ Ошибка соединения: ${err.message}. Проверьте VPN.`; }
-    }
-    
-    aiOpinionBtn.addEventListener('click', () => {
-        const hasAnyData = (mainValue.value && parseFloat(mainValue.value) > 0) || (schoolPlan.value && parseFloat(schoolPlan.value) > 0) || (kindergartenPlan.value && parseFloat(kindergartenPlan.value) > 0);
-        if (!hasAnyData) { alert("Пожалуйста, введите данные перед запросом."); return; }
-        getAIOpinion();
-    });
-    
-    calcType.addEventListener('change', () => { updateHint(); recalc(); });
-    mainValue.addEventListener('input', () => { updateHint(); recalc(); });
-    secondShiftToggle.addEventListener('change', toggleSecondShiftField);
-    queueToggle.addEventListener('change', toggleQueueField);
-    secondShiftNumber.addEventListener('input', recalc);
-    queueNumber.addEventListener('input', recalc);
-    schoolPlan.addEventListener('input', recalc);
-    schoolActual.addEventListener('input', recalc);
-    kindergartenPlan.addEventListener('input', recalc);
-    kindergartenActual.addEventListener('input', recalc);
-    
-    updateHint();
-    recalc();
-    toggleSecondShiftField();
-    toggleQueueField();
-
-    let map = null;
-    let allObjects = [];
-    let currentDistrictMap = '';
-    let placemarks = [];
-    let currentRoute = null;
-    let currentRadius = 5000;
-    let currentModeMap = 'pedestrian';
-    let currentCenterPoint = null;
-    let currentUserPlacemark = null;
-    let objectsInRadiusList = [];
-    let selectedObjectId = null;
-    let suggestTimeout = null;
-    let mapInitialized = false;
-
-    function loadAllData() {
-        fetch(CSV_URL)
-            .then(response => response.text())
-            .then(text => {
-                allObjects = parseCSV(text);
-                console.log(`Загружено ${allObjects.length} объектов`);
-                if (mapInitialized && currentDistrictMap) {
-                    filterObjectsByDistrict(currentDistrictMap);
-                }
-            })
-            .catch(err => {
-                console.error('Ошибка загрузки CSV:', err);
-                document.getElementById('schoolsList').innerHTML = '<div class="loading">Ошибка загрузки данных. Проверьте интернет или откройте через Live Server.</div>';
-                document.getElementById('kindergartensList').innerHTML = '<div class="loading">Ошибка загрузки данных. Проверьте интернет или откройте через Live Server.</div>';
-            });
-    }
-
-    function parseCSV(csvText) {
-        const lines = csvText.split('\n');
-        if (lines.length < 2) return [];
-        const headers = parseCSVLine(lines[0]);
-        const colIndex = {
-            type: headers.findIndex(h => h?.toLowerCase().includes('тип')),
-            district: headers.findIndex(h => h?.toLowerCase().includes('г.о.') || h?.toLowerCase().includes('городской')),
-            name: headers.findIndex(h => h?.toLowerCase().includes('наименование') && !h?.toLowerCase().includes('г.о.')),
-            address: headers.findIndex(h => h?.toLowerCase() === 'адрес'),
-            coords: headers.findIndex(h => h?.toLowerCase().includes('координат') || h?.toLowerCase().includes('кодинат')),
-            capacity: headers.findIndex(h => h?.toLowerCase() === 'мощность'),
-            fact: headers.findIndex(h => h?.toLowerCase() === 'факт'),
-            secondShift: headers.findIndex(h => h?.toLowerCase().includes('2-я смена') || h?.toLowerCase().includes('2 смена')),
-            loadPercent: headers.findIndex(h => h?.toLowerCase().includes('% наполнения')),
-            buildYear: headers.findIndex(h => h?.toLowerCase().includes('год постройки')),
-            area: headers.findIndex(h => h?.toLowerCase().includes('площадь здания')),
-            status: headers.findIndex(h => h?.toLowerCase().includes('новостройка'))
-        };
-        const result = [];
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-            const values = parseCSVLine(line);
-            let district = colIndex.district >= 0 ? (values[colIndex.district] || '').trim() : '';
-            district = district.replace(' г.о.', '').replace(' городской округ', '').replace(' муниципальный округ', '').replace(' район', '');
-            if (!district) continue;
-            const typeRaw = colIndex.type >= 0 ? (values[colIndex.type] || '') : '';
-            const isKindergarten = typeRaw.toLowerCase().includes('детский сад');
-            const isSchool = typeRaw.toLowerCase().includes('школа');
-            if (!isKindergarten && !isSchool) continue;
-            let coordinates = null;
-            if (colIndex.coords >= 0 && values[colIndex.coords]) {
-                coordinates = extractCoordinates(values[colIndex.coords]);
-            }
-            if (!coordinates) continue;
-            let loadPercent = colIndex.loadPercent >= 0 ? (values[colIndex.loadPercent] || '') : '';
-            if (loadPercent && loadPercent.startsWith('=')) {
-                const capacity = parseFloat(values[colIndex.capacity]?.replace(',', '.'));
-                const fact = parseFloat(values[colIndex.fact]?.replace(',', '.'));
-                if (capacity && capacity > 0 && fact) loadPercent = ((fact / capacity) * 100).toFixed(1);
-                else loadPercent = '';
-            } else if (loadPercent) loadPercent = loadPercent.replace('%', '').trim();
-            
-            let secondShift = colIndex.secondShift >= 0 ? (values[colIndex.secondShift] || '') : '';
-            secondShift = secondShift.replace(/[^0-9]/g, '');
-            
-            result.push({
-                id: `${district}_${i}`,
-                type: isKindergarten ? 'kindergarten' : 'school',
-                district: district,
-                name: colIndex.name >= 0 ? (values[colIndex.name] || '') : '',
-                address: colIndex.address >= 0 ? (values[colIndex.address] || '') : '',
-                buildYear: colIndex.buildYear >= 0 ? (values[colIndex.buildYear] || '') : '',
-                area: colIndex.area >= 0 ? (values[colIndex.area]?.replace(',', '.') || '') : '',
-                capacity: colIndex.capacity >= 0 ? (values[colIndex.capacity]?.replace(',', '.') || '') : '',
-                fact: colIndex.fact >= 0 ? (values[colIndex.fact]?.replace(',', '.') || '') : '',
-                secondShift: secondShift,
-                loadPercent: loadPercent,
-                status: colIndex.status >= 0 ? (values[colIndex.status] || '') : '',
-                lat: coordinates.lat, lng: coordinates.lng
-            });
-        }
-        return result;
-    }
-    
-    function parseCSVLine(line) {
-        const result = [];
-        let inQuote = false, current = '';
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') inQuote = !inQuote;
-            else if (char === ',' && !inQuote) { result.push(current.trim()); current = ''; }
-            else current += char;
-        }
-        result.push(current.trim());
-        return result.map(v => v.replace(/^"|"$/g, ''));
-    }
-    
-    function extractCoordinates(cell) {
-        if (!cell || typeof cell !== 'string') return null;
-        const match = cell.match(/(\d+\.?\d*),\s*(\d+\.?\d*)/);
-        if (match) {
-            const lat = parseFloat(match[1]), lng = parseFloat(match[2]);
-            if (!isNaN(lat) && !isNaN(lng) && lat >= 54 && lat <= 57 && lng >= 35 && lng <= 40)
-                return { lat, lng };
-        }
-        return null;
-    }
-
-    function initMap() {
-        if(mapInitialized) return;
-        map = new ymaps.Map('map', {
-            center: [55.7, 37.6],
-            zoom: 10,
-            controls: ['zoomControl', 'fullscreenControl']
-        });
-        
-        const select = document.getElementById('mapDistrictSelect');
-        DISTRICTS_LIST.forEach(district => {
-            const option = document.createElement('option');
-            option.value = district;
-            option.textContent = district;
-            select.appendChild(option);
-        });
-        
-        setupMapEvents();
-        setupGeocoderSearch();
-        loadAllData();
-        
-        const selectedDistrictFromCalc = districtSelect.value;
-        if(selectedDistrictFromCalc) {
-            select.value = selectedDistrictFromCalc;
-            currentDistrictMap = selectedDistrictFromCalc;
-        }
-        
-        mapInitialized = true;
-    }
-    
-    function setupMapEvents() {
-        document.getElementById('mapDistrictSelect').addEventListener('change', (e) => {
-            currentDistrictMap = e.target.value;
-            if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
-            else clearAllMap();
-        });
-        
-        document.getElementById('radiusInput').addEventListener('change', (e) => {
-            currentRadius = parseInt(e.target.value) || 5000;
-            if(currentCenterPoint) updateAccessibility(currentCenterPoint);
-        });
-        
-        document.querySelectorAll('#mapModal .mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#mapModal .mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentModeMap = btn.dataset.mode;
-                if(selectedObjectId && currentCenterPoint) {
-                    const obj = allObjects.find(o => o.id === selectedObjectId);
-                    if(obj) buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
-                }
-            });
-        });
-        
-        map.events.add('click', (e) => {
-            const coords = e.get('coords');
-            currentCenterPoint = coords;
-            updateAccessibility(coords);
-            addUserMarker(coords);
-            if(currentRoute) {
-                map.geoObjects.remove(currentRoute);
-                currentRoute = null;
-            }
-            selectedObjectId = null;
-            document.querySelectorAll('#mapModal .object-card').forEach(c => c.classList.remove('active'));
-        });
-        
-        document.getElementById('resetMapBtn').onclick = () => {
-            currentCenterPoint = null;
-            if(currentRoute) map.geoObjects.remove(currentRoute);
-            if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark);
-            if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap);
-            document.getElementById('captureDataBtn').style.display = 'none';
-        };
-    }
-    
-    function filterObjectsByDistrict(district) {
-        const filtered = allObjects.filter(obj => obj.district === district);
-        renderObjects(filtered);
-    }
-    
-    function renderObjects(objects) {
-        clearMap();
-        if(!objects.length) {
-            updateTotalStats(objects);
-            renderLists(objects, []);
-            document.getElementById('captureDataBtn').style.display = 'none';
-            return;
-        }
-        const objectsWithCoords = objects.filter(o => o.lat && o.lng);
-        objectsWithCoords.forEach(obj => {
-            const placemark = createPlacemark(obj);
-            placemarks.push(placemark);
-            map.geoObjects.add(placemark);
-        });
-        if(currentCenterPoint) updateAccessibility(currentCenterPoint);
-        else {
-            renderLists(objects, []);
-            updateTotalStats(objects);
-        }
-        const first = objectsWithCoords[0];
-        if(first) map.setCenter([first.lat, first.lng], 11);
-    }
-    
-    function createPlacemark(obj) {
-        const color = obj.type === 'school' ? '#3b82f6' : '#22c55e';
-        
-        let extraInfo = '';
-        if(obj.type === 'school' && obj.secondShift && parseInt(obj.secondShift) > 0) {
-            extraInfo += `🕐 2-я смена: ${parseInt(obj.secondShift).toLocaleString()} чел.<br>`;
-        }
-        if(obj.type === 'kindergarten') {
-            const queue = Math.max(0, (parseFloat(obj.fact) || 0) - (parseFloat(obj.capacity) || 0));
-            if(queue > 0) extraInfo += `⏳ Очередность 3-7 лет: ${queue.toLocaleString()} чел.<br>`;
-        }
-        
-        const balloonContent = `
-            <div class="ballon-content">
-                <strong>${obj.name || 'Без названия'}</strong><br>
-                📍 ${obj.address || '—'}<br>
-                🏷️ ${obj.type === 'school' ? 'Школа' : 'Детский сад'}<br>
-                ${obj.buildYear ? `🏛️ Постройка: ${obj.buildYear}<br>` : ''}
-                ${obj.capacity ? `👥 Вместимость: ${parseInt(obj.capacity).toLocaleString()} мест<br>` : ''}
-                ${obj.fact ? `📊 Факт: ${parseInt(obj.fact).toLocaleString()} чел.<br>` : ''}
-                ${extraInfo}
-                ${obj.loadPercent ? `📈 Загрузка: ${obj.loadPercent}%<br>` : ''}
-                <button class="ballon-route-btn" onclick="window.selectObjectMap('${obj.id}')">📍 Построить маршрут</button>
-            </div>
-        `;
-        
-        const placemark = new ymaps.Placemark([obj.lat, obj.lng], {
-            balloonContent: balloonContent,
-            hintContent: obj.name
-        }, { 
-            preset: 'islands#circleIcon', 
-            iconColor: color, 
-            hintOpenTimeout: 300,
-            balloonMaxWidth: 280
-        });
-        
-        placemark.events.add('click', () => {
-            selectObjectMap(obj.id);
-        });
-        
-        return placemark;
-    }
-    
-    window.selectObjectMap = function(id) {
-        const obj = allObjects.find(o => o.id === id);
-        if(!obj) return;
-        selectedObjectId = id;
-        
-        if(currentCenterPoint) {
-            buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
-        } else {
-            map.setCenter([obj.lat, obj.lng], 15);
-            currentCenterPoint = [obj.lat, obj.lng];
-            addUserMarker(currentCenterPoint);
-            updateAccessibility(currentCenterPoint);
-            buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
-        }
-        
-        document.querySelectorAll('#mapModal .object-card').forEach(c => {
-            c.classList.remove('active');
-            if(c.dataset.id === id) c.classList.add('active');
-        });
-        
-        const placemark = placemarks.find(p => {
-            const coords = p.geometry.getCoordinates();
-            return coords[0] === obj.lat && coords[1] === obj.lng;
-        });
-        if(placemark) placemark.balloon.open();
-    };
-    
-    function buildRoute(start, end) {
-        if(currentRoute) map.geoObjects.remove(currentRoute);
-        const routeMode = currentModeMap === 'pedestrian' ? 'pedestrian' : 'auto';
-        try {
-            currentRoute = new ymaps.multiRouter.MultiRoute({
-                referencePoints: [start, end],
-                params: { routingMode: routeMode }
-            }, { boundsAutoApply: false, wayPointDraggable: false, strokeColor: '#3b82f6', strokeWidth: 4 });
-            map.geoObjects.add(currentRoute);
-        } catch(e) {}
-    }
-    
-    function updateAccessibility(centerCoords) {
-        const currentObjects = allObjects.filter(obj => obj.district === currentDistrictMap);
-        objectsInRadiusList = currentObjects.filter(obj => {
-            if(!obj.lat) return false;
-            return getDistance(centerCoords, [obj.lat, obj.lng]) <= currentRadius;
-        });
-        const inRadiusIds = new Set(objectsInRadiusList.map(o => o.id));
-        currentObjects.forEach(obj => {
-            const isInRadius = inRadiusIds.has(obj.id);
-            const placemark = placemarks.find(p => {
-                const coords = p.geometry.getCoordinates();
-                return coords[0] === obj.lat && coords[1] === obj.lng;
-            });
-            if(placemark) {
-                const baseColor = obj.type === 'school' ? '#3b82f6' : '#22c55e';
-                placemark.options.set('iconColor', isInRadius ? baseColor : '#94a3b8');
-                placemark.options.set('opacity', isInRadius ? 1 : 0.5);
-            }
-        });
-        
-        updateTotalStats(currentObjects);
-        updateRadiusStats(objectsInRadiusList);
-        renderLists(currentObjects, objectsInRadiusList);
-        
-        if(objectsInRadiusList.length > 0 && currentCenterPoint) {
-            document.getElementById('captureDataBtn').style.display = 'block';
-        } else {
-            document.getElementById('captureDataBtn').style.display = 'none';
-        }
-    }
-    
-    function updateTotalStats(objects) {
-        const schools = objects.filter(o => o.type === 'school');
-        const kindergartens = objects.filter(o => o.type === 'kindergarten');
-        
-        const schoolCap = schools.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
-        const schoolFact = schools.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
-        const schoolSecondShift = schools.reduce((s, o) => s + (parseFloat(o.secondShift)||0), 0);
-        const schoolLoad = schoolCap > 0 ? Math.round((schoolFact/schoolCap)*100) : 0;
-        document.getElementById('schoolTotalStats').innerHTML = `
-            <span>📐 Мощность: ${schoolCap.toLocaleString()}</span>
-            <span>👥 Факт: ${schoolFact.toLocaleString()}</span>
-            <span>🕐 2-я смена: ${schoolSecondShift.toLocaleString()}</span>
-            <span>📊 Загрузка: <span class="${schoolLoad>100?'load-critical-red':(schoolLoad>90?'load-high-yellow':'load-low-dark')}">${schoolLoad}%</span></span>
-        `;
-        
-        const kgCap = kindergartens.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
-        const kgFact = kindergartens.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
-        const kgQueue = Math.max(0, kgFact - kgCap);
-        const kgLoad = kgCap > 0 ? Math.round((kgFact/kgCap)*100) : 0;
-        document.getElementById('kindergartenTotalStats').innerHTML = `
-            <span>📐 Мощность: ${kgCap.toLocaleString()}</span>
-            <span>👥 Факт: ${kgFact.toLocaleString()}</span>
-            <span>⏳ Очередь 3-7 лет: ${kgQueue.toLocaleString()}</span>
-            <span>📊 Загрузка: <span class="${kgLoad>100?'load-critical-red':(kgLoad>90?'load-high-yellow':'load-low-dark')}">${kgLoad}%</span></span>
-        `;
-    }
-    
-    function updateRadiusStats(objectsInRadius) {
-        const schoolsInRadius = objectsInRadius.filter(o => o.type === 'school');
-        const kindergartensInRadius = objectsInRadius.filter(o => o.type === 'kindergarten');
-        
-        const schoolCap = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
-        const schoolFact = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
-        const schoolSecondShift = schoolsInRadius.reduce((s, o) => s + (parseFloat(o.secondShift)||0), 0);
-        const schoolLoad = schoolCap > 0 ? Math.round((schoolFact/schoolCap)*100) : 0;
-        
-        const kgCap = kindergartensInRadius.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
-        const kgFact = kindergartensInRadius.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
-        const kgQueue = Math.max(0, kgFact - kgCap);
-        const kgLoad = kgCap > 0 ? Math.round((kgFact/kgCap)*100) : 0;
-        
-        if(objectsInRadius.length > 0) {
-            document.getElementById('schoolRadiusStats').style.display = 'flex';
-            document.getElementById('kindergartenRadiusStats').style.display = 'flex';
-            
-            document.getElementById('schoolRadiusStats').innerHTML = `
-                <span>🎯 В радиусе ${currentRadius}м: ${schoolsInRadius.length} школ</span>
-                <span>📐 ${schoolCap.toLocaleString()}</span>
-                <span>👥 ${schoolFact.toLocaleString()}</span>
-                <span>🕐 2 см: ${schoolSecondShift.toLocaleString()}</span>
-                <span>📊 ${schoolLoad}%</span>
-            `;
-            
-            document.getElementById('kindergartenRadiusStats').innerHTML = `
-                <span>🎯 В радиусе ${currentRadius}м: ${kindergartensInRadius.length} садов</span>
-                <span>📐 ${kgCap.toLocaleString()}</span>
-                <span>👥 ${kgFact.toLocaleString()}</span>
-                <span>⏳ Очередь: ${kgQueue.toLocaleString()}</span>
-                <span>📊 ${kgLoad}%</span>
-            `;
-        } else {
-            document.getElementById('schoolRadiusStats').style.display = 'none';
-            document.getElementById('kindergartenRadiusStats').style.display = 'none';
-        }
-    }
-    
-    function getDistance(coord1, coord2) {
-        const R = 6371000;
-        const lat1 = coord1[0] * Math.PI/180, lat2 = coord2[0] * Math.PI/180;
-        const deltaLat = (coord2[0] - coord1[0]) * Math.PI/180;
-        const deltaLon = (coord2[1] - coord1[1]) * Math.PI/180;
-        const a = Math.sin(deltaLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(deltaLon/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-    
-    function renderLists(objects, objectsInRadius) {
-        const schools = objects.filter(o => o.type === 'school');
-        const kindergartens = objects.filter(o => o.type === 'kindergarten');
-        const inRadiusIds = new Set(objectsInRadius.map(o => o.id));
-        const sortByRadius = (a,b) => (inRadiusIds.has(b.id) - inRadiusIds.has(a.id));
-        schools.sort(sortByRadius);
-        kindergartens.sort(sortByRadius);
-        renderObjectList('schoolsList', schools, inRadiusIds);
-        renderObjectList('kindergartensList', kindergartens, inRadiusIds);
-    }
-    
-    function renderObjectList(containerId, objects, inRadiusIds) {
-        const container = document.getElementById(containerId);
-        if(!objects.length) { container.innerHTML = '<div class="loading">Нет объектов</div>'; return; }
-        container.innerHTML = '';
-        objects.forEach(obj => {
-            const loadPercent = parseFloat(obj.loadPercent);
-            const isInRadius = inRadiusIds.has(obj.id);
-            
-            let extraStat = '';
-            if(obj.type === 'school' && obj.secondShift && parseInt(obj.secondShift) > 0) {
-                extraStat = `<span>🕐 2 см: ${parseInt(obj.secondShift).toLocaleString()}</span>`;
-            }
-            if(obj.type === 'kindergarten') {
-                const queue = Math.max(0, (parseFloat(obj.fact)||0) - (parseFloat(obj.capacity)||0));
-                if(queue > 0) extraStat = `<span>⏳ Очередь: ${queue.toLocaleString()}</span>`;
-            }
-            
-            const card = document.createElement('div');
-            card.className = `object-card ${isInRadius ? 'in-radius' : 'out-radius'}`;
-            card.dataset.id = obj.id;
-            card.innerHTML = `
-                <div class="object-name"><span class="object-badge ${obj.type==='school'?'badge-school':'badge-kindergarten'}">${obj.type==='school'?'🏫 Школа':'🏠 Детский сад'}</span> ${obj.name||'Без названия'}</div>
-                <div class="object-address">📍 ${obj.address||'—'}</div>
-                <div class="object-stats">
-                    ${obj.buildYear?`🏛️ ${obj.buildYear}`:''} 
-                    ${obj.capacity?`🎓 ${parseInt(obj.capacity).toLocaleString()} мест`:''} 
-                    ${obj.fact?`👥 ${parseInt(obj.fact).toLocaleString()} чел.`:''}
-                    ${extraStat}
-                </div>
-                ${obj.loadPercent?`<div class="load-bar"><div class="load-bar-fill" style="width:${Math.min(loadPercent,200)}%; background:${loadPercent>120?'#ef4444':(loadPercent>100?'#fde047':'#22c55e')}"></div></div><div class="object-stats">📊 ${obj.loadPercent}%</div>`:''}
-            `;
-            card.onclick = () => selectObjectMap(obj.id);
-            container.appendChild(card);
-        });
-    }
-    
-    function addUserMarker(coords) {
-        if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark);
-        currentUserPlacemark = new ymaps.Placemark(coords, { hintContent: 'Центр поиска' }, { preset: 'islands#circleIcon', iconColor: '#ef4444' });
-        map.geoObjects.add(currentUserPlacemark);
-    }
-    
-    function clearMap() {
-        placemarks.forEach(p => { if(p && map.geoObjects.indexOf(p) !== -1) map.geoObjects.remove(p); });
-        placemarks = [];
-        if(currentRoute) { map.geoObjects.remove(currentRoute); currentRoute = null; }
-        if(currentUserPlacemark) { map.geoObjects.remove(currentUserPlacemark); currentUserPlacemark = null; }
-    }
-    
-    function clearAllMap() {
-        clearMap();
-        objectsInRadiusList = [];
-        currentCenterPoint = null;
-        document.getElementById('schoolsList').innerHTML = '<div class="loading">Выберите округ</div>';
-        document.getElementById('kindergartensList').innerHTML = '<div class="loading">Выберите округ</div>';
-        document.getElementById('schoolTotalStats').innerHTML = '';
-        document.getElementById('kindergartenTotalStats').innerHTML = '';
-        document.getElementById('schoolRadiusStats').style.display = 'none';
-        document.getElementById('kindergartenRadiusStats').style.display = 'none';
-    }
-    
-    function setupGeocoderSearch() {
-        let inp = document.getElementById('searchInput'), cont = document.getElementById('suggestContainer');
-        inp.addEventListener('input', (e) => {
-            let q = e.target.value.trim();
-            if(suggestTimeout) clearTimeout(suggestTimeout);
-            if(q.length < 3){ cont.style.display = 'none'; return; }
-            suggestTimeout = setTimeout(() => fetchSuggestions(q), 300);
-        });
-        document.addEventListener('click', (e) => {
-            if(!inp.contains(e.target) && !cont.contains(e.target)) cont.style.display = 'none';
-        });
-    }
-    
-    async function fetchSuggestions(q) {
-        try {
-            let res = await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=9e0575ab-d520-4bcf-bb0e-4ee68968f45d&geocode=${encodeURIComponent(q)}&results=6&format=json`);
-            let data = await res.json();
-            let members = data.response.GeoObjectCollection.featureMember;
-            if(!members) return;
-            let suggs = members.map(m => {
-                let g = m.GeoObject, name = g.name, desc = g.description || '', full = g.metaDataProperty.GeocoderMetaData.text, coords = g.Point.pos.split(' ').map(Number);
-                return { text: full, displayName: name + (desc ? `, ${desc}` : ''), coords: [coords[1], coords[0]] };
-            });
-            renderSuggestions(suggs);
-        } catch(e) { console.warn(e); }
-    }
-    
-    function renderSuggestions(sugs) {
-        let c = document.getElementById('suggestContainer');
-        if(!sugs.length) { c.style.display = 'none'; return; }
-        c.innerHTML = '';
-        sugs.forEach(s => {
-            let div = document.createElement('div');
-            div.className = 'suggest-item';
-            div.innerHTML = `<strong>${s.displayName.substring(0,60)}</strong><br><small>${s.text.substring(0,80)}</small>`;
-            div.onclick = () => {
-                currentCenterPoint = s.coords;
-                map.setCenter(s.coords, 15);
-                addUserMarker(s.coords);
-                updateAccessibility(s.coords);
-                if(currentRoute) map.geoObjects.remove(currentRoute);
-                selectedObjectId = null;
-                document.getElementById('searchInput').value = s.text;
-                c.style.display = 'none';
-            };
-            c.appendChild(div);
-        });
-        c.style.display = 'block';
-    }
-    
-    function captureDataToCalculator() {
-        if(!currentDistrictMap) {
-            alert("Сначала выберите городской округ на карте!");
-            return;
-        }
-        if(!currentCenterPoint) {
-            alert("Кликните на карту, чтобы установить центр поиска (радиус).");
-            return;
-        }
-        
-        let totalSchoolPlan = 0, totalSchoolFact = 0, totalSecondShift = 0;
-        let totalKinderPlan = 0, totalKinderFact = 0, totalQueue = 0;
-        
-        objectsInRadiusList.forEach(obj => {
-            const capacity = parseFloat(obj.capacity) || 0;
-            const fact = parseFloat(obj.fact) || 0;
-            
-            if(obj.type === 'school') {
-                totalSchoolPlan += capacity;
-                totalSchoolFact += fact;
-                totalSecondShift += parseFloat(obj.secondShift) || 0;
-            } else if(obj.type === 'kindergarten') {
-                totalKinderPlan += capacity;
-                totalKinderFact += fact;
-                const queue = Math.max(0, fact - capacity);
-                totalQueue += queue;
-            }
-        });
-        
-        schoolPlan.value = totalSchoolPlan;
-        schoolActual.value = totalSchoolFact;
-        kindergartenPlan.value = totalKinderPlan;
-        kindergartenActual.value = totalKinderFact;
-        
-        if(totalSecondShift > 0) {
-            secondShiftToggle.checked = true;
-            secondShiftNumber.value = totalSecondShift;
-            secondShiftNumber.style.display = "inline-block";
-        } else {
-            secondShiftToggle.checked = false;
-            secondShiftNumber.value = 0;
-            secondShiftNumber.style.display = "none";
-        }
-        
-        if(totalQueue > 0) {
-            queueToggle.checked = true;
-            queueNumber.value = totalQueue;
-            queueNumber.style.display = "inline-block";
-        } else {
-            queueToggle.checked = false;
-            queueNumber.value = 0;
-            queueNumber.style.display = "none";
-        }
-        
-        recalc();
-        alert("✅ Данные перенесены в калькулятор!");
-        document.getElementById('mapModal').classList.remove('active');
-    }
-    
-    document.getElementById('openMapBtn').onclick = () => {
-        const selectedDistrictFromCalc = districtSelect.value;
-        if(selectedDistrictFromCalc && mapInitialized) {
-            const mapSelect = document.getElementById('mapDistrictSelect');
-            if(mapSelect && mapSelect.value !== selectedDistrictFromCalc) {
-                mapSelect.value = selectedDistrictFromCalc;
-                currentDistrictMap = selectedDistrictFromCalc;
-                filterObjectsByDistrict(currentDistrictMap);
-            }
-        }
-        document.getElementById('mapModal').classList.add('active');
-        if(!mapInitialized) initMap();
-    };
-    
-    document.getElementById('closeMapBtn').onclick = () => {
-        document.getElementById('mapModal').classList.remove('active');
-    };
-    
-    document.getElementById('captureDataBtn').onclick = captureDataToCalculator;
-    
-    districtSelect.addEventListener('change', (e) => {
-        const selectedDistrict = e.target.value;
-        if(mapInitialized && selectedDistrict) {
-            const mapSelect = document.getElementById('mapDistrictSelect');
-            if(mapSelect && mapSelect.value !== selectedDistrict) {
-                mapSelect.value = selectedDistrict;
-                currentDistrictMap = selectedDistrict;
-                filterObjectsByDistrict(currentDistrictMap);
-            }
-        }
-    });
+    async function getAIOpinion() { let pop = getPopulation(), sNeed = Math.round(pop*SCHOOL_RATE), kNeed = Math.round(pop*KINDER_RATE), sPlanV = parseFloat(schoolPlan.value)||0, sActV = parseFloat(schoolActual.value)||0, kPlanV = parseFloat(kindergartenPlan.value)||0, kActV = parseFloat(kindergartenActual.value)||0, hasSecond = secondShiftToggle.checked, hasQueue = queueToggle.checked, queueCnt = parseFloat(queueNumber.value)||0, sLoad = sPlanV>0?(sActV/sPlanV)*100:0, kLoad = kPlanV>0?(kActV/kPlanV)*100:0; let sCanTake=0; if(sPlanV>0 && !hasSecond) { let maxLoad=120, curLoad=(sActV/sPlanV)*100; if(curLoad<maxLoad) sCanTake = Math.floor(sPlanV*(maxLoad/100)-sActV); if(sCanTake<0) sCanTake=0; } let kCanTake=0; if(kPlanV>0 && !hasQueue) { let maxLoad=140, curLoad=(kActV/kPlanV)*100; if(curLoad<maxLoad) kCanTake = Math.floor(kPlanV*(maxLoad/100)-kActV); if(kCanTake<0) kCanTake=0; } let sCovered = Math.min(sCanTake,sNeed), kCovered = Math.min(kCanTake,kNeed), sRem = Math.max(0,sNeed-sCovered), kRem = Math.max(0,kNeed-kCovered); let prompt = `Ты эксперт по градостроительству. Отвечай ТОЛЬКО по-русски. 4-5 предложений.\n\nПравила:\n- Если застройщик строит объект полностью на требуемую мощность — земля НЕ резервируется.\n- Если застройщик часть детей размещает в существующих объектах (финансирование) — тогда нужен резерв земли под этих детей. Если площадь резерва менее 0.5 га — требуется учесть землю в строительстве объекта или расселение.\n- Сады: если нет возможности разместить детей в существующих садах, строим ПО ПРОЕКТНОЙ МОЩНОСТИ.\n- Школы: вторая смена — плохо, загрузка до 120% — норма.\n- Сады: загрузка до 140% — норма, очередь более 50 детей — плохо.\n\nДанные для нового ЖК:\n- Нужно построить: школа ${sNeed} мест, сад ${kNeed} мест.\n- Существующая школа: мощность ${sPlanV}, факт ${sActV} (загрузка ${sLoad.toFixed(0)}%), вторая смена ${hasSecond?"есть":"нет"}. Можно принять дополнительно ${Math.max(0,sCanTake)} детей.\n- Существующий сад: мощность ${kPlanV}, факт ${kActV} (загрузка ${kLoad.toFixed(0)}%), очередь ${hasQueue?queueCnt:0} детей. Можно принять дополнительно ${Math.max(0,kCanTake)} детей.\n- Остаток после существующих: школа ${sRem} мест, сад ${kRem} мест.\n- Резерв земли нужен: школа ${sCovered>0?"ДА (на финансируемых детей)":"НЕТ"}, сад ${kCovered>0?"ДА (на финансируемых детей)":"НЕТ"}.\n\nОцени ситуацию и дай чёткую рекомендацию: что строить, что финансировать, нужен ли резерв земли. Для садов укажи, строится ли объект по проектной мощности.`; aiText.innerHTML = "⏳ Анализирую данные..."; aiResponse.style.display = "block"; try { let resp = await fetch(PROXY_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt})}); let data = await resp.json(); aiText.innerHTML = data.reply || data.error || `❌ Не удалось получить ответ от ИИ.`; } catch(err) { aiText.innerHTML = `❌ Ошибка соединения: ${err.message}. Проверьте VPN.`; } }
+    aiOpinionBtn.addEventListener('click',()=>{ let hasAny = (mainValue.value && parseFloat(mainValue.value)>0) || (schoolPlan.value && parseFloat(schoolPlan.value)>0) || (kindergartenPlan.value && parseFloat(kindergartenPlan.value)>0); if(!hasAny) { alert("Пожалуйста, введите данные перед запросом."); return; } getAIOpinion(); });
+    calcType.addEventListener('change',()=>{ updateHint(); recalc(); });
+    mainValue.addEventListener('input',()=>{ updateHint(); recalc(); });
+    secondShiftToggle.addEventListener('change',toggleSecondShiftField);
+    queueToggle.addEventListener('change',toggleQueueField);
+    secondShiftNumber.addEventListener('input',recalc);
+    queueNumber.addEventListener('input',recalc);
+    schoolPlan.addEventListener('input',recalc);
+    schoolActual.addEventListener('input',recalc);
+    kindergartenPlan.addEventListener('input',recalc);
+    kindergartenActual.addEventListener('input',recalc);
+    updateHint(); recalc(); toggleSecondShiftField(); toggleQueueField();
+    let map=null, allObjects=[], currentDistrictMap='', placemarks=[], currentRoute=null, currentRadius=5000, currentModeMap='pedestrian', currentCenterPoint=null, currentUserPlacemark=null, objectsInRadiusList=[], selectedObjectId=null, suggestTimeout=null, mapInitialized=false;
+    function loadAllData() { fetch(CSV_URL).then(r=>r.text()).then(t=>{ allObjects=parseCSV(t); console.log(`Загружено ${allObjects.length} объектов`); if(mapInitialized && currentDistrictMap) filterObjectsByDistrict(currentDistrictMap); }).catch(e=>{ console.error(e); document.getElementById('schoolsList').innerHTML='<div class="loading">Ошибка загрузки данных</div>'; document.getElementById('kindergartensList').innerHTML='<div class="loading">Ошибка загрузки данных</div>'; }); }
+    function parseCSV(t) { let lines=t.split('\n'); if(lines.length<2) return []; let headers=parseCSVLine(lines[0]); let idx={type:headers.findIndex(h=>h?.toLowerCase().includes('тип')),district:headers.findIndex(h=>h?.toLowerCase().includes('г.о.')||h?.toLowerCase().includes('городской')),name:headers.findIndex(h=>h?.toLowerCase().includes('наименование')&&!h?.toLowerCase().includes('г.о.')),address:headers.findIndex(h=>h?.toLowerCase()==='адрес'),coords:headers.findIndex(h=>h?.toLowerCase().includes('координат')||h?.toLowerCase().includes('кодинат')),capacity:headers.findIndex(h=>h?.toLowerCase()==='мощность'),fact:headers.findIndex(h=>h?.toLowerCase()==='факт'),secondShift:headers.findIndex(h=>h?.toLowerCase().includes('2-я смена')||h?.toLowerCase().includes('2 смена')),loadPercent:headers.findIndex(h=>h?.toLowerCase().includes('% наполнения')),buildYear:headers.findIndex(h=>h?.toLowerCase().includes('год постройки')),area:headers.findIndex(h=>h?.toLowerCase().includes('площадь здания')),status:headers.findIndex(h=>h?.toLowerCase().includes('новостройка'))}; let res=[]; for(let i=1;i<lines.length;i++) { let line=lines[i].trim(); if(!line) continue; let vals=parseCSVLine(line); let district=idx.district>=0?(vals[idx.district]||'').trim():''; district=district.replace(' г.о.','').replace(' городской округ','').replace(' муниципальный округ','').replace(' район',''); if(!district) continue; let typeRaw=idx.type>=0?(vals[idx.type]||''):''; let isKinder=typeRaw.toLowerCase().includes('детский сад'), isSchool=typeRaw.toLowerCase().includes('школа'); if(!isKinder&&!isSchool) continue; let coords=null; if(idx.coords>=0 && vals[idx.coords]) coords=extractCoordinates(vals[idx.coords]); if(!coords) continue; let loadP=idx.loadPercent>=0?(vals[idx.loadPercent]||''):''; if(loadP && loadP.startsWith('=')) { let cap=parseFloat(vals[idx.capacity]?.replace(',','.')), fact=parseFloat(vals[idx.fact]?.replace(',','.')); if(cap && cap>0 && fact) loadP=((fact/cap)*100).toFixed(1); else loadP=''; } else if(loadP) loadP=loadP.replace('%','').trim(); let secShift=idx.secondShift>=0?(vals[idx.secondShift]||''):''; secShift=secShift.replace(/[^0-9]/g,''); res.push({id:`${district}_${i}`,type:isKinder?'kindergarten':'school',district:district,name:idx.name>=0?(vals[idx.name]||''):'',address:idx.address>=0?(vals[idx.address]||''):'',buildYear:idx.buildYear>=0?(vals[idx.buildYear]||''):'',area:idx.area>=0?(vals[idx.area]?.replace(',','.')||''):'',capacity:idx.capacity>=0?(vals[idx.capacity]?.replace(',','.')||''):'',fact:idx.fact>=0?(vals[idx.fact]?.replace(',','.')||''):'',secondShift:secShift,loadPercent:loadP,status:idx.status>=0?(vals[idx.status]||''):'',lat:coords.lat,lng:coords.lng}); } return res; }
+    function parseCSVLine(l) { let res=[], inQ=false, cur=''; for(let i=0;i<l.length;i++) { let ch=l[i]; if(ch==='"') inQ=!inQ; else if(ch===',' && !inQ) { res.push(cur.trim()); cur=''; } else cur+=ch; } res.push(cur.trim()); return res.map(v=>v.replace(/^"|"$/g,'')); }
+    function extractCoordinates(cell) { if(!cell || typeof cell!=='string') return null; let m=cell.match(/(\d+\.?\d*),\s*(\d+\.?\d*)/); if(m) { let lat=parseFloat(m[1]), lng=parseFloat(m[2]); if(!isNaN(lat)&&!isNaN(lng)&&lat>=54&&lat<=57&&lng>=35&&lng<=40) return {lat,lng}; } return null; }
+    function initMap() { if(mapInitialized) return; map=new ymaps.Map('map',{center:[55.7,37.6],zoom:10,controls:['zoomControl','fullscreenControl']}); let sel=document.getElementById('mapDistrictSelect'); DISTRICTS_LIST.forEach(d=>{let o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);}); setupMapEvents(); setupGeocoderSearch(); loadAllData(); let selDist=districtSelect.value; if(selDist) { sel.value=selDist; currentDistrictMap=selDist; } mapInitialized=true; }
+    function setupMapEvents() { document.getElementById('mapDistrictSelect').addEventListener('change',(e)=>{ currentDistrictMap=e.target.value; if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap); else clearAllMap(); }); document.getElementById('radiusInput').addEventListener('change',(e)=>{ currentRadius=parseInt(e.target.value)||5000; if(currentCenterPoint) updateAccessibility(currentCenterPoint); }); let matPed=document.getElementById('materialPedestrianBtn'), matAuto=document.getElementById('materialAutoBtn'); function updUI(mode){ if(mode==='pedestrian'){ matPed.style.background='#3b82f6'; matPed.style.color='white'; matPed.style.boxShadow='0 2px 6px rgba(59,130,246,0.3)'; matAuto.style.background='transparent'; matAuto.style.color='#64748b'; matAuto.style.boxShadow='none'; } else { matAuto.style.background='#ef4444'; matAuto.style.color='white'; matAuto.style.boxShadow='0 2px 6px rgba(239,68,68,0.3)'; matPed.style.background='transparent'; matPed.style.color='#64748b'; matPed.style.boxShadow='none'; } } function ripple(e){ let btn=e.currentTarget; let r=document.createElement('span'); r.classList.add('ripple'); let rect=btn.getBoundingClientRect(); let s=Math.max(rect.width,rect.height); r.style.width=r.style.height=`${s}px`; let x=e.clientX-rect.left-s/2, y=e.clientY-rect.top-s/2; r.style.left=`${x}px`; r.style.top=`${y}px`; btn.appendChild(r); setTimeout(()=>r.remove(),500); } function setMode(mode){ currentModeMap=mode; if(mode==='pedestrian'){ matPed.classList.add('active'); matAuto.classList.remove('active'); updUI('pedestrian'); } else { matAuto.classList.add('active'); matPed.classList.remove('active'); updUI('auto'); } if(selectedObjectId && currentCenterPoint){ let obj=allObjects.find(o=>o.id===selectedObjectId); if(obj) buildRoute(currentCenterPoint,[obj.lat,obj.lng]); } } matPed.addEventListener('click',(e)=>{ ripple(e); setMode('pedestrian'); }); matAuto.addEventListener('click',(e)=>{ ripple(e); setMode('auto'); }); updUI(currentModeMap); map.events.add('click',(e)=>{ let coords=e.get('coords'); currentCenterPoint=coords; updateAccessibility(coords); addUserMarker(coords); if(currentRoute){ map.geoObjects.remove(currentRoute); currentRoute=null; } selectedObjectId=null; document.querySelectorAll('#mapModal .object-card').forEach(c=>c.classList.remove('active')); }); document.getElementById('resetMapBtn').onclick=()=>{ currentCenterPoint=null; if(currentRoute) map.geoObjects.remove(currentRoute); if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark); if(currentDistrictMap) filterObjectsByDistrict(currentDistrictMap); document.getElementById('captureDataBtn').style.display='none'; }; }
+    function filterObjectsByDistrict(district){ let filtered=allObjects.filter(obj=>obj.district===district); renderObjects(filtered); }
+    function renderObjects(objects){ clearMap(); if(!objects.length){ updateTotalStats(objects); renderLists(objects,[]); document.getElementById('captureDataBtn').style.display='none'; return; } let withCoords=objects.filter(o=>o.lat&&o.lng); withCoords.forEach(obj=>{ let pm=createPlacemark(obj); placemarks.push(pm); map.geoObjects.add(pm); }); if(currentCenterPoint) updateAccessibility(currentCenterPoint); else { renderLists(objects,[]); updateTotalStats(objects); } let first=withCoords[0]; if(first) map.setCenter([first.lat,first.lng],11); }
+    function createPlacemark(obj){ let color=obj.type==='school'?'#3b82f6':'#22c55e'; let extra=''; if(obj.type==='school' && obj.secondShift && parseInt(obj.secondShift)>0) extra+=`🕐 2-я смена: ${parseInt(obj.secondShift).toLocaleString()} чел.<br>`; if(obj.type==='kindergarten'){ let q=Math.max(0,(parseFloat(obj.fact)||0)-(parseFloat(obj.capacity)||0)); if(q>0) extra+=`⏳ Очередность 3-7 лет: ${q.toLocaleString()} чел.<br>`; } let balloon=`<div class="ballon-content"><strong>${obj.name||'Без названия'}</strong><br>📍 ${obj.address||'—'}<br>🏷️ ${obj.type==='school'?'Школа':'Детский сад'}<br>${obj.buildYear?`🏛️ Постройка: ${obj.buildYear}<br>`:''}${obj.capacity?`👥 Вместимость: ${parseInt(obj.capacity).toLocaleString()} мест<br>`:''}${obj.fact?`📊 Факт: ${parseInt(obj.fact).toLocaleString()} чел.<br>`:''}${extra}${obj.loadPercent?`📈 Загрузка: ${obj.loadPercent}%<br>`:''}<button class="ballon-route-btn" onclick="window.selectObjectMap('${obj.id}')">📍 Построить маршрут</button></div>`; let pm=new ymaps.Placemark([obj.lat,obj.lng],{balloonContent:balloon,hintContent:obj.name},{preset:'islands#circleIcon',iconColor:color,hintOpenTimeout:300,balloonMaxWidth:280}); pm.events.add('click',()=>{ selectObjectMap(obj.id); }); return pm; }
+    window.selectObjectMap=function(id){ let obj=allObjects.find(o=>o.id===id); if(!obj) return; selectedObjectId=id; if(currentCenterPoint){ buildRoute(currentCenterPoint,[obj.lat,obj.lng]); } else { map.setCenter([obj.lat,obj.lng],15); currentCenterPoint=[obj.lat,obj.lng]; addUserMarker(currentCenterPoint); updateAccessibility(currentCenterPoint); buildRoute(currentCenterPoint,[obj.lat,obj.lng]); } document.querySelectorAll('#mapModal .object-card').forEach(c=>{ c.classList.remove('active'); if(c.dataset.id===id) c.classList.add('active'); }); let pm=placemarks.find(p=>{ let coords=p.geometry.getCoordinates(); return coords[0]===obj.lat && coords[1]===obj.lng; }); if(pm) pm.balloon.open(); };
+    function buildRoute(start,end){ if(currentRoute) map.geoObjects.remove(currentRoute); let mode=currentModeMap==='pedestrian'?'pedestrian':'auto'; try{ currentRoute=new ymaps.multiRouter.MultiRoute({referencePoints:[start,end],params:{routingMode:mode}},{boundsAutoApply:false,wayPointDraggable:false,strokeColor:'#3b82f6',strokeWidth:4}); map.geoObjects.add(currentRoute); } catch(e){} }
+    function updateAccessibility(center){ let cur=allObjects.filter(o=>o.district===currentDistrictMap); objectsInRadiusList=cur.filter(o=>{ if(!o.lat) return false; return getDistance(center,[o.lat,o.lng])<=currentRadius; }); let inIds=new Set(objectsInRadiusList.map(o=>o.id)); cur.forEach(obj=>{ let isIn=inIds.has(obj.id); let pm=placemarks.find(p=>{ let c=p.geometry.getCoordinates(); return c[0]===obj.lat && c[1]===obj.lng; }); if(pm){ let base=obj.type==='school'?'#3b82f6':'#22c55e'; pm.options.set('iconColor',isIn?base:'#94a3b8'); pm.options.set('opacity',isIn?1:0.5); } }); updateTotalStats(cur); updateRadiusStats(objectsInRadiusList); renderLists(cur,objectsInRadiusList); if(objectsInRadiusList.length>0 && currentCenterPoint) document.getElementById('captureDataBtn').style.display='block'; else document.getElementById('captureDataBtn').style.display='none'; }
+    function updateTotalStats(objects){ let schools=objects.filter(o=>o.type==='school'), kgs=objects.filter(o=>o.type==='kindergarten'); let sCap=schools.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0), sFact=schools.reduce((s,o)=>s+(parseFloat(o.fact)||0),0), sShift=schools.reduce((s,o)=>s+(parseFloat(o.secondShift)||0),0), sLoad=sCap>0?Math.round((sFact/sCap)*100):0; document.getElementById('schoolTotalStats').innerHTML=`<span>📐 Мощность: ${sCap.toLocaleString()}</span><span>👥 Факт: ${sFact.toLocaleString()}</span><span>🕐 2-я смена: ${sShift.toLocaleString()}</span><span>📊 Загрузка: <span class="${sLoad>100?'load-critical-red':(sLoad>90?'load-high-yellow':'load-low-dark')}">${sLoad}%</span></span>`; let kCap=kgs.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0), kFact=kgs.reduce((s,o)=>s+(parseFloat(o.fact)||0),0), kQueue=Math.max(0,kFact-kCap), kLoad=kCap>0?Math.round((kFact/kCap)*100):0; document.getElementById('kindergartenTotalStats').innerHTML=`<span>📐 Мощность: ${kCap.toLocaleString()}</span><span>👥 Факт: ${kFact.toLocaleString()}</span><span>⏳ Очередь 3-7 лет: ${kQueue.toLocaleString()}</span><span>📊 Загрузка: <span class="${kLoad>100?'load-critical-red':(kLoad>90?'load-high-yellow':'load-low-dark')}">${kLoad}%</span></span>`; }
+    function updateRadiusStats(inRad){ let schools=inRad.filter(o=>o.type==='school'), kgs=inRad.filter(o=>o.type==='kindergarten'); let sCap=schools.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0), sFact=schools.reduce((s,o)=>s+(parseFloat(o.fact)||0),0), sShift=schools.reduce((s,o)=>s+(parseFloat(o.secondShift)||0),0), sLoad=sCap>0?Math.round((sFact/sCap)*100):0; let kCap=kgs.reduce((s,o)=>s+(parseFloat(o.capacity)||0),0), kFact=kgs.reduce((s,o)=>s+(parseFloat(o.fact)||0),0), kQueue=Math.max(0,kFact-kCap), kLoad=kCap>0?Math.round((kFact/kCap)*100):0; if(inRad.length>0){ document.getElementById('schoolRadiusStats').style.display='flex'; document.getElementById('kindergartenRadiusStats').style.display='flex'; document.getElementById('schoolRadiusStats').innerHTML=`<span>🎯 В радиусе ${currentRadius}м: ${schools.length} школ</span><span>📐 ${sCap.toLocaleString()}</span><span>👥 ${sFact.toLocaleString()}</span><span>🕐 2 см: ${sShift.toLocaleString()}</span><span>📊 ${sLoad}%</span>`; document.getElementById('kindergartenRadiusStats').innerHTML=`<span>🎯 В радиусе ${currentRadius}м: ${kgs.length} садов</span><span>📐 ${kCap.toLocaleString()}</span><span>👥 ${kFact.toLocaleString()}</span><span>⏳ Очередь: ${kQueue.toLocaleString()}</span><span>📊 ${kLoad}%</span>`; } else { document.getElementById('schoolRadiusStats').style.display='none'; document.getElementById('kindergartenRadiusStats').style.display='none'; } }
+    function getDistance(c1,c2){ let R=6371000, lat1=c1[0]*Math.PI/180, lat2=c2[0]*Math.PI/180, dLat=(c2[0]-c1[0])*Math.PI/180, dLon=(c2[1]-c1[1])*Math.PI/180, a=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+    function renderLists(objects,inRad){ let schools=objects.filter(o=>o.type==='school'), kgs=objects.filter(o=>o.type==='kindergarten'), inIds=new Set(inRad.map(o=>o.id)); schools.sort((a,b)=>(inIds.has(b.id)-inIds.has(a.id))); kgs.sort((a,b)=>(inIds.has(b.id)-inIds.has(a.id))); renderObjectList('schoolsList',schools,inIds); renderObjectList('kindergartensList',kgs,inIds); }
+    function renderObjectList(containerId,objects,inIds){ let cont=document.getElementById(containerId); if(!objects.length){ cont.innerHTML='<div class="loading">Нет объектов</div>'; return; } cont.innerHTML=''; objects.forEach(obj=>{ let loadP=parseFloat(obj.loadPercent), isIn=inIds.has(obj.id), extra=''; if(obj.type==='school' && obj.secondShift && parseInt(obj.secondShift)>0) extra=`<span>🕐 2 см: ${parseInt(obj.secondShift).toLocaleString()}</span>`; if(obj.type==='kindergarten'){ let q=Math.max(0,(parseFloat(obj.fact)||0)-(parseFloat(obj.capacity)||0)); if(q>0) extra=`<span>⏳ Очередь: ${q.toLocaleString()}</span>`; } let card=document.createElement('div'); card.className=`object-card ${isIn?'in-radius':'out-radius'}`; card.dataset.id=obj.id; card.innerHTML=`<div class="object-name"><span class="object-badge ${obj.type==='school'?'badge-school':'badge-kindergarten'}">${obj.type==='school'?'🏫 Школа':'🏠 Детский сад'}</span> ${obj.name||'Без названия'}</div><div class="object-address">📍 ${obj.address||'—'}</div><div class="object-stats">${obj.buildYear?`🏛️ ${obj.buildYear}`:''} ${obj.capacity?`🎓 ${parseInt(obj.capacity).toLocaleString()} мест`:''} ${obj.fact?`👥 ${parseInt(obj.fact).toLocaleString()} чел.`:''} ${extra}</div>${obj.loadPercent?`<div class="load-bar"><div class="load-bar-fill" style="width:${Math.min(loadP,200)}%; background:${loadP>120?'#ef4444':(loadP>100?'#fde047':'#22c55e')}"></div></div><div class="object-stats">📊 ${obj.loadPercent}%</div>`:''}`; card.onclick=()=>selectObjectMap(obj.id); cont.appendChild(card); }); }
+    function addUserMarker(coords){ if(currentUserPlacemark) map.geoObjects.remove(currentUserPlacemark); currentUserPlacemark=new ymaps.Placemark(coords,{hintContent:'Центр поиска'},{preset:'islands#circleIcon',iconColor:'#ef4444'}); map.geoObjects.add(currentUserPlacemark); }
+    function clearMap(){ placemarks.forEach(p=>{ if(p && map.geoObjects.indexOf(p)!==-1) map.geoObjects.remove(p); }); placemarks=[]; if(currentRoute){ map.geoObjects.remove(currentRoute); currentRoute=null; } if(currentUserPlacemark){ map.geoObjects.remove(currentUserPlacemark); currentUserPlacemark=null; } }
+    function clearAllMap(){ clearMap(); objectsInRadiusList=[]; currentCenterPoint=null; document.getElementById('schoolsList').innerHTML='<div class="loading">Выберите округ</div>'; document.getElementById('kindergartensList').innerHTML='<div class="loading">Выберите округ</div>'; document.getElementById('schoolTotalStats').innerHTML=''; document.getElementById('kindergartenTotalStats').innerHTML=''; document.getElementById('schoolRadiusStats').style.display='none'; document.getElementById('kindergartenRadiusStats').style.display='none'; }
+    function setupGeocoderSearch(){ let inp=document.getElementById('searchInput'), cont=document.getElementById('suggestContainer'); inp.addEventListener('input',(e)=>{ let q=e.target.value.trim(); if(suggestTimeout) clearTimeout(suggestTimeout); if(q.length<3){ cont.style.display='none'; return; } suggestTimeout=setTimeout(()=>fetchSuggestions(q),300); }); document.addEventListener('click',(e)=>{ if(!inp.contains(e.target) && !cont.contains(e.target)) cont.style.display='none'; }); }
+    async function fetchSuggestions(q){ try{ let res=await fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=9e0575ab-d520-4bcf-bb0e-4ee68968f45d&geocode=${encodeURIComponent(q)}&results=6&format=json`); let data=await res.json(); let members=data.response.GeoObjectCollection.featureMember; if(!members) return; let suggs=members.map(m=>{ let g=m.GeoObject, name=g.name, desc=g.description||'', full=g.metaDataProperty.GeocoderMetaData.text, coords=g.Point.pos.split(' ').map(Number); return {text:full,displayName:name+(desc?`, ${desc}`:''),coords:[coords[1],coords[0]]}; }); renderSuggestions(suggs); } catch(e){ console.warn(e); } }
+    function renderSuggestions(sugs){ let c=document.getElementById('suggestContainer'); if(!sugs.length){ c.style.display='none'; return; } c.innerHTML=''; sugs.forEach(s=>{ let div=document.createElement('div'); div.className='suggest-item'; div.innerHTML=`<strong>${s.displayName.substring(0,60)}</strong><br><small>${s.text.substring(0,80)}</small>`; div.onclick=()=>{ currentCenterPoint=s.coords; map.setCenter(s.coords,15); addUserMarker(s.coords); updateAccessibility(s.coords); if(currentRoute) map.geoObjects.remove(currentRoute); selectedObjectId=null; document.getElementById('searchInput').value=s.text; c.style.display='none'; }; c.appendChild(div); }); c.style.display='block'; }
+    function captureDataToCalculator(){ if(!currentDistrictMap){ alert("Сначала выберите городской округ на карте!"); return; } if(!currentCenterPoint){ alert("Кликните на карту, чтобы установить центр поиска (радиус)."); return; } let totalSchoolPlan=0,totalSchoolFact=0,totalSecondShift=0,totalKinderPlan=0,totalKinderFact=0,totalQueue=0; objectsInRadiusList.forEach(obj=>{ let cap=parseFloat(obj.capacity)||0, fact=parseFloat(obj.fact)||0; if(obj.type==='school'){ totalSchoolPlan+=cap; totalSchoolFact+=fact; totalSecondShift+=parseFloat(obj.secondShift)||0; } else if(obj.type==='kindergarten'){ totalKinderPlan+=cap; totalKinderFact+=fact; totalQueue+=Math.max(0,fact-cap); } }); schoolPlan.value=totalSchoolPlan; schoolActual.value=totalSchoolFact; kindergartenPlan.value=totalKinderPlan; kindergartenActual.value=totalKinderFact; if(totalSecondShift>0){ secondShiftToggle.checked=true; secondShiftNumber.value=totalSecondShift; secondShiftNumber.style.display="inline-block"; } else { secondShiftToggle.checked=false; secondShiftNumber.value=0; secondShiftNumber.style.display="none"; } if(totalQueue>0){ queueToggle.checked=true; queueNumber.value=totalQueue; queueNumber.style.display="inline-block"; } else { queueToggle.checked=false; queueNumber.value=0; queueNumber.style.display="none"; } recalc(); alert("✅ Данные перенесены в калькулятор!"); document.getElementById('mapModal').classList.remove('active'); }
+    document.getElementById('openMapBtn').onclick=()=>{ let selDist=districtSelect.value; if(selDist && mapInitialized){ let mapSel=document.getElementById('mapDistrictSelect'); if(mapSel && mapSel.value!==selDist){ mapSel.value=selDist; currentDistrictMap=selDist; filterObjectsByDistrict(currentDistrictMap); } } document.getElementById('mapModal').classList.add('active'); if(!mapInitialized) initMap(); };
+    document.getElementById('closeMapBtn').onclick=()=>{ document.getElementById('mapModal').classList.remove('active'); };
+    document.getElementById('captureDataBtn').onclick=captureDataToCalculator;
+    districtSelect.addEventListener('change',(e)=>{ let sel=e.target.value; if(mapInitialized && sel){ let mapSel=document.getElementById('mapDistrictSelect'); if(mapSel && mapSel.value!==sel){ mapSel.value=sel; currentDistrictMap=sel; filterObjectsByDistrict(currentDistrictMap); } } });
 </script>
 </body>
 </html>
