@@ -829,7 +829,7 @@
         <div id="proposalSection" class="proposal-card hidden">
             <div class="proposal-title">📋 Предложения по реализации</div>
             <table class="proposal-table" id="proposalTable">
-                <thead><tr><th>Мощность</th><th>S земельного участка</th><th>Набор помещений</th><th>Набор площадок</th> </tr></thead>
+                <thead><tr><th>Мощность</th><th>S земельного участка</th><th>Набор помещений</th><th>Набор площадок</th></tr></thead>
                 <tbody id="proposalTableBody"><tr><td colspan="4" style="text-align: center;">Нет данных для отображения</td></tr></tbody>
             </table>
         </div>
@@ -968,17 +968,14 @@
         const schoolNeedRaw = Math.round(population * SCHOOL_RATE);
         const kinderNeedRaw = Math.round(population * KINDER_RATE);
         
-        // НОВАЯ ФОРМУЛА: К_загрузки = (Потребность - Профицит) / Потребность
         let kLoadSchool = (schoolNeedRaw - schoolCanTake) / schoolNeedRaw;
         if (kLoadSchool < 0) kLoadSchool = 0;
         let kLoadKindergarten = (kinderNeedRaw - kindergartenCanTake) / kinderNeedRaw;
         if (kLoadKindergarten < 0) kLoadKindergarten = 0;
         
-        // Скорректированная потребность = Потребность × К_демо (0.85) × К_загрузки
         const schoolRemain = Math.round(schoolNeedRaw * DEM_FACTOR * kLoadSchool);
         const kindergartenRemain = Math.round(kinderNeedRaw * DEM_FACTOR * kLoadKindergarten);
         
-        // Дем-фактор для отображения в таблице
         const demFactorSchool = Math.round(schoolNeedRaw * DEM_FACTOR);
         const demFactorKindergarten = Math.round(kinderNeedRaw * DEM_FACTOR);
         
@@ -1017,6 +1014,406 @@
         else norm = 30;
         return (capacity * norm) / 10000;
     }
+    
+    // ========== ФУНКЦИИ ДЛЯ ПОЛНОГО РАСЧЁТА ПОМЕЩЕНИЙ ==========
+    function getClassesFromChildren(children) {
+        return Math.ceil(children / 25);
+    }
+    
+    function getSchoolRooms(capacity, children1_4, children5_11) {
+        const classes1_4 = getClassesFromChildren(children1_4);
+        const classes5_11 = getClassesFromChildren(children5_11);
+        
+        let оснКабинетыНач = classes1_4;
+        let площадьОснКабНач = 64.5;
+        let кабинетМузыкиНач = 1;
+        let площадьМузыкиНач = 64.5;
+        let спортзалНач = 1;
+        let площадьСпортзалаНач = 24 * 12;
+        
+        let кабФизики = capacity < 725 ? 1 : (capacity < 1275 ? 2 : (capacity < 1825 ? 3 : (capacity < 2375 ? 4 : (capacity < 2925 ? 5 : 6))));
+        let кабБиологии = кабФизики;
+        let кабХимии = кабФизики;
+        let кабИноЯз = capacity < 450 ? 2 : (capacity < 725 ? 4 : (capacity < 1550 ? 4 : (capacity < 2100 ? 8 : (capacity < 2750 ? 12 : 14))));
+        let кабИнформатики = capacity < 725 ? 2 : (capacity < 1275 ? 2 : (capacity < 1825 ? 4 : (capacity < 2375 ? 6 : (capacity < 2925 ? 8 : 10))));
+        let мастерские = capacity < 2350 ? 1 : 2;
+        let кабинетМузыкиОсн = capacity >= 700 ? 1 : 0;
+        
+        let площадьСпецКаб = 64.5;
+        let площадьИнформатики = 13 * 4.5;
+        let площадьМастерской = 13 * 9;
+        let площадьКулинарии = 13 * 6;
+        let площадьТкани = 13 * 6;
+        
+        let оснКабинетыОсн = Math.max(0, classes5_11 - (кабФизики + кабБиологии + кабХимии + кабИноЯз + кабИнформатики + мастерские*3 + кабинетМузыкиОсн));
+        let площадьОснКабОсн = 64.5;
+        
+        let лаборантские = Math.round(кабФизики/2) + Math.round(кабБиологии/2) + кабХимии;
+        let площадьЛаборантской = 18;
+        let инструментальная = мастерские;
+        let площадьИнструментальной = 15;
+        
+        let спортзал1 = capacity < 350 ? "24x12" : "30x18";
+        let площадьСпортзала1 = спортзал1 === "24x12" ? 288 : 540;
+        let спортзал2 = capacity < 1275 ? 0 : (capacity < 1550 ? "24x12" : (capacity < 2100 ? "24x12" : "30x18"));
+        let площадьСпортзала2 = спортзал2 === "24x12" ? 288 : (спортзал2 === "30x18" ? 540 : 0);
+        
+        let обеденныйЗал = Math.ceil(capacity / 2);
+        let площадьОбеденногоЗала = обеденныйЗал * 0.7;
+        let актовыйЗал = Math.ceil((children1_4 + children5_11) / 2);
+        let площадьАктовогоЗала = актовыйЗал * 0.65 + 70 + 20 + 10 + 10;
+        
+        let библиотекаМест = Math.ceil(capacity * 0.1);
+        let itЗонаМест = Math.ceil(библиотекаМест * 0.3);
+        let площадьБиблиотеки = capacity < 725 ? 
+            (библиотекаМест * 0.7 * 2.4 + 64.5 + (библиотекаМест * 0.3 * 4.5)) : 
+            ((библиотекаМест - 50) * 2.4 + 64.5 + (25 * 4.5) + (25 * 3.5));
+        
+        let медблок = 95;
+        
+        let общаяПлощадь = 
+            (оснКабинетыНач * площадьОснКабНач) +
+            (кабинетМузыкиНач * площадьМузыкиНач) +
+            площадьСпортзалаНач +
+            (оснКабинетыОсн * площадьОснКабОсн) +
+            (кабФизики + кабБиологии + кабХимии + кабИноЯз) * площадьСпецКаб +
+            кабИнформатики * площадьИнформатики +
+            мастерские * площадьМастерской +
+            мастерские * площадьКулинарии +
+            мастерские * площадьТкани +
+            (кабинетМузыкиОсн * площадьМузыкиНач) +
+            лаборантские * площадьЛаборантской +
+            инструментальная * площадьИнструментальной +
+            площадьСпортзала1 + площадьСпортзала2 +
+            площадьОбеденногоЗала + площадьАктовогоЗала + площадьБиблиотеки + медблок;
+        
+        return {
+            total: общаяПлощадь,
+            details: {
+                оснКабинетыНач, кабинетМузыкиНач, спортзалНач,
+                оснКабинетыОсн,
+                кабФизики, кабБиологии, кабХимии, кабИноЯз, кабИнформатики,
+                мастерские, кабинетМузыкиОсн,
+                лаборантские, инструментальная,
+                спортзал1, спортзал2,
+                обеденныйЗал, актовыйЗал, библиотекаМест, itЗонаМест, медблок
+            }
+        };
+    }
+    
+    function renderSchoolRoomsHTML(capacity, children1_4, children5_11) {
+        const rooms = getSchoolRooms(capacity, children1_4, children5_11);
+        const d = rooms.details;
+        let html = `<h2>🏫 Школа на ${capacity} мест</h2>`;
+        html += `<h3>📚 Начальная школа (1–4 классы)</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr>`;
+        html += `<tr><td>Основные кабинеты</td><td>${d.оснКабинетыНач}</td><td>${(d.оснКабинетыНач * 64.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Кабинет музыки</td><td>${d.кабинетМузыкиНач}</td><td>${(d.кабинетМузыкиНач * 64.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Спортивный зал (24×12)</td><td>${d.спортзалНач}</td><td>288.0</td></tr>`;
+        html += `<\/table>`;
+        
+        html += `<h3>📚 Основная и старшая школа (5–11 классы)</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr>`;
+        html += `<tr><td>Основные кабинеты</td><td>${d.оснКабинетыОсн}</td><td>${(d.оснКабинетыОсн * 64.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Кабинет физики</td><td>${d.кабФизики}</td><td>${(d.кабФизики * 64.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Кабинет биологии</td><td>${d.кабБиологии}</td><td>${(d.кабБиологии * 64.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Кабинет химии</td><td>${d.кабХимии}</td><td>${(d.кабХимии * 64.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Кабинет иностранного языка</td><td>${d.кабИноЯз}</td><td>${(d.кабИноЯз * 64.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Кабинет информатики</td><td>${d.кабИнформатики}</td><td>${(d.кабИнформатики * 58.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Мастерские (металл/дерево)</td><td>${d.мастерские}</td><td>${(d.мастерские * 117).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Кабинет кулинарии</td><td>${d.мастерские}</td><td>${(d.мастерские * 78).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Кабинет обработки ткани</td><td>${d.мастерские}</td><td>${(d.мастерские * 78).toFixed(1)}</td></tr>`;
+        if (d.кабинетМузыкиОсн > 0) html += `<tr><td>Кабинет музыки (старшие классы)</td><td>${d.кабинетМузыкиОсн}</td><td>${(d.кабинетМузыкиОсн * 64.5).toFixed(1)}</td></tr>`;
+        html += `<\/table>`;
+        
+        html += `<h3>🏆 Спортивный блок</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr>`;
+        html += `<tr><td>Спортивный зал (основной)</td><td>1</td><td>${d.спортзал1 === "24x12" ? 288 : 540}</td></tr>`;
+        if (d.спортзал2 > 0) html += `<tr><td>Спортивный зал (второй)</td><td>1</td><td>288.0</td></tr>`;
+        html += `<\/table>`;
+        
+        html += `<h3>🔬 Лаборантские и вспомогательные</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Площадь (м²)</th></tr>`;
+        html += `<tr><td>Лаборантские</td><td>${d.лаборантские}</td><td>${(d.лаборантские * 18).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Инструментальная</td><td>${d.инструментальная}</td><td>${(d.инструментальная * 15).toFixed(1)}</td></tr>`;
+        html += `<\/table>`;
+        
+        html += `<h3>🏛️ Общешкольные помещения</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr>`;
+        html += `<tr><td>Обеденный зал</td><td>${d.обеденныйЗал} посадочных мест</td><td>${(d.обеденныйЗал * 0.7).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Актовый зал</td><td>${d.актовыйЗал} посадочных мест</td><td>${(d.актовыйЗал * 0.65 + 70 + 20 + 10 + 10).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Библиотека (10% от мощности)</td><td>${d.библиотекаМест} мест<br>IT-зона не менее ${d.itЗонаМест} мест</td><td>${capacity < 725 ? (d.библиотекаМест*0.7*2.4+64.5+(d.библиотекаМест*0.3*4.5)).toFixed(1) : ((d.библиотекаМест-50)*2.4+64.5+112.5+87.5).toFixed(1)}</td></tr>`;
+        html += `<tr><td>Медицинский блок</td><td>комплекс</td><td>95.0</td></tr>`;
+        html += `<\/table>`;
+        html += `<p><strong>📐 ИТОГОВАЯ ПЛОЩАДЬ ПОМЕЩЕНИЙ: ${rooms.total.toFixed(1)} м²</strong></p>`;
+        return html;
+    }
+    
+    function getKindergartenRooms(childrenUnder3, groupsUnder3, childrenOver3, groupsOver3, totalCapacity) {
+        let игроваяПлощадьUnder = 0, игроваяПлощадьOver = 0;
+        if (childrenUnder3 > 0) {
+            игроваяПлощадьUnder = (childrenUnder3 * 2.5) + (groupsUnder3 * 2);
+        }
+        if (childrenOver3 > 0) {
+            игроваяПлощадьOver = (childrenOver3 * 2.0) + (groupsOver3 * 2);
+        }
+        
+        let спальняПлощадьUnder = 0, спальняПлощадьOver = 0;
+        if (childrenUnder3 > 0) {
+            спальняПлощадьUnder = childrenUnder3 * 1.8;
+        }
+        if (childrenOver3 > 0) {
+            спальняПлощадьOver = childrenOver3 * 2.0;
+        }
+        
+        let музыкальныйЗал = totalCapacity < 121 ? 0 : (totalCapacity < 251 ? 50 : 100);
+        let спортивныйЗал = totalCapacity < 121 ? 0 : (totalCapacity < 250 ? 75 : 100);
+        let спортивноМузыкальный = totalCapacity < 121 ? 75 : 0;
+        
+        let общаяПлощадь = игроваяПлощадьUnder + игроваяПлощадьOver + спальняПлощадьUnder + спальняПлощадьOver + музыкальныйЗал + спортивныйЗал + спортивноМузыкальный;
+        
+        return {
+            total: общаяПлощадь,
+            details: {
+                groupsUnder3, childrenUnder3,
+                groupsOver3, childrenOver3,
+                игроваяПлощадьUnder, игроваяПлощадьOver,
+                спальняПлощадьUnder, спальняПлощадьOver,
+                музыкальныйЗал, спортивныйЗал, спортивноМузыкальный
+            }
+        };
+    }
+    
+    function renderKindergartenRoomsHTML(childrenUnder3, groupsUnder3, childrenOver3, groupsOver3, totalCapacity) {
+        const rooms = getKindergartenRooms(childrenUnder3, groupsUnder3, childrenOver3, groupsOver3, totalCapacity);
+        const d = rooms.details;
+        
+        let html = `<h2>🏫 Детский сад на ${totalCapacity} мест</h2>`;
+        
+        html += `<h3>👶 Групповые помещения (до 3 лет)</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Норматив</th><th>Площадь (м²)</th></tr>`;
+        if (childrenUnder3 > 0) {
+            html += `<tr><td>Игровые комнаты</td><td>${groupsUnder3}</td><td>2,5 м²/реб + 2 м² на группу</td><td>${d.игроваяПлощадьUnder.toFixed(1)}</td></tr>`;
+            html += `<tr><td>Спальни</td><td>${groupsUnder3}</td><td>1,8 м²/реб</td><td>${d.спальняПлощадьUnder.toFixed(1)}</td></tr>`;
+        } else {
+            html += `<tr><td colspan="4">Нет детей до 3 лет</td></tr>`;
+        }
+        html += `<\/table>`;
+        
+        html += `<h3>👧 Групповые помещения (от 3 до 7 лет)</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Кол-во</th><th>Норматив</th><th>Площадь (м²)</th></tr>`;
+        if (childrenOver3 > 0) {
+            html += `<tr><td>Игровые комнаты</td><td>${groupsOver3}</td><td>2,0 м²/реб + 2 м² на группу</td><td>${d.игроваяПлощадьOver.toFixed(1)}</td></tr>`;
+            html += `<tr><td>Спальни</td><td>${groupsOver3}</td><td>2,0 м²/реб</td><td>${d.спальняПлощадьOver.toFixed(1)}</td></tr>`;
+        } else {
+            html += `<tr><td colspan="4">Нет детей от 3 до 7 лет</td></tr>`;
+        }
+        html += `<\/table>`;
+        
+        html += `<h3>🏃 Спортивно-музыкальные помещения</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Площадь (м²)</th></tr>`;
+        if (d.музыкальныйЗал > 0) html += `<tr><td>Музыкальный зал</td><td>${d.музыкальныйЗал}</td></tr>`;
+        if (d.спортивныйЗал > 0) html += `<tr><td>Спортивный зал</td><td>${d.спортивныйЗал}</td></tr>`;
+        if (d.спортивноМузыкальный > 0) html += `<tr><td>Спортивно-музыкальный зал</td><td>${d.спортивноМузыкальный}</td></tr>`;
+        if (d.музыкальныйЗал === 0 && d.спортивныйЗал === 0 && d.спортивноМузыкальный === 0) {
+            html += `<tr><td colspan="2">Не предусмотрены (мощность менее 120 мест)</td></tr>`;
+        }
+        html += `<\/table>`;
+        html += `<p><strong>📐 ИТОГОВАЯ ПЛОЩАДЬ ПОМЕЩЕНИЙ: ${rooms.total.toFixed(1)} м²</strong></p>`;
+        return html;
+    }
+    
+    // ========== ФУНКЦИИ ДЛЯ ПОЛНОГО РАСЧЁТА ПЛОЩАДОК И ЗУ ==========
+    const sportAreas = [
+        { id: "track_circular", name: "Круговая беговая дорожка", params: "200 м", area: 1468.5 },
+        { id: "track_straight", name: "Прямая беговая дорожка", params: "120 м", area: 825.6 },
+        { id: "basketball", name: "Баскетбольная площадка", params: "32×19 м", area: 608 },
+        { id: "volleyball", name: "Волейбольная площадка", params: "24×15 м", area: 360 },
+        { id: "football", name: "Футбольное поле", params: "60×40 м", area: 2400 },
+        { id: "obstacle", name: "Полоса препятствий", params: "9×50 м", area: 450 },
+        { id: "develop_1_4", name: "Спортивно-развивающая площадка (1-4 кл)", params: "15×15 м", area: 225 },
+        { id: "develop_5_11", name: "Спортивно-развивающая площадка (5-11 кл)", params: "15×15 м", area: 225 },
+        { id: "long_jump", name: "Площадка для прыжков в длину", params: "стандартная", area: 210 },
+        { id: "high_jump", name: "Площадка для прыжков в высоту", params: "стандартная", area: 400 }
+    ];
+    
+    function calculatePlaygrounds(parallel1_4Val, parallel5_9Val) {
+        return {
+            play1: parallel1_4Val * 180,
+            play2_4: 3 * parallel1_4Val * 100,
+            play5_9: 5 * parallel5_9Val * 25
+        };
+    }
+    
+    function getSchoolAreas(capacity, parallel1_4, parallel5_9, footballAvailable) {
+        const playgrounds = calculatePlaygrounds(parallel1_4, parallel5_9);
+        let sportArea = sportAreas.reduce((sum, a) => {
+            if (a.id === 'football' && footballAvailable) return sum;
+            return sum + a.area;
+        }, 0);
+        return {
+            sport: sportArea,
+            play: playgrounds.play1 + playgrounds.play2_4 + playgrounds.play5_9,
+            playgrounds: playgrounds
+        };
+    }
+    
+    function renderSchoolSPOZUHTML(capacity, parallel1_4, parallel5_9, footballAvailable) {
+        const areas = getSchoolAreas(capacity, parallel1_4, parallel5_9, footballAvailable);
+        const zuArea = getSchoolZUArea(capacity);
+        
+        let html = `<h2>🏞️ Схема планировочной организации земельного участка (СПОЗУ)</h2>`;
+        html += `<h3>🏫 Школа на ${capacity} мест</h3>`;
+        html += `<p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea * 10000).toFixed(0)} м²)</strong></p>`;
+        
+        html += `<h3>🏆 Спортивный блок</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr>`;
+        sportAreas.forEach(area => {
+            const isExcluded = area.id === 'football' && footballAvailable;
+            html += `<tr${isExcluded ? ' style="background:#ffebee;"' : ''}><td>${area.name}${isExcluded ? ' (исключена из расчёта)' : ''}</td><td>${area.params}</td><td>${area.area.toFixed(1)}</td></tr>`;
+        });
+        html += `<tr style="background:#e8f5e9;"><td colspan="2"><strong>ИТОГО спортивный блок</strong></td><td><strong>${areas.sport.toFixed(1)}</strong></td></tr>`;
+        html += `<\/table>`;
+        
+        html += `<h3>🌳 Зона отдыха</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Параметры</th><th>Площадь (м²)</th></tr>`;
+        html += `<tr><td>Площадки подвижных игр 1-х классов</td><td>180 м² на 1 класс</td><td>${areas.playgrounds.play1.toFixed(1)}</td></tr>`;
+        html += `<tr><td>Площадки подвижных игр 2-4-х классов</td><td>100 м² на класс</td><td>${areas.playgrounds.play2_4.toFixed(1)}</td></tr>`;
+        html += `<tr><td>Площадки подвижных игр 5-9-х классов</td><td>25 м² на класс</td><td>${areas.playgrounds.play5_9.toFixed(1)}</td></tr>`;
+        html += `<tr style="background:#e8f5e9;"><td colspan="2"><strong>ИТОГО зона отдыха</strong></td><td><strong>${areas.play.toFixed(1)}</strong></td></tr>`;
+        html += `<\/table>`;
+        html += `<p><strong>📊 ОБЩАЯ ПЛОЩАДЬ ПЛОЩАДОК: ${(areas.sport + areas.play).toFixed(1)} м² (${((areas.sport + areas.play)/10000).toFixed(3)} га)</strong></p>`;
+        html += `<p><strong>🏞️ ЗЕМЕЛЬНЫЙ УЧАСТОК (включая здания, подъезды, озеленение): ${zuArea.toFixed(2)} га</strong></p>`;
+        return html;
+    }
+    
+    function getKindergartenAreas(capacity, groupsUnder3, childrenUnder3, groupsOver3, childrenOver3) {
+        const under3Area = childrenUnder3 * 7;
+        const over3Area = childrenOver3 * 9;
+        const playArea = under3Area + over3Area;
+        let sportArea1 = 0, sportArea2 = 0;
+        if (capacity < 150) {
+            sportArea1 = 200;
+        } else {
+            sportArea1 = 200;
+            sportArea2 = 120;
+        }
+        return { playArea: playArea, sportArea1: sportArea1, sportArea2: sportArea2, totalSportArea: sportArea1 + sportArea2 };
+    }
+    
+    function renderKindergartenSPOZUHTML(capacity, groupsUnder3, childrenUnder3, groupsOver3, childrenOver3) {
+        const areas = getKindergartenAreas(capacity, groupsUnder3, childrenUnder3, groupsOver3, childrenOver3);
+        const zuArea = getKindergartenZUArea(capacity);
+        
+        let html = `<h2>🏞️ Схема планировочной организации земельного участка (СПОЗУ)</h2>`;
+        html += `<h3>🏫 Детский сад на ${capacity} мест</h3>`;
+        html += `<p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea * 10000).toFixed(0)} м²)</strong></p>`;
+        
+        html += `<h3>🏞️ Групповые площадки</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Возраст</th><th>Кол-во групп</th><th>Кол-во детей</th><th>Площадь (м²)</th></tr>`;
+        html += `<tr><td>До 3 лет</td><td>${groupsUnder3}</td><td>${childrenUnder3}</td><td>${(childrenUnder3 * 7).toFixed(1)}</td></tr>`;
+        html += `<tr><td>От 3 до 7 лет</td><td>${groupsOver3}</td><td>${childrenOver3}</td><td>${(childrenOver3 * 9).toFixed(1)}</td></tr>`;
+        html += `<tr style="background:#e8f5e9;"><td colspan="3"><strong>ИТОГО групповые площадки</strong></td><td><strong>${areas.playArea.toFixed(1)}</strong></td></tr>`;
+        html += `<\/table>`;
+        
+        html += `<h3>🏃 Физкультурно-спортивные площадки</h3><table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;">`;
+        html += `<tr style="background:#34495e;color:white;"><th>Наименование</th><th>Площадь (м²)</th></tr>`;
+        if (areas.sportArea1 > 0) html += `<tr><td>Физкультурно-спортивная площадка</td><td>${areas.sportArea1.toFixed(1)}</td></tr>`;
+        if (areas.sportArea2 > 0) html += `<tr><td>Физкультурно-спортивная площадка (дополнительная)</td><td>${areas.sportArea2.toFixed(1)}</td></tr>`;
+        html += `<tr style="background:#e8f5e9;"><td><strong>ИТОГО физкультурно-спортивные площадки</strong></td><td><strong>${areas.totalSportArea.toFixed(1)}</strong></td></tr>`;
+        html += `<\/table>`;
+        html += `<p><strong>📊 ОБЩАЯ ПЛОЩАДЬ ПЛОЩАДОК: ${(areas.playArea + areas.totalSportArea).toFixed(1)} м² (${((areas.playArea + areas.totalSportArea)/10000).toFixed(3)} га)</strong></p>`;
+        html += `<p><strong>🏞️ ЗЕМЕЛЬНЫЙ УЧАСТОК (включая здания, подъезды, озеленение): ${zuArea.toFixed(2)} га</strong></p>`;
+        return html;
+    }
+    
+    // ========== ОСНОВНЫЕ ФУНКЦИИ СКАЧИВАНИЯ ==========
+    window.downloadRooms = function(capacity, type) {
+        let htmlContent = '';
+        if (type === 'school') {
+            const children1_4 = Math.round(capacity * 0.35);
+            const children5_11 = capacity - children1_4;
+            htmlContent = renderSchoolRoomsHTML(capacity, children1_4, children5_11);
+        } else {
+            const childrenUnder3 = Math.round(capacity * 0.3);
+            const childrenOver3 = capacity - childrenUnder3;
+            const groupsUnder3 = Math.ceil(childrenUnder3 / 20);
+            const groupsOver3 = Math.ceil(childrenOver3 / 25);
+            htmlContent = renderKindergartenRoomsHTML(childrenUnder3, groupsUnder3, childrenOver3, groupsOver3, capacity);
+        }
+        
+        const fullHtml = `<!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>${type === 'school' ? 'Школа' : 'Детский сад'} на ${capacity} мест - Помещения</title>
+        <style>
+            body{font-family:Arial,sans-serif;padding:40px;max-width:1200px;margin:0 auto;}
+            h1{color:#27ae60;border-bottom:2px solid #27ae60;padding-bottom:10px;}
+            h2{color:#2c3e50;margin-top:25px;}
+            h3{color:#34495e;margin-top:20px;}
+            table{border-collapse:collapse;width:100%;margin:15px 0;}
+            th,td{border:1px solid #ddd;padding:10px;text-align:left;}
+            th{background:#34495e;color:white;}
+            .total{background:#e8f5e9;font-weight:bold;}
+            .footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}
+        </style>
+        </head>
+        <body>
+        <h1>🏛️ Детальный расчёт помещений</h1>
+        ${htmlContent}
+        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30</div>
+        </body>
+        </html>`;
+        
+        const blob = new Blob([fullHtml], { type: 'application/msword' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `помещения_${type === 'school' ? 'школа' : 'сад'}_${capacity}_мест.doc`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    };
+    
+    window.downloadSPOZU = function(capacity, type) {
+        let htmlContent = '';
+        if (type === 'school') {
+            const parallel1_4 = Math.ceil(Math.round(capacity * 0.35) / 25);
+            const parallel5_9 = Math.ceil(Math.round(capacity * 0.65) / 25);
+            htmlContent = renderSchoolSPOZUHTML(capacity, parallel1_4, parallel5_9, false);
+        } else {
+            const childrenUnder3 = Math.round(capacity * 0.3);
+            const childrenOver3 = capacity - childrenUnder3;
+            const groupsUnder3 = Math.ceil(childrenUnder3 / 20);
+            const groupsOver3 = Math.ceil(childrenOver3 / 25);
+            htmlContent = renderKindergartenSPOZUHTML(capacity, groupsUnder3, childrenUnder3, groupsOver3, childrenOver3);
+        }
+        
+        const fullHtml = `<!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>${type === 'school' ? 'Школа' : 'Детский сад'} на ${capacity} мест - СПОЗУ</title>
+        <style>
+            body{font-family:Arial,sans-serif;padding:40px;max-width:1200px;margin:0 auto;}
+            h1{color:#27ae60;border-bottom:2px solid #27ae60;padding-bottom:10px;}
+            h2{color:#2c3e50;margin-top:25px;}
+            h3{color:#34495e;margin-top:20px;}
+            table{border-collapse:collapse;width:100%;margin:15px 0;}
+            th,td{border:1px solid #ddd;padding:10px;text-align:left;}
+            th{background:#34495e;color:white;}
+            .footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}
+        </style>
+        </head>
+        <body>
+        <h1>🏞️ Схема планировочной организации земельного участка</h1>
+        ${htmlContent}
+        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30</div>
+        </body>
+        </html>`;
+        
+        const blob = new Blob([fullHtml], { type: 'application/msword' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `СПОЗУ_${type === 'school' ? 'школа' : 'сад'}_${capacity}_мест.doc`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    };
     
     function splitLargeObjects(remaining, type) {
         if (remaining <= 0) return [];
@@ -1094,111 +1491,6 @@
         return true;
     }
     
-    window.downloadRooms = function(capacity, type) {
-        const typeName = type === 'school' ? 'Школа' : 'Детский сад';
-        const content = `<!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"><title>${typeName} на ${capacity} мест - Помещения</title>
-        <style>
-            body{font-family:Arial,sans-serif;padding:40px;max-width:1000px;margin:0 auto;}
-            h1{color:#27ae60;border-bottom:2px solid #27ae60;padding-bottom:10px;}
-            h2{color:#2c3e50;margin-top:25px;}
-            table{border-collapse:collapse;width:100%;margin:15px 0;}
-            th,td{border:1px solid #ddd;padding:10px;text-align:left;}
-            th{background:#f2f2f2;}
-            .total{background:#e8f5e9;font-weight:bold;}
-            .footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}
-        </style>
-        </head>
-        <body>
-        <h1>🏛️ ${typeName} на ${capacity} мест</h1>
-        <h2>📋 Набор помещений</h2>
-        <p><strong>Типовой расчёт помещений для ${typeName === 'Школа' ? 'школы' : 'детского сада'} на ${capacity} мест.</strong></p>
-        <table>
-            <tr><th>Помещение</th><th>Площадь (м²)</th><th>Примечание</th></tr>
-            <tr>
-            
-Основные помещения (учебные/групповые)<\/td><td>${(capacity * (type === 'school' ? 5 : 4)).toFixed(1)}<\/td><td>${type === 'school' ? 'Учебные классы' : 'Групповые ячейки'}<\/td><\/tr>
-            <tr>
-            
-Вспомогательные помещения<\/td><td>${(capacity * (type === 'school' ? 2.5 : 1.8)).toFixed(1)}<\/td><td>Коридоры, санузлы, хранение<\/td><\/tr>
-            <tr>
-            
-Спортивный/музыкальный зал<\/td><td>${type === 'school' ? '288 - 540' : '75 - 100'}<\/td><td>По нормативам<\/td><\/tr>
-            <tr>
-            
-Столовая / пищеблок<\/td><td>${(capacity * 0.7).toFixed(1)}<\/td><td>Посадочных мест: ${Math.ceil(capacity / 2)}<\/td><\/tr>
-            <tr>
-            
-Медицинский блок<\/td><td>${type === 'school' ? '95' : '35'}<\/td><td>Медкабинет, процедурная<\/td><\/tr>
-            <tr>
-            
-Библиотека / IT-зона<\/td><td>${(capacity * 0.4).toFixed(1)}<\/td><td>${type === 'school' ? 'Книгохранилище + читальный зал' : 'Методический кабинет'}<\/td><\/tr>
-            <tr class="total"><td><strong>ИТОГО ОРИЕНТИРОВОЧНО<\/strong><\/td><td><strong>${(capacity * (type === 'school' ? 8.5 : 6.5)).toFixed(1)} м²<\/strong><\/td><td>Требует уточнения при проектировании<\/td><\/tr>
-         <\/table>
-        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30<\/div>
-        <\/body>
-        <\/html>`;
-        const blob = new Blob([content], { type: 'application/msword' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `помещения_${typeName}_${capacity}_мест.doc`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-    };
-    
-    window.downloadSPOZU = function(capacity, type) {
-        const typeName = type === 'school' ? 'Школа' : 'Детский сад';
-        const zuArea = type === 'school' ? getSchoolZUArea(capacity) : getKindergartenZUArea(capacity);
-        const content = `<!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"><title>${typeName} на ${capacity} мест - СПОЗУ</title>
-        <style>
-            body{font-family:Arial,sans-serif;padding:40px;max-width:1000px;margin:0 auto;}
-            h1{color:#27ae60;border-bottom:2px solid #27ae60;padding-bottom:10px;}
-            h2{color:#2c3e50;margin-top:25px;}
-            table{border-collapse:collapse;width:100%;margin:15px 0;}
-            th,td{border:1px solid #ddd;padding:10px;text-align:left;}
-            th{background:#f2f2f2;}
-            .total{background:#e8f5e9;font-weight:bold;}
-            .footer{margin-top:30px;font-size:11px;color:#666;text-align:center;}
-        <\/style>
-        <\/head>
-        <body>
-        <h1>🏞️ Схема планировочной организации земельного участка (СПОЗУ)<\/h1>
-        <h2>${typeName} на ${capacity} мест<\/h2>
-        <p><strong>📐 Требуемая площадь земельного участка: ${zuArea.toFixed(2)} га (${(zuArea * 10000).toFixed(0)} м²)<\/strong><\/p>
-        <h2>🏆 Спортивные площадки<\/h2>
-        <table>
-            <tr><th>Наименование<\/th><th>Площадь (м²)<\/th><th>Примечание<\/th><\/tr>
-            <tr>
-            
-Спортивное ядро (футбол, бег)<\/td><td>${type === 'school' ? '2500 - 4000' : '200 - 400'}<\/td><td>${type === 'school' ? 'Футбольное поле, беговые дорожки' : 'Физкультурная площадка'}<\/td><\/tr>
-            <tr>
-            
-Спортивные площадки<\/td><td>${type === 'school' ? '1200 - 2000' : '100 - 200'}<\/td><td>Волейбол, баскетбол, гимнастика<\/td><\/tr>
-         <\/table>
-        <h2>🌳 Зоны отдыха и игр<\/h2>
-        表
-            <tr><th>Наименование<\/th><th>Площадь (м²)<\/th><th>Примечание<\/th><\/tr>
-            <tr>
-            
-Игровые площадки<\/td><td>${(capacity * (type === 'school' ? 12 : 8)).toFixed(0)}<\/td><td>${type === 'school' ? 'Для разных возрастных групп' : 'Групповые площадки с теневыми навесами'}<\/td><\/tr>
-            <tr>
-            
-Зелёные насаждения<\/td><td>${(zuArea * 0.4 * 10000).toFixed(0)}<\/td><td>Не менее 40% территории<\/td><\/tr>
-         <\/table>
-        <div class="footer">Документ сформирован автоматически ${new Date().toLocaleString()}<br>© Расчёт по РНГП 713/30<\/div>
-        <\/body>
-        <\/html>`;
-        const blob = new Blob([content], { type: 'application/msword' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `СПОЗУ_${typeName}_${capacity}_мест.doc`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-    };
-    
     function updateProposalTable() {
         const schoolRemain = parseInt(schoolFinalSpan.innerText.replace(/\D/g, '')) || 0;
         const kindergartenRemain = parseInt(kindergartenFinalSpan.innerText.replace(/\D/g, '')) || 0;
@@ -1217,60 +1509,60 @@
                 let schoolTotalZU = 0;
                 html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
                 schoolLarge.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать<\/a><\/td><\/tr>`;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
                 });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест<\/strong><\/td><td><strong>${schoolTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
             }
             if (kinderLarge.length > 0) {
                 let kinderTotalZU = 0;
                 html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
                 kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><\/tr>`;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
                 });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест<\/strong><\/td><td><strong>${kinderTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
             }
             const totalZU = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО: ${schoolRemain + kindergartenRemain} мест<\/strong><\/td><td><strong>${totalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
         } else {
             html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 1 (крупные объекты)<\/strong><\/td><\/tr>`;
             if (schoolLarge.length > 0) {
                 let schoolTotalZU = 0;
                 html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
                 schoolLarge.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать<\/a><\/td><\/tr>`;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
                 });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест<\/strong><\/td><td><strong>${schoolTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
             }
             if (kinderLarge.length > 0) {
                 let kinderTotalZU = 0;
                 html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
                 kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><\/tr>`;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
                 });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест<\/strong><\/td><td><strong>${kinderTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
             }
             const totalZU1 = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 1: ${schoolRemain + kindergartenRemain} мест<\/strong><\/td><td><strong>${totalZU1.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 1: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU1.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
             
             html += `<tr style="background: #dce5f0;"><td colspan="4"><strong>📌 Вариант 2 (средние объекты)<\/strong><\/td><\/tr>`;
             if (schoolMedium.length > 0) {
                 let schoolTotalZU = 0;
                 html += `<tr style="background: #e8f5e9;"><td colspan="4"><strong>🏫 Школы<\/strong><\/td><\/tr>`;
                 schoolMedium.forEach(cap => { const zu = getSchoolZUArea(cap); schoolTotalZU += zu;
-                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать<\/a><\/td><\/tr>`;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'school')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'school')">📄 Скачать</a></td></tr>`;
                 });
-                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест<\/strong><\/td><td><strong>${schoolTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+                html += `<tr style="background: #e8f5e9;"><td><strong>ИТОГО школы: ${schoolRemain} мест</strong></td><td><strong>${schoolTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
             }
             if (kinderMedium.length > 0) {
                 let kinderTotalZU = 0;
                 html += `<tr style="background: #fff3e0;"><td colspan="4"><strong>🏠 Детские сады<\/strong><\/td><\/tr>`;
                 kinderMedium.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
-                    html += `<tr><td>${cap} мест<\/td><td>${zu.toFixed(2)} га<\/td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать<\/a><\/td><\/tr>`;
+                    html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
                 });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест<\/strong><\/td><td><strong>${kinderTotalZU.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
             }
             const totalZU2 = (schoolMedium.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderMedium.reduce((s,c)=>s+getKindergartenZUArea(c),0));
-            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 2: ${schoolRemain + kindergartenRemain} мест<\/strong><\/td><td><strong>${totalZU2.toFixed(2)} га<\/strong><\/td><td colspan="2"><\/td><\/tr>`;
+            html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 2: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU2.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
         }
         proposalTableBody.innerHTML = html;
     }
@@ -1289,17 +1581,14 @@
         let schoolSurplus = Math.max(0, schoolPlanVal - schoolActualVal);
         let kinderSurplus = Math.max(0, kinderPlanVal - kinderActualVal);
         
-        // НОВАЯ ФОРМУЛА: К_загрузки = (Потребность - Профицит) / Потребность
         let kLoadSchool = (schoolNeedRaw - schoolSurplus) / schoolNeedRaw;
         if (kLoadSchool < 0) kLoadSchool = 0;
         let kLoadKindergarten = (kinderNeedRaw - kinderSurplus) / kinderNeedRaw;
         if (kLoadKindergarten < 0) kLoadKindergarten = 0;
         
-        // Скорректированная потребность = Потребность × К_демо (0.85) × К_загрузки
         let schoolRemain = Math.round(schoolNeedRaw * DEM_FACTOR * kLoadSchool);
         let kinderRemain = Math.round(kinderNeedRaw * DEM_FACTOR * kLoadKindergarten);
         
-        // НОВЫЙ РАСЧЁТ РЕЗЕРВА ЗУ: ЗУ(исходная) - ЗУ(скорректированная)
         let schoolReserveArea = Math.max(0, getSchoolZUArea(schoolNeedRaw) - getSchoolZUArea(schoolRemain));
         let kinderReserveArea = Math.max(0, getKindergartenZUArea(kinderNeedRaw) - getKindergartenZUArea(kinderRemain));
         
