@@ -599,23 +599,53 @@
         .radius-control label { font-size: 12px; font-weight: 500; }
         .radius-input { width: 80px; padding: 4px 6px; border-radius: 10px; text-align: center; font-size: 12px; border: 1px solid #cbd5e1; }
         .radius-hint { font-size: 10px; color: #3b82f6; margin-left: 4px; }
-        .mode-toggle {
+        
+        /* Material You кнопки с ripple-эффектом */
+        .mode-toggle.material-toggle {
             display: flex;
-            gap: 3px;
-            background: #f1f5f9;
-            border-radius: 20px;
-            padding: 2px;
-        }
-        .mode-btn {
-            padding: 5px 12px;
-            border: none;
-            border-radius: 18px;
-            font-size: 12px;
-            font-weight: 500;
+            align-items: center;
+            gap: 8px;
             background: transparent;
-            cursor: pointer;
+            padding: 0;
         }
-        .mode-btn.active { background: #3b82f6; color: white; }
+        .material-btn {
+            position: relative;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+            color: #64748b;
+            overflow: hidden;
+        }
+        .material-btn.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 6px rgba(59,130,246,0.3);
+        }
+        .material-btn.auto-mode.active {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 2px 6px rgba(239,68,68,0.3);
+        }
+        .material-btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.5s linear;
+            background-color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+        }
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
         .reset-btn {
             background: #ef4444;
             color: white;
@@ -844,7 +874,11 @@
                 <div class="filter-group"><label>🏛️</label><select id="mapDistrictSelect" class="map-district-select"><option value="">Округ</option></select></div>
                 <div class="filter-group" style="position: relative;"><label>🔍</label><input type="text" id="searchInput" class="search-input" placeholder="Поиск адреса..."><div id="suggestContainer" class="suggest-dropdown" style="display: none;"></div></div>
                 <div class="radius-control"><label>🚗 Зона доступности</label><input type="number" id="radiusInput" class="radius-input" value="5000" step="100" min="100" max="20000"><span>м</span><span class="radius-hint"> по прямой</span></div>
-                <div class="mode-toggle"><button class="mode-btn active" data-mode="pedestrian">🚶</button><button class="mode-btn" data-mode="auto">🚗</button></div>
+                <!-- НОВЫЕ MATERIAL YOU КНОПКИ -->
+                <div class="mode-toggle material-toggle">
+                    <button class="material-btn mode-btn active" data-mode="pedestrian" id="materialPedestrianBtn">🚶 Пешком</button>
+                    <button class="material-btn mode-btn" data-mode="auto" id="materialAutoBtn">🚗 Машина</button>
+                </div>
                 <button class="reset-btn" id="resetMapBtn">🔄 Сброс</button>
             </div>
             <div class="main-content">
@@ -1539,7 +1573,7 @@
                 kinderLarge.forEach(cap => { const zu = getKindergartenZUArea(cap); kinderTotalZU += zu;
                     html += `<tr><td>${cap} мест</td><td>${zu.toFixed(2)} га</td><td><a href="#" class="download-link" onclick="downloadRooms(${cap}, 'kindergarten')">📄 Скачать</a></td><td><a href="#" class="download-link" onclick="downloadSPOZU(${cap}, 'kindergarten')">📄 Скачать</a></td></tr>`;
                 });
-                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
+                html += `<tr style="background: #fff3e0;"><td><strong>ИТОГО сады: ${kindergartenRemain} мест</strong></td><td><strong>${kinderTotalZU.toFixed(2)} га</strong><td><td colspan="2"></td></tr>`;
             }
             const totalZU1 = (schoolLarge.reduce((s,c)=>s+getSchoolZUArea(c),0) + kinderLarge.reduce((s,c)=>s+getKindergartenZUArea(c),0));
             html += `<tr style="background: #dce5f0;"><td><strong>ВСЕГО вариант 1: ${schoolRemain + kindergartenRemain} мест</strong></td><td><strong>${totalZU1.toFixed(2)} га</strong></td><td colspan="2"></td></tr>`;
@@ -1884,17 +1918,65 @@
             if(currentCenterPoint) updateAccessibility(currentCenterPoint);
         });
         
-        document.querySelectorAll('#mapModal .mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#mapModal .mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentModeMap = btn.dataset.mode;
-                if(selectedObjectId && currentCenterPoint) {
-                    const obj = allObjects.find(o => o.id === selectedObjectId);
-                    if(obj) buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
-                }
-            });
-        });
+        // Обработчики для Material You кнопок
+        const materialPedBtn = document.getElementById('materialPedestrianBtn');
+        const materialAutoBtn = document.getElementById('materialAutoBtn');
+        
+        function updateMaterialUI(mode) {
+            if (mode === 'pedestrian') {
+                materialPedBtn.style.background = '#3b82f6';
+                materialPedBtn.style.color = 'white';
+                materialPedBtn.style.boxShadow = '0 2px 6px rgba(59,130,246,0.3)';
+                materialAutoBtn.style.background = 'transparent';
+                materialAutoBtn.style.color = '#64748b';
+                materialAutoBtn.style.boxShadow = 'none';
+            } else {
+                materialAutoBtn.style.background = '#ef4444';
+                materialAutoBtn.style.color = 'white';
+                materialAutoBtn.style.boxShadow = '0 2px 6px rgba(239,68,68,0.3)';
+                materialPedBtn.style.background = 'transparent';
+                materialPedBtn.style.color = '#64748b';
+                materialPedBtn.style.boxShadow = 'none';
+            }
+        }
+        
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = `${size}px`;
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            button.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 500);
+        }
+        
+        function setMode(mode) {
+            currentModeMap = mode;
+            if (mode === 'pedestrian') {
+                materialPedBtn.classList.add('active');
+                materialAutoBtn.classList.remove('active');
+                updateMaterialUI('pedestrian');
+            } else {
+                materialAutoBtn.classList.add('active');
+                materialPedBtn.classList.remove('active');
+                updateMaterialUI('auto');
+            }
+            if (selectedObjectId && currentCenterPoint) {
+                const obj = allObjects.find(o => o.id === selectedObjectId);
+                if(obj) buildRoute(currentCenterPoint, [obj.lat, obj.lng]);
+            }
+        }
+        
+        materialPedBtn.addEventListener('click', (e) => { createRipple(e); setMode('pedestrian'); });
+        materialAutoBtn.addEventListener('click', (e) => { createRipple(e); setMode('auto'); });
+        
+        // Инициализация UI
+        updateMaterialUI(currentModeMap);
         
         map.events.add('click', (e) => {
             const coords = e.get('coords');
