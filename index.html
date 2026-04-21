@@ -2354,22 +2354,40 @@
         const schoolFact = schools.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
         const schoolSecondShift = schools.reduce((s, o) => s + (parseFloat(o.secondShift)||0), 0);
         const schoolLoad = schoolCap > 0 ? Math.round((schoolFact/schoolCap)*100) : 0;
+        
+        // Определяем цвет загрузки для школы
+        let schoolLoadClass = '';
+        if (schoolLoad < 50) schoolLoadClass = 'load-critical-red';
+        else if (schoolLoad < 90) schoolLoadClass = 'load-orange';
+        else if (schoolLoad < 100) schoolLoadClass = 'load-yellow';
+        else if (schoolLoad <= 120) schoolLoadClass = 'load-green';
+        else schoolLoadClass = 'load-blue';
+        
         document.getElementById('schoolTotalStats').innerHTML = `
             <span>📐 Мощность: ${schoolCap.toLocaleString()}</span>
             <span>👥 Факт: ${schoolFact.toLocaleString()}</span>
             <span>🕐 2-я смена: ${schoolSecondShift.toLocaleString()}</span>
-            <span>📊 Загрузка: <span class="${schoolLoad>100?'load-critical-red':(schoolLoad>90?'load-high-yellow':'load-low-dark')}">${schoolLoad}%</span></span>
+            <span>📊 Загрузка: <span class="${schoolLoadClass}">${schoolLoad}%</span></span>
         `;
         
         const kgCap = kindergartens.reduce((s, o) => s + (parseFloat(o.capacity)||0), 0);
         const kgFact = kindergartens.reduce((s, o) => s + (parseFloat(o.fact)||0), 0);
         const kgQueue = Math.max(0, kgFact - kgCap);
         const kgLoad = kgCap > 0 ? Math.round((kgFact/kgCap)*100) : 0;
+        
+        // Определяем цвет загрузки для сада
+        let kgLoadClass = '';
+        if (kgLoad < 50) kgLoadClass = 'load-critical-red';
+        else if (kgLoad < 90) kgLoadClass = 'load-orange';
+        else if (kgLoad < 100) kgLoadClass = 'load-yellow';
+        else if (kgLoad <= 120) kgLoadClass = 'load-green';
+        else kgLoadClass = 'load-blue';
+        
         document.getElementById('kindergartenTotalStats').innerHTML = `
             <span>📐 Мощность: ${kgCap.toLocaleString()}</span>
             <span>👥 Факт: ${kgFact.toLocaleString()}</span>
             <span>⏳ Очередь 3-7 лет: ${kgQueue.toLocaleString()}</span>
-            <span>📊 Загрузка: <span class="${kgLoad>100?'load-critical-red':(kgLoad>90?'load-high-yellow':'load-low-dark')}">${kgLoad}%</span></span>
+            <span>📊 Загрузка: <span class="${kgLoadClass}">${kgLoad}%</span></span>
         `;
     }
     
@@ -2440,6 +2458,15 @@
             const loadPercent = parseFloat(obj.loadPercent);
             const isInRadius = inRadiusIds.has(obj.id);
             
+            // Определяем цвет загрузки по новой шкале
+            let loadColor = '#64748b';
+            let loadBgColor = '#e2e8f0';
+            if (loadPercent < 50) { loadColor = '#ef4444'; loadBgColor = '#fee2e2'; }      // красный
+            else if (loadPercent < 90) { loadColor = '#f97316'; loadBgColor = '#fff3e3'; }   // оранжевый
+            else if (loadPercent < 100) { loadColor = '#eab308'; loadBgColor = '#fefce8'; }  // жёлтый
+            else if (loadPercent <= 120) { loadColor = '#22c55e'; loadBgColor = '#e8f5e9'; } // зелёный
+            else { loadColor = '#3b82f6'; loadBgColor = '#e0f2fe'; }                          // синий
+            
             let extraStat = '';
             if (obj.type === 'school' && obj.secondShift && parseInt(obj.secondShift) > 0) {
                 extraStat = `<span>🕐 2 см: ${parseInt(obj.secondShift).toLocaleString()}</span>`;
@@ -2461,7 +2488,15 @@
                     ${obj.fact?`👥 ${parseInt(obj.fact).toLocaleString()} чел.`:''}
                     ${extraStat}
                 </div>
-                ${obj.loadPercent?`<div style="margin-top:6px;"><div style="height:4px;background:#e2e8f0;border-radius:4px;overflow:hidden;"><div style="width:${Math.min(loadPercent,200)}%; height:100%; background:${loadPercent>120?'#ef4444':(loadPercent>100?'#fde047':'#22c55e')}"></div></div><div style="font-size:10px;margin-top:4px;">📊 ${obj.loadPercent}%</div></div>`:''}
+                ${obj.loadPercent?`
+                <div style="margin-top:8px;">
+                    <div style="height:6px; background:${loadBgColor}; border-radius:10px; overflow:hidden;">
+                        <div style="width:${Math.min(loadPercent,200)}%; height:100%; background:${loadColor}; border-radius:10px;"></div>
+                    </div>
+                    <div style="font-size:11px; margin-top:5px; font-weight:500; color:${loadColor};">
+                        📊 ${obj.loadPercent}%
+                    </div>
+                </div>`:''}
             `;
             card.onclick = () => selectObjectMap(obj.id);
             container.appendChild(card);
