@@ -987,8 +987,8 @@
         <div class="normative-card">
             <div class="normative-title">📋 Нормативная потребность по РНГП 713/30</div>
             <table class="normative-table">
-                <tr><td>🏫 Школы (108 мест / 1000 жителей)</td><td id="schoolRequired">0</td></tr>
-                <tr><td>🏠 Детские сады (52 места / 1000 жителей)</td><td id="kindergartenRequired">0</td></tr>
+                <tr><td>🏫 Школы (109 мест / 1000 жителей)</td><td id="schoolRequired">0</td></tr>
+                <tr><td>🏠 Детские сады (50 места / 1000 жителей)</td><td id="kindergartenRequired">0</td></tr>
             </table>
             <div class="normative-note">* Расчёт выполнен по нормативам РНГП 713/30</div>
         </div>
@@ -1181,8 +1181,8 @@
         "Шатура", "Шаховская", "Щёлково", "Электросталь"
     ];
     
-    const SCHOOL_RATE = 0.108;      // 108 мест на 1000 жителей
-    const KINDER_RATE = 0.052;      // 52 места на 1000 жителей
+    const SCHOOL_RATE = 0.109;      // 109 мест на 1000 жителей
+    const KINDER_RATE = 0.050;      // 50 места на 1000 жителей
     const DEM_FACTOR = 0.85;        // демографический фактор
     const PROXY_URL = 'https://gemini-proxy.monaxovnikolai-31d.workers.dev';
     const TYPICAL_SCHOOL_CAPACITIES = [275, 550, 825, 1100, 1375, 1650, 1925, 2200, 2475, 2750, 3025];
@@ -1275,16 +1275,18 @@
         const schoolNeedRaw = Math.round(population * SCHOOL_RATE);
         const kinderNeedRaw = Math.round(population * KINDER_RATE);
         
-        // Коэффициент загрузки = (Потребность - Профицит) / Потребность
-        let kLoadSchool = (schoolNeedRaw - schoolCanTake) / schoolNeedRaw;
-        if (kLoadSchool < 0) kLoadSchool = 0;
-        let kLoadKindergarten = (kinderNeedRaw - kindergartenCanTake) / kinderNeedRaw;
-        if (kLoadKindergarten < 0) kLoadKindergarten = 0;
+        // Коэффициент загрузки = (Потребность - Профицит) / Потребностьlet kLoadSchool = (schoolNeedRaw - 	schoolCanTake) / schoolNeedRaw;
+	const schoolNeedWithDem = Math.round(schoolNeedRaw * DEM_FACTOR);
+	const kinderNeedWithDem = Math.round(kinderNeedRaw * DEM_FACTOR);
+
+	let kLoadSchool = (schoolNeedWithDem - schoolCanTake) / schoolNeedWithDem;
+	if (kLoadSchool < 0) kLoadSchool = 0;
+	let kLoadKindergarten = (kinderNeedWithDem - kindergartenCanTake) / kinderNeedWithDem;
+	if (kLoadKindergarten < 0) kLoadKindergarten = 0;
         
         // Скорректированная потребность = Потребность × Дем-фактор × К_загрузки
-        const schoolRemain = Math.round(schoolNeedRaw * DEM_FACTOR * kLoadSchool);
-        const kindergartenRemain = Math.round(kinderNeedRaw * DEM_FACTOR * kLoadKindergarten);
-        
+        const schoolRemain = Math.round(schoolNeedWithDem * kLoadSchool);
+	const kindergartenRemain = Math.round(kinderNeedWithDem * kLoadKindergarten);
         const demFactorSchool = Math.round(schoolNeedRaw * DEM_FACTOR);
         const demFactorKindergarten = Math.round(kinderNeedRaw * DEM_FACTOR);
         
@@ -1789,13 +1791,16 @@
         let schoolSurplus = Math.max(0, schoolPlanVal - schoolActualVal);
         let kinderSurplus = Math.max(0, kinderPlanVal - kinderActualVal);
         
-        let kLoadSchool = (schoolNeedRaw - schoolSurplus) / schoolNeedRaw;
-        if (kLoadSchool < 0) kLoadSchool = 0;
-        let kLoadKindergarten = (kinderNeedRaw - kinderSurplus) / kinderNeedRaw;
-        if (kLoadKindergarten < 0) kLoadKindergarten = 0;
-        
-        let schoolRemain = Math.round(schoolNeedRaw * DEM_FACTOR * kLoadSchool);
-        let kinderRemain = Math.round(kinderNeedRaw * DEM_FACTOR * kLoadKindergarten);
+        const schoolNeedWithDem = Math.round(schoolNeedRaw * DEM_FACTOR);
+	const kinderNeedWithDem = Math.round(kinderNeedRaw * DEM_FACTOR);
+
+	let kLoadSchool = (schoolNeedWithDem - schoolSurplus) / schoolNeedWithDem;
+	if (kLoadSchool < 0) kLoadSchool = 0;
+	let kLoadKindergarten = (kinderNeedWithDem - kinderSurplus) / kinderNeedWithDem;
+	if (kLoadKindergarten < 0) kLoadKindergarten = 0;
+
+	let schoolRemain = Math.round(schoolNeedWithDem * kLoadSchool);
+	let kinderRemain = Math.round(kinderNeedWithDem * kLoadKindergarten);
         
         let schoolReserveArea = Math.max(0, getSchoolZUArea(schoolNeedRaw) - getSchoolZUArea(schoolRemain));
         let kinderReserveArea = Math.max(0, getKindergartenZUArea(kinderNeedRaw) - getKindergartenZUArea(kinderRemain));
